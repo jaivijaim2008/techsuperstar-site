@@ -5,17 +5,30 @@ import { FaYoutube, FaInstagram, FaXTwitter } from "react-icons/fa6";
 
 function NewsletterForm() {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
   const handleSubmit = async () => {
     if (!email || !email.includes("@")) return;
+    setStatus("loading");
     try {
-      await fetch(
-        `https://gmail.us4.list-manage.com/subscribe/post?u=6a9b4262dc26ee1a01c143bb8&id=fc7a505bd7&f_id=007400eaf0&EMAIL=${encodeURIComponent(email)}&b_6a9b4262dc26ee1a01c143bb8_fc7a505bd7=`,
-        { method: "GET", mode: "no-cors" }
-      );
-      setStatus("success");
-      setEmail("");
+      const res = await fetch("https://api.brevo.com/v3/contacts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "api-key": process.env.NEXT_PUBLIC_BREVO_API_KEY!,
+        },
+        body: JSON.stringify({
+          email: email,
+          listIds: [3],
+          updateEnabled: true,
+        }),
+      });
+      if (res.ok || res.status === 204) {
+        setStatus("success");
+        setEmail("");
+      } else {
+        setStatus("error");
+      }
     } catch {
       setStatus("error");
     }
@@ -42,6 +55,7 @@ function NewsletterForm() {
           value={email}
           onChange={e => setEmail(e.target.value)}
           onKeyDown={e => e.key === "Enter" && handleSubmit()}
+          disabled={status === "loading"}
           style={{
             flex: 1, background: "#141414",
             border: "1px solid #2a2a2a", borderRadius: "6px",
@@ -53,16 +67,18 @@ function NewsletterForm() {
         />
         <button
           onClick={handleSubmit}
+          disabled={status === "loading"}
           style={{
             background: "#ff4d00", border: "none",
             borderRadius: "6px", padding: "8px 14px",
             color: "#fff", fontWeight: "700",
             fontSize: "13px", cursor: "pointer", whiteSpace: "nowrap",
+            opacity: status === "loading" ? 0.7 : 1,
           }}
           onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
           onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
         >
-          Subscribe
+          {status === "loading" ? "..." : "Subscribe"}
         </button>
       </div>
       {status === "error" && (
@@ -98,7 +114,6 @@ export default function Footer() {
       marginTop: "80px",
       fontFamily: "'Arial', sans-serif",
     }}>
-
       <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "48px 1.5rem" }}>
         <div style={{
           display: "grid",
@@ -124,49 +139,17 @@ export default function Footer() {
             <p style={{ color: "#555", fontSize: "13px", lineHeight: "1.7", margin: "0 0 20px" }}>
               Your ultimate source for honest tech reviews, buying guides, and the latest news in technology.
             </p>
-
-            {/* Social Icons */}
             <div style={{ display: "flex", gap: "10px" }}>
-              <Link
-                href="https://www.youtube.com/@TechSuperStarOfficial"
-                target="_blank"
-                rel="noopener noreferrer"
-                title="YouTube"
-                style={{
-                  width: "38px", height: "38px", borderRadius: "50%",
-                  background: "#FF0000", display: "flex",
-                  alignItems: "center", justifyContent: "center",
-                  textDecoration: "none", color: "#fff", fontSize: "18px",
-                }}
-              >
+              <Link href="https://www.youtube.com/@TechSuperStarOfficial" target="_blank" rel="noopener noreferrer" title="YouTube"
+                style={{ width: "38px", height: "38px", borderRadius: "50%", background: "#FF0000", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", color: "#fff", fontSize: "18px" }}>
                 <FaYoutube />
               </Link>
-              <Link
-                href="https://www.instagram.com/techsuperstarofficial/"
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Instagram"
-                style={{
-                  width: "38px", height: "38px", borderRadius: "50%",
-                  background: "linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  textDecoration: "none", color: "#fff", fontSize: "18px",
-                }}
-              >
+              <Link href="https://www.instagram.com/techsuperstarofficial/" target="_blank" rel="noopener noreferrer" title="Instagram"
+                style={{ width: "38px", height: "38px", borderRadius: "50%", background: "linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", color: "#fff", fontSize: "18px" }}>
                 <FaInstagram />
               </Link>
-              <Link
-                href="https://x.com/Tech_SuperStar"
-                target="_blank"
-                rel="noopener noreferrer"
-                title="X / Twitter"
-                style={{
-                  width: "38px", height: "38px", borderRadius: "50%",
-                  background: "#000", border: "1px solid #333",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  textDecoration: "none", color: "#fff", fontSize: "18px",
-                }}
-              >
+              <Link href="https://x.com/Tech_SuperStar" target="_blank" rel="noopener noreferrer" title="X / Twitter"
+                style={{ width: "38px", height: "38px", borderRadius: "50%", background: "#000", border: "1px solid #333", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", color: "#fff", fontSize: "18px" }}>
                 <FaXTwitter />
               </Link>
             </div>
@@ -174,22 +157,15 @@ export default function Footer() {
 
           {/* Categories */}
           <div>
-            <h4 style={{
-              color: "#fff", fontSize: "13px", fontWeight: "700",
-              textTransform: "uppercase", letterSpacing: "1px",
-              margin: "0 0 16px",
-            }}>
+            <h4 style={{ color: "#fff", fontSize: "13px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px", margin: "0 0 16px" }}>
               Categories
             </h4>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               {categories.map((cat) => (
-                <Link
-                  key={cat.slug}
-                  href={`/category/${cat.slug}`}
+                <Link key={cat.slug} href={`/category/${cat.slug}`}
                   style={{ color: "#555", textDecoration: "none", fontSize: "13px", transition: "color 0.2s" }}
                   onMouseEnter={e => (e.currentTarget.style.color = "#ff4d00")}
-                  onMouseLeave={e => (e.currentTarget.style.color = "#555")}
-                >
+                  onMouseLeave={e => (e.currentTarget.style.color = "#555")}>
                   → {cat.name}
                 </Link>
               ))}
@@ -198,22 +174,15 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 style={{
-              color: "#fff", fontSize: "13px", fontWeight: "700",
-              textTransform: "uppercase", letterSpacing: "1px",
-              margin: "0 0 16px",
-            }}>
+            <h4 style={{ color: "#fff", fontSize: "13px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px", margin: "0 0 16px" }}>
               Quick Links
             </h4>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               {quickLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
+                <Link key={link.name} href={link.href}
                   style={{ color: "#555", textDecoration: "none", fontSize: "13px", transition: "color 0.2s" }}
                   onMouseEnter={e => (e.currentTarget.style.color = "#ff4d00")}
-                  onMouseLeave={e => (e.currentTarget.style.color = "#555")}
-                >
+                  onMouseLeave={e => (e.currentTarget.style.color = "#555")}>
                   → {link.name}
                 </Link>
               ))}
@@ -222,11 +191,7 @@ export default function Footer() {
 
           {/* Newsletter */}
           <div>
-            <h4 style={{
-              color: "#fff", fontSize: "13px", fontWeight: "700",
-              textTransform: "uppercase", letterSpacing: "1px",
-              margin: "0 0 16px",
-            }}>
+            <h4 style={{ color: "#fff", fontSize: "13px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px", margin: "0 0 16px" }}>
               Newsletter
             </h4>
             <p style={{ color: "#555", fontSize: "13px", lineHeight: "1.6", margin: "0 0 14px" }}>
@@ -240,30 +205,22 @@ export default function Footer() {
 
       {/* Bottom Bar */}
       <div style={{ borderTop: "1px solid #1a1a1a", padding: "16px 1.5rem" }}>
-        <div style={{
-          maxWidth: "1200px", margin: "0 auto",
-          display: "flex", alignItems: "center",
-          justifyContent: "space-between", flexWrap: "wrap", gap: "8px",
-        }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }}>
           <p style={{ color: "#444", fontSize: "12px", margin: 0 }}>
             © {new Date().getFullYear()} TechSuperStar. All rights reserved.
           </p>
           <div style={{ display: "flex", gap: "16px" }}>
             {["Privacy Policy", "Terms of Use"].map((item) => (
-              <Link
-                key={item}
-                href="#"
+              <Link key={item} href="#"
                 style={{ color: "#444", fontSize: "12px", textDecoration: "none" }}
                 onMouseEnter={e => (e.currentTarget.style.color = "#ff4d00")}
-                onMouseLeave={e => (e.currentTarget.style.color = "#444")}
-              >
+                onMouseLeave={e => (e.currentTarget.style.color = "#444")}>
                 {item}
               </Link>
             ))}
           </div>
         </div>
       </div>
-
     </footer>
   );
 }
