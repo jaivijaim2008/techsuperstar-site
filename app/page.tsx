@@ -4,7 +4,9 @@ import CategoryGrid from "@/components/CategoryGrid";
 import { getPosts } from "@/lib/query";
 import Link from "next/link";
 import Footer from "@/components/Footer";
+
 export const revalidate = 0;
+
 export default async function Home() {
   const posts = await getPosts();
   const latestPosts = posts?.slice(0, 6);
@@ -56,7 +58,7 @@ export default async function Home() {
 
       <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem" }}>
 
-        {/* Categories — now a client component */}
+        {/* Categories */}
         <CategoryGrid />
 
         {/* Latest Articles */}
@@ -85,7 +87,7 @@ export default async function Home() {
               gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
               gap: "16px",
             }}>
-              {latestPosts.map((post: any) => (
+              {latestPosts.filter((post: any) => post?.slug?.current).map((post: any) => (
                 <PostCard key={post.slug.current} post={post} />
               ))}
             </div>
