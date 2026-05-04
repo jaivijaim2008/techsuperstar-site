@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { FaYoutube, FaInstagram, FaXTwitter } from "react-icons/fa6";
 
 export default function Footer() {
   const categories = [
@@ -9,12 +10,6 @@ export default function Footer() {
     { name: "Gaming", slug: "gaming" },
     { name: "Reviews", slug: "reviews" },
     { name: "Accessories", slug: "accessories" },
-  ];
-
-  const socials = [
-    { icon: "▶", label: "YouTube", url: "https://www.youtube.com/@TechSuperStarOfficial" },
-    { icon: "📸", label: "Instagram", url: "https://www.instagram.com/techsuperstarofficial/" },
-    { icon: "🐦", label: "Twitter", url: "https://x.com/Tech_SuperStar" },
   ];
 
   const quickLinks = [
@@ -58,40 +53,50 @@ export default function Footer() {
               Your ultimate source for honest tech reviews, buying guides, and the latest news in technology.
             </p>
 
-            {/* Social Links — using Link instead of a tag */}
+            {/* Social Icons */}
             <div style={{ display: "flex", gap: "10px" }}>
-              {socials.map((social) => (
-                <Link
-                  key={social.label}
-                  href={social.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title={social.label}
-                  style={{
-                    width: "36px",
-                    height: "36px",
-                    background: "#1a1a1a",
-                    border: "1px solid #2a2a2a",
-                    borderRadius: "8px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "14px",
-                    textDecoration: "none",
-                    transition: "all 0.2s",
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.borderColor = "#ff4d00";
-                    e.currentTarget.style.background = "#1e1010";
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.borderColor = "#2a2a2a";
-                    e.currentTarget.style.background = "#1a1a1a";
-                  }}
-                >
-                  {social.icon}
-                </Link>
-              ))}
+              <Link
+                href="https://www.youtube.com/@TechSuperStarOfficial"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="YouTube"
+                style={{
+                  width: "38px", height: "38px", borderRadius: "50%",
+                  background: "#FF0000", display: "flex",
+                  alignItems: "center", justifyContent: "center",
+                  textDecoration: "none", color: "#fff", fontSize: "18px",
+                }}
+              >
+                <FaYoutube />
+              </Link>
+              <Link
+                href="https://www.instagram.com/techsuperstarofficial/"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Instagram"
+                style={{
+                  width: "38px", height: "38px", borderRadius: "50%",
+                  background: "linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  textDecoration: "none", color: "#fff", fontSize: "18px",
+                }}
+              >
+                <FaInstagram />
+              </Link>
+              <Link
+                href="https://x.com/Tech_SuperStar"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="X / Twitter"
+                style={{
+                  width: "38px", height: "38px", borderRadius: "50%",
+                  background: "#000", border: "1px solid #333",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  textDecoration: "none", color: "#fff", fontSize: "18px",
+                }}
+              >
+                <FaXTwitter />
+              </Link>
             </div>
           </div>
 
@@ -109,10 +114,7 @@ export default function Footer() {
                 <Link
                   key={cat.slug}
                   href={`/category/${cat.slug}`}
-                  style={{
-                    color: "#555", textDecoration: "none",
-                    fontSize: "13px", transition: "color 0.2s",
-                  }}
+                  style={{ color: "#555", textDecoration: "none", fontSize: "13px", transition: "color 0.2s" }}
                   onMouseEnter={e => (e.currentTarget.style.color = "#ff4d00")}
                   onMouseLeave={e => (e.currentTarget.style.color = "#555")}
                 >
@@ -136,10 +138,7 @@ export default function Footer() {
                 <Link
                   key={link.name}
                   href={link.href}
-                  style={{
-                    color: "#555", textDecoration: "none",
-                    fontSize: "13px", transition: "color 0.2s",
-                  }}
+                  style={{ color: "#555", textDecoration: "none", fontSize: "13px", transition: "color 0.2s" }}
                   onMouseEnter={e => (e.currentTarget.style.color = "#ff4d00")}
                   onMouseLeave={e => (e.currentTarget.style.color = "#555")}
                 >
@@ -166,30 +165,20 @@ export default function Footer() {
                 type="email"
                 placeholder="your@email.com"
                 style={{
-                  flex: 1,
-                  background: "#141414",
-                  border: "1px solid #2a2a2a",
-                  borderRadius: "6px",
-                  padding: "8px 12px",
-                  color: "#fff",
-                  fontSize: "13px",
-                  outline: "none",
-                  minWidth: 0,
+                  flex: 1, background: "#141414",
+                  border: "1px solid #2a2a2a", borderRadius: "6px",
+                  padding: "8px 12px", color: "#fff",
+                  fontSize: "13px", outline: "none", minWidth: 0,
                 }}
                 onFocus={e => (e.currentTarget.style.borderColor = "#ff4d00")}
                 onBlur={e => (e.currentTarget.style.borderColor = "#2a2a2a")}
               />
               <button
                 style={{
-                  background: "#ff4d00",
-                  border: "none",
-                  borderRadius: "6px",
-                  padding: "8px 14px",
-                  color: "#fff",
-                  fontWeight: "700",
-                  fontSize: "13px",
-                  cursor: "pointer",
-                  whiteSpace: "nowrap",
+                  background: "#ff4d00", border: "none",
+                  borderRadius: "6px", padding: "8px 14px",
+                  color: "#fff", fontWeight: "700",
+                  fontSize: "13px", cursor: "pointer", whiteSpace: "nowrap",
                 }}
                 onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
                 onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
