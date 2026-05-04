@@ -32,17 +32,6 @@ export default async function PostPage({ params }: { params: { slug: string } })
     <div style={{ background: "#0a0a0a", minHeight: "100vh", fontFamily: "'Arial', sans-serif" }}>
       <Navbar />
 
-      {/* Hero Image */}
-      {post.image && (
-        <div style={{ width: "100%", maxHeight: "480px", overflow: "hidden" }}>
-          <img
-            src={post.image}
-            alt={post.title}
-            style={{ width: "100%", height: "480px", objectFit: "cover" }}
-          />
-        </div>
-      )}
-
       <div style={{ maxWidth: "800px", margin: "0 auto", padding: "40px 1.5rem" }}>
 
         {/* Breadcrumb */}
@@ -100,6 +89,24 @@ export default async function PostPage({ params }: { params: { slug: string } })
             </span>
           )}
         </div>
+
+        {/* Thumbnail Image */}
+        {post.image && (
+          <div style={{ marginBottom: "32px" }}>
+            <img
+              src={post.image}
+              alt={post.title}
+              style={{
+                width: "100%",
+                maxHeight: "350px",
+                objectFit: "cover",
+                objectPosition: "center top",
+                borderRadius: "12px",
+                border: "1px solid #1e1e1e",
+              }}
+            />
+          </div>
+        )}
 
         {/* Body Content */}
         <div style={{ color: "#cccccc", fontSize: "16px", lineHeight: "1.9" }}>
