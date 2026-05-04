@@ -4,7 +4,7 @@ import CategoryGrid from "@/components/CategoryGrid";
 import { getPosts } from "@/lib/query";
 import Link from "next/link";
 import Footer from "@/components/Footer";
-
+export const revalidate = 0;
 export default async function Home() {
   const posts = await getPosts();
   const latestPosts = posts?.slice(0, 6);
