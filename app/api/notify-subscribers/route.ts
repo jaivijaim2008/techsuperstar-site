@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         name: `Blog: ${postTitle}`,
         subject: `New Post: ${postTitle}`,
-        sender: { name: "TechSuperStar", email: "your@email.com" },
+        sender: { name: "TechSuperStar", email: "jaivijai188@gmail.com" },
         type: "classic",
         htmlContent: `
           <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0f0f0f;color:#fff;padding:32px;border-radius:12px">
