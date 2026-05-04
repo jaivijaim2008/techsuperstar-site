@@ -124,7 +124,7 @@ export default function AboutPage() {
             Subscribe to our YouTube channel for video reviews, unboxings, and tech news in Tamil. New videos every week!
           </p>
           <Link
-            href="https://youtube.com/@TechSuperStar"
+            href="https://www.youtube.com/@TechSuperStarOfficial"
             target="_blank"
             style={{
               display: "inline-block",
@@ -154,9 +154,9 @@ export default function AboutPage() {
           </p>
           <div style={{ display: "flex", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
             {[
-              { label: "YouTube", icon: "▶", url: "https://youtube.com" },
-              { label: "Instagram", icon: "📸", url: "https://instagram.com" },
-              { label: "Twitter", icon: "🐦", url: "https://twitter.com" },
+              { label: "YouTube", icon: "▶", url: "https://www.youtube.com/@TechSuperStarOfficial" },
+              { label: "Instagram", icon: "📸", url: "https://www.instagram.com/techsuperstarofficial/" },
+              { label: "Twitter", icon: "🐦", url: "https://x.com/Tech_SuperStar" },
             ].map((social) => (
               <Link
                 key={social.label}
