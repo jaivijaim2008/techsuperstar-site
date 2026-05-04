@@ -1,6 +1,78 @@
 "use client";
 import Link from "next/link";
+import { useState } from "react";
 import { FaYoutube, FaInstagram, FaXTwitter } from "react-icons/fa6";
+
+function NewsletterForm() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+
+  const handleSubmit = async () => {
+    if (!email || !email.includes("@")) return;
+    try {
+      await fetch(
+        `https://gmail.us4.list-manage.com/subscribe/post?u=6a9b4262dc26ee1a01c143bb8&id=fc7a505bd7&f_id=007400eaf0&EMAIL=${encodeURIComponent(email)}&b_6a9b4262dc26ee1a01c143bb8_fc7a505bd7=`,
+        { method: "GET", mode: "no-cors" }
+      );
+      setStatus("success");
+      setEmail("");
+    } catch {
+      setStatus("error");
+    }
+  };
+
+  if (status === "success") {
+    return (
+      <div style={{
+        background: "#0f2e1a", border: "1px solid #1a5c2e",
+        borderRadius: "8px", padding: "12px 16px",
+        color: "#4ade80", fontSize: "13px",
+      }}>
+        ✅ Subscribed! You'll get notified on new posts.
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div style={{ display: "flex", gap: "8px" }}>
+        <input
+          type="email"
+          placeholder="your@email.com"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && handleSubmit()}
+          style={{
+            flex: 1, background: "#141414",
+            border: "1px solid #2a2a2a", borderRadius: "6px",
+            padding: "8px 12px", color: "#fff",
+            fontSize: "13px", outline: "none", minWidth: 0,
+          }}
+          onFocus={e => (e.currentTarget.style.borderColor = "#ff4d00")}
+          onBlur={e => (e.currentTarget.style.borderColor = "#2a2a2a")}
+        />
+        <button
+          onClick={handleSubmit}
+          style={{
+            background: "#ff4d00", border: "none",
+            borderRadius: "6px", padding: "8px 14px",
+            color: "#fff", fontWeight: "700",
+            fontSize: "13px", cursor: "pointer", whiteSpace: "nowrap",
+          }}
+          onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
+          onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+        >
+          Subscribe
+        </button>
+      </div>
+      {status === "error" && (
+        <p style={{ color: "#f87171", fontSize: "12px", marginTop: "8px" }}>
+          Something went wrong. Try again.
+        </p>
+      )}
+    </div>
+  );
+}
 
 export default function Footer() {
   const categories = [
@@ -160,32 +232,7 @@ export default function Footer() {
             <p style={{ color: "#555", fontSize: "13px", lineHeight: "1.6", margin: "0 0 14px" }}>
               Get the latest tech news delivered to your inbox.
             </p>
-            <div style={{ display: "flex", gap: "8px" }}>
-              <input
-                type="email"
-                placeholder="your@email.com"
-                style={{
-                  flex: 1, background: "#141414",
-                  border: "1px solid #2a2a2a", borderRadius: "6px",
-                  padding: "8px 12px", color: "#fff",
-                  fontSize: "13px", outline: "none", minWidth: 0,
-                }}
-                onFocus={e => (e.currentTarget.style.borderColor = "#ff4d00")}
-                onBlur={e => (e.currentTarget.style.borderColor = "#2a2a2a")}
-              />
-              <button
-                style={{
-                  background: "#ff4d00", border: "none",
-                  borderRadius: "6px", padding: "8px 14px",
-                  color: "#fff", fontWeight: "700",
-                  fontSize: "13px", cursor: "pointer", whiteSpace: "nowrap",
-                }}
-                onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
-                onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
-              >
-                Subscribe
-              </button>
-            </div>
+            <NewsletterForm />
           </div>
 
         </div>
