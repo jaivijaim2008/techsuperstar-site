@@ -1,0 +1,96 @@
+import { client } from "./sanity";
+
+// helper — races Sanity against a timeout
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error("Sanity timeout")), ms)
+    ),
+  ]);
+}
+
+export async function getPosts() {
+  try {
+    const posts = await withTimeout(
+      client.fetch(`
+        *[_type == "post"] | order(publishedAt desc) {
+          title, slug, author,
+          "image": mainImage.asset->url,
+          "categories": categories[]->title,
+          publishedAt
+        }
+      `),
+      5000
+    );
+    return posts || [];
+  } catch (error) {
+    console.warn("⚠️ Sanity fetch failed:", error);
+    return [];
+  }
+}
+
+export async function getPostsByCategory(categorySlug: string) {
+  try {
+    const posts = await withTimeout(
+      client.fetch(
+        `*[_type == "post" && $categorySlug in categories[]->slug.current] | order(publishedAt desc) {
+          title, slug, author,
+          "image": mainImage.asset->url,
+          "categories": categories[]->title,
+          publishedAt
+        }`,
+        { categorySlug }
+      ),
+      5000
+    );
+    return posts || [];
+  } catch (error) {
+    console.warn("⚠️ Sanity fetch failed:", error);
+    return [];
+  }
+}
+
+export async function getCategories() {
+  try {
+    return await withTimeout(
+      client.fetch(`
+        *[_type == "category"] | order(title asc) {
+          title, slug, description
+        }
+      `),
+      5000
+    );
+  } catch (error) {
+    console.warn("⚠️ Sanity fetch failed, using default categories");
+    return [
+      { title: "Phones", slug: { current: "phones" }, description: "Latest smartphone reviews" },
+      { title: "Laptops", slug: { current: "laptops" }, description: "Laptop reviews and guides" },
+      { title: "Tablets", slug: { current: "tablets" }, description: "Tablet reviews" },
+      { title: "Gaming", slug: { current: "gaming" }, description: "Gaming hardware" },
+      { title: "Reviews", slug: { current: "reviews" }, description: "Product reviews" },
+      { title: "Accessories", slug: { current: "accessories" }, description: "Tech accessories" },
+    ];
+  }
+}
+
+export async function getPost(slug: string) {
+  try {
+    const post = await withTimeout(
+      client.fetch(
+        `*[_type == "post" && slug.current == $slug][0]{
+          title, author,
+          "image": mainImage.asset->url,
+          "categories": categories[]->title,
+          publishedAt, body
+        }`,
+        { slug }
+      ),
+      5000
+    );
+    return post || null;
+  } catch (error) {
+    console.warn("⚠️ Sanity fetch failed for post:", slug);
+    return null;
+  }
+}

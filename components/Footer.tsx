@@ -1,0 +1,233 @@
+"use client";
+import Link from "next/link";
+
+export default function Footer() {
+  const categories = [
+    { name: "Phones", slug: "phones" },
+    { name: "Laptops", slug: "laptops" },
+    { name: "Tablets", slug: "tablets" },
+    { name: "Gaming", slug: "gaming" },
+    { name: "Reviews", slug: "reviews" },
+    { name: "Accessories", slug: "accessories" },
+  ];
+
+  const socials = [
+    { icon: "▶", label: "YouTube", url: "https://www.youtube.com/@TechSuperStarOfficial" },
+    { icon: "📸", label: "Instagram", url: "https://www.instagram.com/techsuperstarofficial/" },
+    { icon: "🐦", label: "Twitter", url: "https://x.com/Tech_SuperStar" },
+  ];
+
+  const quickLinks = [
+    { name: "Home", href: "/" },
+    { name: "All Articles", href: "/articles" },
+    { name: "About", href: "/about" },
+    { name: "Contact", href: "/contact" },
+  ];
+
+  return (
+    <footer style={{
+      background: "#0f0f0f",
+      borderTop: "1px solid #1e1e1e",
+      marginTop: "80px",
+      fontFamily: "'Arial', sans-serif",
+    }}>
+
+      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "48px 1.5rem" }}>
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+          gap: "40px",
+        }}>
+
+          {/* Brand */}
+          <div>
+            <Link href="/" style={{ textDecoration: "none" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+                <div style={{
+                  width: "36px", height: "36px", borderRadius: "50%",
+                  overflow: "hidden", border: "2px solid #ff4d00",
+                }}>
+                  <img src="/favicon.jpg" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                </div>
+                <span style={{ fontSize: "18px", fontWeight: "700", color: "#fff" }}>
+                  Tech<span style={{ color: "#ff4d00" }}>SuperStar</span>
+                </span>
+              </div>
+            </Link>
+            <p style={{ color: "#555", fontSize: "13px", lineHeight: "1.7", margin: "0 0 20px" }}>
+              Your ultimate source for honest tech reviews, buying guides, and the latest news in technology.
+            </p>
+
+            {/* Social Links — using Link instead of a tag */}
+            <div style={{ display: "flex", gap: "10px" }}>
+              {socials.map((social) => (
+                <Link
+                  key={social.label}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={social.label}
+                  style={{
+                    width: "36px",
+                    height: "36px",
+                    background: "#1a1a1a",
+                    border: "1px solid #2a2a2a",
+                    borderRadius: "8px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "14px",
+                    textDecoration: "none",
+                    transition: "all 0.2s",
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.borderColor = "#ff4d00";
+                    e.currentTarget.style.background = "#1e1010";
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.borderColor = "#2a2a2a";
+                    e.currentTarget.style.background = "#1a1a1a";
+                  }}
+                >
+                  {social.icon}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Categories */}
+          <div>
+            <h4 style={{
+              color: "#fff", fontSize: "13px", fontWeight: "700",
+              textTransform: "uppercase", letterSpacing: "1px",
+              margin: "0 0 16px",
+            }}>
+              Categories
+            </h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {categories.map((cat) => (
+                <Link
+                  key={cat.slug}
+                  href={`/category/${cat.slug}`}
+                  style={{
+                    color: "#555", textDecoration: "none",
+                    fontSize: "13px", transition: "color 0.2s",
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.color = "#ff4d00")}
+                  onMouseLeave={e => (e.currentTarget.style.color = "#555")}
+                >
+                  → {cat.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick Links */}
+          <div>
+            <h4 style={{
+              color: "#fff", fontSize: "13px", fontWeight: "700",
+              textTransform: "uppercase", letterSpacing: "1px",
+              margin: "0 0 16px",
+            }}>
+              Quick Links
+            </h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {quickLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  style={{
+                    color: "#555", textDecoration: "none",
+                    fontSize: "13px", transition: "color 0.2s",
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.color = "#ff4d00")}
+                  onMouseLeave={e => (e.currentTarget.style.color = "#555")}
+                >
+                  → {link.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Newsletter */}
+          <div>
+            <h4 style={{
+              color: "#fff", fontSize: "13px", fontWeight: "700",
+              textTransform: "uppercase", letterSpacing: "1px",
+              margin: "0 0 16px",
+            }}>
+              Newsletter
+            </h4>
+            <p style={{ color: "#555", fontSize: "13px", lineHeight: "1.6", margin: "0 0 14px" }}>
+              Get the latest tech news delivered to your inbox.
+            </p>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <input
+                type="email"
+                placeholder="your@email.com"
+                style={{
+                  flex: 1,
+                  background: "#141414",
+                  border: "1px solid #2a2a2a",
+                  borderRadius: "6px",
+                  padding: "8px 12px",
+                  color: "#fff",
+                  fontSize: "13px",
+                  outline: "none",
+                  minWidth: 0,
+                }}
+                onFocus={e => (e.currentTarget.style.borderColor = "#ff4d00")}
+                onBlur={e => (e.currentTarget.style.borderColor = "#2a2a2a")}
+              />
+              <button
+                style={{
+                  background: "#ff4d00",
+                  border: "none",
+                  borderRadius: "6px",
+                  padding: "8px 14px",
+                  color: "#fff",
+                  fontWeight: "700",
+                  fontSize: "13px",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
+                onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+              >
+                Subscribe
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* Bottom Bar */}
+      <div style={{ borderTop: "1px solid #1a1a1a", padding: "16px 1.5rem" }}>
+        <div style={{
+          maxWidth: "1200px", margin: "0 auto",
+          display: "flex", alignItems: "center",
+          justifyContent: "space-between", flexWrap: "wrap", gap: "8px",
+        }}>
+          <p style={{ color: "#444", fontSize: "12px", margin: 0 }}>
+            © {new Date().getFullYear()} TechSuperStar. All rights reserved.
+          </p>
+          <div style={{ display: "flex", gap: "16px" }}>
+            {["Privacy Policy", "Terms of Use"].map((item) => (
+              <Link
+                key={item}
+                href="#"
+                style={{ color: "#444", fontSize: "12px", textDecoration: "none" }}
+                onMouseEnter={e => (e.currentTarget.style.color = "#ff4d00")}
+                onMouseLeave={e => (e.currentTarget.style.color = "#444")}
+              >
+                {item}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+
+    </footer>
+  );
+}
