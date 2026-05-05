@@ -1,170 +1,232 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const categories = [
-  { name: "Phones", slug: "phones", icon: "📱", color: "#ff4d00", glow: "rgba(255,77,0,0.3)" },
-  { name: "Laptops", slug: "laptops", icon: "💻", color: "#0066ff", glow: "rgba(0,102,255,0.3)" },
-  { name: "Tablets", slug: "tablets", icon: "📟", color: "#00cc66", glow: "rgba(0,204,102,0.3)" },
-  { name: "Gaming", slug: "gaming", icon: "🎮", color: "#aa00ff", glow: "rgba(170,0,255,0.3)" },
-  { name: "Reviews", slug: "reviews", icon: "⭐", color: "#ff8800", glow: "rgba(255,136,0,0.3)" },
-  { name: "Accessories", slug: "accessories", icon: "🎧", color: "#00ccff", glow: "rgba(0,204,255,0.3)" },
+  { name: "Phones",      slug: "phones",      icon: "📱", color: "#ff4d00", rgb: "255,77,0" },
+  { name: "Laptops",     slug: "laptops",     icon: "💻", color: "#0066ff", rgb: "0,102,255" },
+  { name: "Tablets",     slug: "tablets",     icon: "📟", color: "#00cc66", rgb: "0,204,102" },
+  { name: "Gaming",      slug: "gaming",      icon: "🎮", color: "#aa00ff", rgb: "170,0,255" },
+  { name: "Reviews",     slug: "reviews",     icon: "⭐", color: "#ff8800", rgb: "255,136,0" },
+  { name: "Accessories", slug: "accessories", icon: "🎧", color: "#00ccff", rgb: "0,204,255" },
 ];
 
-function CategoryCard({ cat }: { cat: typeof categories[0] }) {
+function CategoryCard({ cat, index }: { cat: typeof categories[0]; index: number }) {
   const [hovered, setHovered] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
+      { threshold: 0.15 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <Link href={`/category/${cat.slug}`} style={{ textDecoration: "none" }}>
-      <div
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        style={{
-          position: "relative",
-          background: hovered
-            ? `linear-gradient(135deg, rgba(${cat.color === "#ff4d00" ? "255,77,0" : cat.color === "#0066ff" ? "0,102,255" : cat.color === "#00cc66" ? "0,204,102" : cat.color === "#aa00ff" ? "170,0,255" : cat.color === "#ff8800" ? "255,136,0" : "0,204,255"},0.12) 0%, #141414 100%)`
-            : "#111111",
-          border: `1px solid ${hovered ? cat.color : "rgba(255,255,255,0.06)"}`,
-          borderRadius: "16px",
-          padding: "28px 16px 24px",
-          textAlign: "center",
-          cursor: "pointer",
-          transition: "all 0.35s ease",
-          overflow: "hidden",
-          boxShadow: hovered ? `0 8px 32px ${cat.glow}, 0 0 0 1px ${cat.color}22` : "none",
-          transform: hovered ? "translateY(-6px) scale(1.03)" : "translateY(0) scale(1)",
-        }}
-      >
-        {/* Hologram corner accents */}
-        {hovered && (
-          <>
-            <div style={{
-              position: "absolute", top: 0, left: 0,
-              width: "20px", height: "20px",
-              borderTop: `2px solid ${cat.color}`,
-              borderLeft: `2px solid ${cat.color}`,
-              borderRadius: "16px 0 0 0",
+    <div ref={ref} style={{
+      opacity: visible ? 1 : 0,
+      transform: visible ? "translateY(0)" : "translateY(28px)",
+      transition: `opacity 0.55s ease ${index * 0.08}s, transform 0.55s ease ${index * 0.08}s`,
+    }}>
+      <Link href={`/category/${cat.slug}`} style={{ textDecoration: "none", display: "block" }}>
+        <div
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          style={{
+            position: "relative",
+            background: hovered
+              ? `linear-gradient(135deg, rgba(${cat.rgb},0.1) 0%, #0f0f0f 100%)`
+              : "linear-gradient(135deg, #111111, #0d0d0d)",
+            border: `1px solid ${hovered ? cat.color : "rgba(255,255,255,0.05)"}`,
+            borderRadius: "20px",
+            padding: "32px 16px 28px",
+            textAlign: "center",
+            cursor: "pointer",
+            transition: "all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)",
+            overflow: "hidden",
+            boxShadow: hovered
+              ? `0 16px 48px rgba(${cat.rgb},0.2), 0 0 0 1px rgba(${cat.rgb},0.15), inset 0 1px 0 rgba(255,255,255,0.05)`
+              : "0 2px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.03)",
+            transform: hovered ? "translateY(-8px) scale(1.04)" : "translateY(0) scale(1)",
+          }}
+        >
+          {/* Corner accents */}
+          {["tl","tr","bl","br"].map((pos) => (
+            <div key={pos} style={{
+              position: "absolute",
+              top: pos.startsWith("t") ? 0 : "auto",
+              bottom: pos.startsWith("b") ? 0 : "auto",
+              left: pos.endsWith("l") ? 0 : "auto",
+              right: pos.endsWith("r") ? 0 : "auto",
+              width: 18, height: 18,
+              borderTop: pos.startsWith("t") ? `2px solid ${cat.color}` : "none",
+              borderBottom: pos.startsWith("b") ? `2px solid ${cat.color}` : "none",
+              borderLeft: pos.endsWith("l") ? `2px solid ${cat.color}` : "none",
+              borderRight: pos.endsWith("r") ? `2px solid ${cat.color}` : "none",
+              borderRadius: pos === "tl" ? "18px 0 0 0" : pos === "tr" ? "0 18px 0 0" : pos === "bl" ? "0 0 0 18px" : "0 0 18px 0",
+              opacity: hovered ? 1 : 0,
+              transition: "opacity 0.3s ease",
             }} />
-            <div style={{
-              position: "absolute", top: 0, right: 0,
-              width: "20px", height: "20px",
-              borderTop: `2px solid ${cat.color}`,
-              borderRight: `2px solid ${cat.color}`,
-              borderRadius: "0 16px 0 0",
-            }} />
-            <div style={{
-              position: "absolute", bottom: 0, left: 0,
-              width: "20px", height: "20px",
-              borderBottom: `2px solid ${cat.color}`,
-              borderLeft: `2px solid ${cat.color}`,
-              borderRadius: "0 0 0 16px",
-            }} />
-            <div style={{
-              position: "absolute", bottom: 0, right: 0,
-              width: "20px", height: "20px",
-              borderBottom: `2px solid ${cat.color}`,
-              borderRight: `2px solid ${cat.color}`,
-              borderRadius: "0 0 16px 0",
-            }} />
-          </>
-        )}
+          ))}
 
-        {/* Glow orb behind icon */}
-        <div style={{
-          position: "absolute", top: "50%", left: "50%",
-          transform: "translate(-50%, -60%)",
-          width: "80px", height: "80px",
-          borderRadius: "50%",
-          background: cat.glow,
-          filter: "blur(20px)",
-          opacity: hovered ? 1 : 0,
-          transition: "opacity 0.35s ease",
-          pointerEvents: "none",
-        }} />
+          {/* Glow orb */}
+          <div style={{
+            position: "absolute", top: "40%", left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 100, height: 100,
+            borderRadius: "50%",
+            background: `radial-gradient(circle, rgba(${cat.rgb},0.25), transparent 70%)`,
+            filter: "blur(16px)",
+            opacity: hovered ? 1 : 0,
+            transition: "opacity 0.4s ease",
+            pointerEvents: "none",
+          }} />
 
-        {/* Icon */}
-        <div style={{
-          fontSize: "36px",
-          marginBottom: "12px",
-          transform: hovered ? "scale(1.2)" : "scale(1)",
-          transition: "transform 0.35s ease",
-          filter: hovered ? `drop-shadow(0 0 8px ${cat.color})` : "none",
-          position: "relative",
-        }}>
-          {cat.icon}
+          {/* Scan line shimmer */}
+          <div style={{
+            position: "absolute",
+            top: 0, left: "-100%",
+            width: "60%", height: "100%",
+            background: `linear-gradient(90deg, transparent, rgba(${cat.rgb},0.06), transparent)`,
+            transform: "skewX(-20deg)",
+            transition: "left 0.6s ease",
+            ...(hovered ? { left: "150%" } : {}),
+            pointerEvents: "none",
+          }} />
+
+          {/* Icon */}
+          <div style={{
+            fontSize: 40,
+            marginBottom: 14,
+            display: "block",
+            transform: hovered ? "scale(1.25) translateY(-4px)" : "scale(1) translateY(0)",
+            transition: "transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)",
+            filter: hovered ? `drop-shadow(0 0 12px rgba(${cat.rgb},0.8))` : "none",
+            position: "relative",
+            lineHeight: 1,
+          }}>
+            {cat.icon}
+          </div>
+
+          {/* Name */}
+          <div style={{
+            color: hovered ? cat.color : "#777",
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: "2px",
+            textTransform: "uppercase",
+            fontFamily: "'DM Sans', sans-serif",
+            transition: "color 0.35s ease",
+            position: "relative",
+          }}>
+            {cat.name}
+          </div>
+
+          {/* Arrow */}
+          <div style={{
+            marginTop: 10,
+            fontSize: 10,
+            color: cat.color,
+            opacity: hovered ? 1 : 0,
+            transform: hovered ? "translateY(0)" : "translateY(6px)",
+            transition: "all 0.3s ease",
+            fontWeight: 700,
+            letterSpacing: 1,
+          }}>
+            Explore →
+          </div>
+
+          {/* Bottom bar */}
+          <div style={{
+            position: "absolute", bottom: 0, left: "50%",
+            transform: `translateX(-50%) scaleX(${hovered ? 1 : 0})`,
+            width: "65%", height: 2,
+            background: `linear-gradient(90deg, transparent, ${cat.color}, transparent)`,
+            transition: "transform 0.4s ease",
+            borderRadius: 2,
+          }} />
         </div>
-
-        {/* Name */}
-        <div style={{
-          color: hovered ? cat.color : "#aaaaaa",
-          fontSize: "13px",
-          fontWeight: "700",
-          letterSpacing: "1px",
-          textTransform: "uppercase",
-          transition: "color 0.35s ease",
-          position: "relative",
-        }}>
-          {cat.name}
-        </div>
-
-        {/* Bottom line */}
-        <div style={{
-          position: "absolute", bottom: 0, left: "50%",
-          transform: `translateX(-50%) scaleX(${hovered ? 1 : 0})`,
-          width: "60%", height: "2px",
-          background: `linear-gradient(90deg, transparent, ${cat.color}, transparent)`,
-          transition: "transform 0.35s ease",
-          borderRadius: "2px",
-        }} />
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }
 
 export default function CategoryGrid() {
   return (
-    <div style={{ padding: "56px 0 0" }}>
+    <div style={{ padding: "32px 0 0" }}>
       <style>{`
-        @keyframes shimmer {
-          0%{background-position:-200% center}
-          100%{background-position:200% center}
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;600;700&display=swap');
+
+        @keyframes categoryShimmer {
+          0%   { background-position: 0% center; }
+          100% { background-position: 200% center; }
+        }
+        @keyframes lineGrow {
+          from { width: 0; }
+          to   { width: 50px; }
+        }
+        @keyframes badgePulse {
+          0%,100% { box-shadow: 0 0 0 0 rgba(255,77,0,0.25); }
+          50%     { box-shadow: 0 0 0 6px rgba(255,77,0,0); }
         }
       `}</style>
 
-      <div style={{ marginBottom: "28px" }}>
-        <h2 style={{
-          color: "#ffffff",
-          fontSize: "22px",
-          fontWeight: "800",
-          margin: "0 0 6px",
-          fontFamily: "'Georgia', serif",
-          letterSpacing: "-0.5px",
-        }}>
-          Browse by{" "}
-          <span style={{
-            background: "linear-gradient(90deg, #ff4d00, #ff8800, #ff4d00)",
-            backgroundSize: "200% auto",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            animation: "shimmer 3s linear infinite",
-          }}>
-            Category
-          </span>
-        </h2>
+      {/* Section header */}
+      <div style={{ marginBottom: 36 }}>
         <div style={{
-          width: "50px", height: "3px",
-          background: "linear-gradient(90deg, #ff4d00, transparent)",
-          borderRadius: "2px",
+          display: "inline-flex", alignItems: "center", gap: 7,
+          background: "rgba(255,77,0,0.07)",
+          border: "1px solid rgba(255,77,0,0.22)",
+          color: "#ff6622",
+          fontSize: 10, fontWeight: 700,
+          padding: "5px 14px", borderRadius: 50,
+          letterSpacing: "2px", textTransform: "uppercase",
+          marginBottom: 14,
+          fontFamily: "'DM Sans', sans-serif",
+          animation: "badgePulse 2.5s ease infinite",
+        }}>
+          <span style={{
+            width: 5, height: 5, borderRadius: "50%",
+            background: "#ff4d00", display: "inline-block",
+          }} />
+          Explore Topics
+        </div>
+
+        <h2 style={{
+          fontSize: "clamp(22px, 3.5vw, 30px)",
+          fontWeight: 900,
+          margin: "0 0 12px",
+          fontFamily: "'Playfair Display', Georgia, serif",
+          letterSpacing: "-0.5px",
+          lineHeight: 1.15,
+          background: "linear-gradient(90deg, #ffffff 0%, #ff4d00 40%, #ffaa55 60%, #ffffff 100%)",
+          backgroundSize: "200% auto",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          animation: "categoryShimmer 4s linear infinite",
+        }}>
+          Browse by Category
+        </h2>
+
+        <div style={{
+          height: 2,
+          background: "linear-gradient(90deg, #ff4d00, rgba(255,77,0,0.1))",
+          borderRadius: 2,
+          animation: "lineGrow 0.8s ease 0.3s both",
         }} />
       </div>
 
+      {/* Grid */}
       <div style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-        gap: "14px",
+        gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+        gap: 14,
       }}>
-        {categories.map((cat) => (
-          <CategoryCard key={cat.slug} cat={cat} />
+        {categories.map((cat, i) => (
+          <CategoryCard key={cat.slug} cat={cat} index={i} />
         ))}
       </div>
     </div>

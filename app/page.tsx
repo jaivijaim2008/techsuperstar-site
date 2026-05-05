@@ -400,7 +400,7 @@ export default async function Home() {
         </div>
 
         {/* Latest Articles */}
-        <div style={{ padding: "64px 0 80px" }}>
+        <div style={{ padding: "40px 0 80px" }}>
           <div className="section-header">
             <div>
               <div className="section-badge">
