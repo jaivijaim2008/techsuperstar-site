@@ -11,13 +11,11 @@ const categories = [
   { name: "Accessories", slug: "accessories", icon: "🎧", color: "#00ccff", rgb: "0,204,255" },
 ];
 
-function CategoryCard({ cat, index }: { cat: typeof categories[0]; index: number }) {
+function CategoryCard({ cat }: { cat: typeof categories[0] }) {
   const [hovered, setHovered] = useState(false);
 
   return (
-    <div style={{
-      animation: `fadeUpCard 0.55s ease ${index * 0.08}s both`,
-    }}>
+    <div style={{ opacity: 1 }}>
       <Link href={`/category/${cat.slug}`} style={{ textDecoration: "none", display: "block" }}>
         <div
           onMouseEnter={() => setHovered(true)}
@@ -147,10 +145,6 @@ export default function CategoryGrid() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;600;700&display=swap');
 
-        @keyframes fadeUpCard {
-          from { opacity: 0; transform: translateY(28px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
         @keyframes categoryShimmer {
           0%   { background-position: 0% center; }
           100% { background-position: 200% center; }
@@ -206,7 +200,6 @@ export default function CategoryGrid() {
           height: 2,
           background: "linear-gradient(90deg, #ff4d00, rgba(255,77,0,0.1))",
           borderRadius: 2,
-          animation: "lineGrow 0.8s ease 0.3s both",
         }} />
       </div>
 
@@ -217,7 +210,7 @@ export default function CategoryGrid() {
         gap: 14,
       }}>
         {categories.map((cat, i) => (
-          <CategoryCard key={cat.slug} cat={cat} index={i} />
+          <CategoryCard key={cat.slug} cat={cat} />
         ))}
       </div>
     </div>
