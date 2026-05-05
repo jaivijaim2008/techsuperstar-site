@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 
 const categories = [
   { name: "Phones",      slug: "phones",      icon: "📱", color: "#ff4d00", rgb: "255,77,0" },
@@ -13,23 +13,10 @@ const categories = [
 
 function CategoryCard({ cat, index }: { cat: typeof categories[0]; index: number }) {
   const [hovered, setHovered] = useState(false);
-  const [visible, setVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
-      { threshold: 0.15 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
 
   return (
-    <div ref={ref} style={{
-      opacity: visible ? 1 : 0,
-      transform: visible ? "translateY(0)" : "translateY(28px)",
-      transition: `opacity 0.55s ease ${index * 0.08}s, transform 0.55s ease ${index * 0.08}s`,
+    <div style={{
+      animation: `fadeUpCard 0.55s ease ${index * 0.08}s both`,
     }}>
       <Link href={`/category/${cat.slug}`} style={{ textDecoration: "none", display: "block" }}>
         <div
@@ -88,12 +75,12 @@ function CategoryCard({ cat, index }: { cat: typeof categories[0]; index: number
           {/* Scan line shimmer */}
           <div style={{
             position: "absolute",
-            top: 0, left: "-100%",
+            top: 0,
+            left: hovered ? "150%" : "-100%",
             width: "60%", height: "100%",
             background: `linear-gradient(90deg, transparent, rgba(${cat.rgb},0.06), transparent)`,
             transform: "skewX(-20deg)",
             transition: "left 0.6s ease",
-            ...(hovered ? { left: "150%" } : {}),
             pointerEvents: "none",
           }} />
 
@@ -160,6 +147,10 @@ export default function CategoryGrid() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;600;700&display=swap');
 
+        @keyframes fadeUpCard {
+          from { opacity: 0; transform: translateY(28px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
         @keyframes categoryShimmer {
           0%   { background-position: 0% center; }
           100% { background-position: 200% center; }
