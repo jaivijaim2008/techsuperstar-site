@@ -47,6 +47,15 @@ export const postType = defineType({
       type: 'datetime',
     }),
     defineField({
+      name: 'youtubeUrl',
+      title: 'YouTube Video URL',
+      type: 'url',
+      description: 'Paste the full YouTube video URL (e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ or https://youtu.be/dQw4w9WgXcQ). This video will appear at the top of your article.',
+      validation: (Rule) => Rule.uri({
+        scheme: ['http', 'https']
+      })
+    }),
+    defineField({
       name: 'body',
       type: 'blockContent',
     }),

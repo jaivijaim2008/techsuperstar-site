@@ -11,6 +11,20 @@ export async function generateStaticParams() {
   return posts?.filter((post: any) => post?.slug?.current).map((post: any) => ({ slug: post.slug.current })) || [];
 }
 
+// Helper function to extract YouTube video ID
+function getYouTubeId(url: string) {
+  if (!url) return null;
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s?]+)/,
+    /^([a-zA-Z0-9_-]{11})$/
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+}
+
 export default async function PostPage({ params }: { params: { slug: string } }) {
   const post = await getPost(params.slug);
 
@@ -27,6 +41,8 @@ export default async function PostPage({ params }: { params: { slug: string } })
       </div>
     );
   }
+
+  const youtubeId = getYouTubeId(post.youtubeUrl);
 
   return (
     <div style={{ background: "#0a0a0a", minHeight: "100vh", fontFamily: "'Arial', sans-serif" }}>
@@ -90,8 +106,37 @@ export default async function PostPage({ params }: { params: { slug: string } })
           )}
         </div>
 
-        {/* Thumbnail Image */}
-        {post.image && (
+        {/* YouTube Video Player */}
+        {youtubeId && (
+          <div style={{ 
+            marginBottom: "32px",
+            position: "relative",
+            paddingBottom: "56.25%", // 16:9 aspect ratio
+            height: 0,
+            overflow: "hidden",
+            borderRadius: "12px",
+            border: "1px solid #1e1e1e",
+            background: "#000"
+          }}>
+            <iframe
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%"
+              }}
+              src={`https://www.youtube.com/embed/${youtubeId}`}
+              title={post.title}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            />
+          </div>
+        )}
+
+        {/* Thumbnail Image - only show if no video */}
+        {!youtubeId && post.image && (
           <div style={{ marginBottom: "32px" }}>
             <img
               src={post.image}
@@ -172,23 +217,31 @@ export default async function PostPage({ params }: { params: { slug: string } })
                     </div>
                   ),
                   youtube: ({ value }) => {
-                    const getYouTubeId = (url: string) => {
-                      const match = url?.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&\s]+)/);
-                      return match?.[1];
-                    };
                     const videoId = getYouTubeId(value?.url);
                     if (!videoId) return null;
                     return (
-                      <div style={{ margin: "32px 0", borderRadius: "12px", overflow: "hidden", aspectRatio: "16/9" }}>
+                      <div style={{ 
+                        margin: "32px 0",
+                        position: "relative",
+                        paddingBottom: "56.25%",
+                        height: 0,
+                        overflow: "hidden",
+                        borderRadius: "12px",
+                        border: "1px solid #1e1e1e"
+                      }}>
                         <iframe
-                          width="100%"
-                          height="100%"
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%"
+                          }}
                           src={`https://www.youtube.com/embed/${videoId}`}
                           title={value?.caption || "YouTube Video"}
                           frameBorder="0"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
-                          style={{ display: "block" }}
                         />
                       </div>
                     );

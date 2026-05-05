@@ -82,7 +82,9 @@ export async function getPost(slug: string) {
           title, author,
           "image": mainImage.asset->url,
           "categories": categories[]->title,
-          publishedAt, body
+          publishedAt, 
+          youtubeUrl,
+          body
         }`,
         { slug }
       ),
