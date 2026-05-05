@@ -4,145 +4,396 @@ import { useEffect, useState } from "react";
 
 export default function HeroSection() {
   const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  const [count, setCount] = useState({ subs: 0, views: 0, likes: 0 });
+
+  useEffect(() => {
+    setMounted(true);
+
+    // Animated counters
+    const targets = { subs: 206, views: 320, likes: 203 };
+    const duration = 1800;
+    const steps = 60;
+    const interval = duration / steps;
+    let step = 0;
+    const timer = setInterval(() => {
+      step++;
+      const progress = step / steps;
+      const ease = 1 - Math.pow(1 - progress, 3);
+      setCount({
+        subs: Math.floor(ease * targets.subs),
+        views: Math.floor(ease * targets.views),
+        likes: Math.floor(ease * targets.likes),
+      });
+      if (step >= steps) clearInterval(timer);
+    }, interval);
+
+    return () => clearInterval(timer);
+  }, []);
 
   return (
-    <div style={{
-      position:"relative", overflow:"hidden",
-      background:"linear-gradient(135deg, #0a0a0a 0%, #0f0a00 50%, #0a0a0a 100%)",
-      padding:"100px 1.5rem 80px",
-      textAlign:"center",
-      borderBottom:"1px solid rgba(255,77,0,0.15)",
+    <section style={{
+      position: "relative",
+      overflow: "hidden",
+      background: "linear-gradient(160deg, #060606 0%, #0f0600 45%, #060606 100%)",
+      padding: "clamp(80px, 12vw, 130px) 1.5rem clamp(60px, 10vw, 100px)",
+      textAlign: "center",
+      borderBottom: "1px solid rgba(255,77,0,0.12)",
     }}>
+
       <style>{`
-        @keyframes float1 { 0%,100%{transform:translateY(0) translateX(0)} 50%{transform:translateY(-30px) translateX(15px)} }
-        @keyframes float2 { 0%,100%{transform:translateY(0) translateX(0)} 50%{transform:translateY(20px) translateX(-20px)} }
-        @keyframes glow { 0%,100%{opacity:0.4;transform:scale(1)} 50%{opacity:0.8;transform:scale(1.05)} }
-        @keyframes titleGlow {
-          0%,100%{filter:drop-shadow(0 0 20px rgba(255,77,0,0.5))}
-          50%{filter:drop-shadow(0 0 40px rgba(255,77,0,0.8))}
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@400;500;600&display=swap');
+
+        @keyframes orbFloat1 {
+          0%,100% { transform: translateY(0) translateX(0) scale(1); }
+          33%      { transform: translateY(-40px) translateX(20px) scale(1.05); }
+          66%      { transform: translateY(20px) translateX(-15px) scale(0.97); }
+        }
+        @keyframes orbFloat2 {
+          0%,100% { transform: translateY(0) translateX(0); }
+          50%      { transform: translateY(30px) translateX(-25px); }
+        }
+        @keyframes orbFloat3 {
+          0%,100% { transform: translateY(0) rotate(0deg); }
+          50%      { transform: translateY(-20px) rotate(8deg); }
+        }
+        @keyframes gridPan {
+          from { background-position: 0 0; }
+          to   { background-position: 50px 50px; }
         }
         @keyframes badgePulse {
-          0%,100%{box-shadow:0 0 10px rgba(255,77,0,0.3)}
-          50%{box-shadow:0 0 25px rgba(255,77,0,0.6)}
+          0%,100% { box-shadow: 0 0 0 0 rgba(255,77,0,0.3); }
+          50%      { box-shadow: 0 0 0 8px rgba(255,77,0,0); }
         }
-        @keyframes btnHolo {
-          0%{background-position:0% 50%}
-          50%{background-position:100% 50%}
-          100%{background-position:0% 50%}
+        @keyframes dotBlink {
+          0%,100% { opacity: 1; transform: scale(1); }
+          50%      { opacity: 0.4; transform: scale(0.7); }
         }
-        @keyframes fadeUp {
-          from{opacity:0;transform:translateY(30px)}
-          to{opacity:1;transform:translateY(0)}
+        @keyframes titleReveal {
+          from { opacity: 0; transform: translateY(40px) skewY(2deg); }
+          to   { opacity: 1; transform: translateY(0) skewY(0deg); }
         }
-        .holo-btn:hover {
-          transform: scale(1.05) !important;
-          box-shadow: 0 0 40px rgba(255,77,0,0.7) !important;
+        @keyframes nameShimmer {
+          0%   { background-position: 0% center; }
+          100% { background-position: 200% center; }
+        }
+        @keyframes subtitleFade {
+          from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes btnGlow {
+          0%,100% { box-shadow: 0 4px 20px rgba(255,77,0,0.35), 0 0 0 0 rgba(255,77,0,0.2); }
+          50%      { box-shadow: 0 8px 40px rgba(255,77,0,0.6), 0 0 0 8px rgba(255,77,0,0); }
+        }
+        @keyframes btnShimmer {
+          0%   { background-position: 0% 50%; }
+          50%  { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes statsReveal {
+          from { opacity: 0; transform: translateY(24px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scanLine {
+          from { top: -10%; }
+          to   { top: 110%; }
+        }
+        @keyframes borderTrace {
+          0%   { background-position: 0% 0%; }
+          100% { background-position: 300% 0%; }
+        }
+        @keyframes tagFloat {
+          0%,100% { transform: translateY(0); }
+          50%      { transform: translateY(-8px); }
+        }
+
+        .hero-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          background: linear-gradient(135deg, #ff4d00, #ff6600, #ff9900, #ff6600, #ff4d00);
+          background-size: 300% 300%;
+          color: #fff;
+          padding: clamp(14px, 2.5vw, 18px) clamp(28px, 5vw, 48px);
+          border-radius: 60px;
+          text-decoration: none;
+          font-weight: 700;
+          font-size: clamp(13px, 2vw, 15px);
+          font-family: 'DM Sans', sans-serif;
+          letter-spacing: 0.3px;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          animation: btnShimmer 4s ease infinite, btnGlow 2.5s ease infinite;
+          position: relative;
+          overflow: hidden;
+        }
+        .hero-btn:hover {
+          transform: scale(1.06) translateY(-2px) !important;
+          box-shadow: 0 12px 50px rgba(255,77,0,0.7) !important;
+        }
+        .hero-btn::after {
+          content: '';
+          position: absolute;
+          top: 0; left: -100%;
+          width: 60%; height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+          transform: skewX(-20deg);
+          animation: scanLine 3s ease infinite;
+        }
+
+        .hero-secondary-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(255,255,255,0.03);
+          color: #888;
+          padding: clamp(14px, 2.5vw, 18px) clamp(20px, 4vw, 36px);
+          border-radius: 60px;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: clamp(12px, 1.8vw, 14px);
+          font-family: 'DM Sans', sans-serif;
+          border: 1px solid rgba(255,255,255,0.08);
+          transition: all 0.3s ease;
+        }
+        .hero-secondary-btn:hover {
+          background: rgba(255,255,255,0.07);
+          color: #fff;
+          border-color: rgba(255,255,255,0.2);
+          transform: translateY(-2px);
+        }
+
+        .stat-card {
+          position: relative;
+          padding: 20px 28px;
+          background: rgba(255,255,255,0.02);
+          border: 1px solid rgba(255,77,0,0.1);
+          border-radius: 16px;
+          text-align: center;
+          flex: 1;
+          min-width: 120px;
+          transition: all 0.3s ease;
+          backdrop-filter: blur(10px);
+        }
+        .stat-card:hover {
+          background: rgba(255,77,0,0.05);
+          border-color: rgba(255,77,0,0.3);
+          transform: translateY(-4px);
+          box-shadow: 0 12px 30px rgba(255,77,0,0.1);
+        }
+
+        .floating-tag {
+          position: absolute;
+          background: rgba(255,77,0,0.08);
+          border: 1px solid rgba(255,77,0,0.2);
+          border-radius: 8px;
+          padding: 6px 12px;
+          font-size: 11px;
+          font-family: 'DM Sans', sans-serif;
+          font-weight: 600;
+          color: rgba(255,77,0,0.7);
+          letter-spacing: 0.5px;
+          backdrop-filter: blur(8px);
+          white-space: nowrap;
+          pointer-events: none;
+        }
+
+        @media (max-width: 640px) {
+          .floating-tag { display: none; }
+          .stat-card { padding: 16px 14px; min-width: 90px; }
+          .hero-actions { flex-direction: column; align-items: center; }
+          .hero-btn, .hero-secondary-btn { width: 100%; max-width: 300px; justify-content: center; }
         }
       `}</style>
 
-      {/* Floating orbs */}
+      {/* ── Animated grid ── */}
+      <div style={{
+        position: "absolute", inset: 0,
+        backgroundImage: "linear-gradient(rgba(255,77,0,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,77,0,0.025) 1px, transparent 1px)",
+        backgroundSize: "55px 55px",
+        animation: "gridPan 20s linear infinite",
+        pointerEvents: "none",
+      }} />
+
+      {/* ── Radial vignette ── */}
+      <div style={{
+        position: "absolute", inset: 0,
+        background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,77,0,0.06) 0%, transparent 70%)",
+        pointerEvents: "none",
+      }} />
+
+      {/* ── Floating orbs ── */}
       {[
-        { w:300, h:300, top:"10%", left:"5%", color:"rgba(255,77,0,0.08)", anim:"float1 8s ease-in-out infinite" },
-        { w:200, h:200, top:"60%", right:"10%", color:"rgba(255,100,0,0.06)", anim:"float2 10s ease-in-out infinite" },
-        { w:400, h:400, bottom:"10%", left:"20%", color:"rgba(255,50,0,0.04)", anim:"float1 12s ease-in-out infinite reverse" },
+        { w:380, h:380, top:"5%",  left:"-5%",  color:"rgba(255,60,0,0.07)",  anim:"orbFloat1 10s ease-in-out infinite",          blur:70 },
+        { w:260, h:260, top:"55%", right:"-3%", color:"rgba(255,100,0,0.05)", anim:"orbFloat2 13s ease-in-out infinite",          blur:60 },
+        { w:200, h:200, top:"20%", right:"15%", color:"rgba(255,140,0,0.04)", anim:"orbFloat3 8s ease-in-out infinite",           blur:50 },
+        { w:150, h:150, bottom:"10%", left:"15%", color:"rgba(255,40,0,0.05)", anim:"orbFloat2 11s ease-in-out infinite reverse", blur:40 },
       ].map((orb, i) => (
         <div key={i} style={{
-          position:"absolute", width:orb.w, height:orb.h,
-          borderRadius:"50%", background:orb.color,
-          filter:"blur(60px)", animation:orb.anim,
-          top:orb.top, left:(orb as any).left, right:(orb as any).right, bottom:(orb as any).bottom,
+          position: "absolute",
+          width: orb.w, height: orb.h,
+          borderRadius: "50%",
+          background: orb.color,
+          filter: `blur(${orb.blur}px)`,
+          animation: orb.anim,
+          top: (orb as any).top,
+          bottom: (orb as any).bottom,
+          left: (orb as any).left,
+          right: (orb as any).right,
+          pointerEvents: "none",
         }} />
       ))}
 
-      {/* Grid overlay */}
-      <div style={{
-        position:"absolute", inset:0,
-        backgroundImage:"linear-gradient(rgba(255,77,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,77,0,0.03) 1px, transparent 1px)",
-        backgroundSize:"50px 50px",
-        pointerEvents:"none",
-      }} />
+      {/* ── Floating tags (desktop only) ── */}
+      {mounted && [
+        { text: "📱 Smartphone Reviews", top: "18%", left: "4%",  delay: "0s" },
+        { text: "💻 Laptop Guides",      top: "28%", right: "4%", delay: "0.4s" },
+        { text: "🎮 Gaming Gear",        bottom: "28%", left: "3%",  delay: "0.8s" },
+        { text: "⭐ Honest Opinions",    bottom: "22%", right: "3%", delay: "1.2s" },
+      ].map((tag, i) => (
+        <div key={i} className="floating-tag" style={{
+          top: (tag as any).top,
+          bottom: (tag as any).bottom,
+          left: (tag as any).left,
+          right: (tag as any).right,
+          animation: `tagFloat ${3 + i * 0.5}s ease-in-out infinite`,
+          animationDelay: tag.delay,
+          opacity: mounted ? 1 : 0,
+          transition: `opacity 0.6s ease ${tag.delay}`,
+        }}>
+          {tag.text}
+        </div>
+      ))}
 
-      <div style={{ maxWidth:"800px", margin:"0 auto", position:"relative", zIndex:1 }}>
+      {/* ── Main content ── */}
+      <div style={{ maxWidth: "780px", margin: "0 auto", position: "relative", zIndex: 1 }}>
 
         {/* Badge */}
         <div style={{
-          display:"inline-flex", alignItems:"center", gap:"8px",
-          background:"rgba(255,77,0,0.1)", border:"1px solid rgba(255,77,0,0.3)",
-          color:"#ff4d00", fontSize:"11px", fontWeight:"700",
-          padding:"6px 16px", borderRadius:"50px",
-          letterSpacing:"2px", textTransform:"uppercase",
-          marginBottom:"28px",
-          animation: mounted ? "badgePulse 2s ease-in-out infinite, fadeUp 0.6s ease forwards" : "none",
+          display: "inline-flex", alignItems: "center", gap: "8px",
+          background: "rgba(255,77,0,0.08)",
+          border: "1px solid rgba(255,77,0,0.28)",
+          color: "#ff6622",
+          fontSize: "10px", fontWeight: "700",
+          padding: "6px 18px", borderRadius: "50px",
+          letterSpacing: "2.5px", textTransform: "uppercase",
+          marginBottom: "32px",
+          fontFamily: "'DM Sans', sans-serif",
+          animation: mounted ? "badgePulse 2.5s ease infinite, subtitleFade 0.6s ease both" : "none",
         }}>
-          <span style={{ width:6, height:6, borderRadius:"50%", background:"#ff4d00", display:"inline-block", animation:"glow 1.5s ease-in-out infinite" }} />
-          Tech Reviews & News
+          <span style={{
+            width: 6, height: 6, borderRadius: "50%",
+            background: "#ff4d00", display: "inline-block",
+            animation: "dotBlink 1.5s ease-in-out infinite",
+          }} />
+          Tamil Tech Reviews & News
         </div>
 
-        {/* Title */}
+        {/* Main title */}
+        <div style={{ marginBottom: "10px" }}>
+          <h1 style={{
+            fontSize: "clamp(1.6rem, 4.5vw, 3rem)",
+            fontWeight: "700",
+            color: "#999",
+            lineHeight: "1.1",
+            margin: 0,
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontStyle: "italic",
+            letterSpacing: "-0.5px",
+            animation: mounted ? "titleReveal 0.9s ease 0.1s both" : "none",
+          }}>
+            Welcome to
+          </h1>
+        </div>
+
         <h1 style={{
-          fontSize:"clamp(2.5rem, 7vw, 5rem)",
-          fontWeight:"900", color:"#ffffff",
-          lineHeight:"1.1", margin:"0 0 8px",
-          fontFamily:"'Georgia', serif", letterSpacing:"-2px",
-          animation: mounted ? "fadeUp 0.8s ease 0.2s both" : "none",
-        }}>
-          Welcome to
-        </h1>
-        <h1 style={{
-          fontSize:"clamp(2.5rem, 7vw, 5rem)",
-          fontWeight:"900", lineHeight:"1.1", margin:"0 0 24px",
-          fontFamily:"'Georgia', serif", letterSpacing:"-2px",
-          background:"linear-gradient(135deg, #ff4d00, #ff8800, #ff4d00)",
-          backgroundSize:"200% auto",
-          WebkitBackgroundClip:"text",
-          WebkitTextFillColor:"transparent",
-          animation: mounted ? "titleGlow 3s ease-in-out infinite, btnHolo 3s linear infinite, fadeUp 0.8s ease 0.3s both" : "none",
+          fontSize: "clamp(3rem, 9vw, 6.5rem)",
+          fontWeight: "900",
+          lineHeight: "1.0",
+          margin: "0 0 28px",
+          fontFamily: "'Playfair Display', Georgia, serif",
+          letterSpacing: "-3px",
+          background: "linear-gradient(135deg, #ff6622 0%, #ffaa44 30%, #ff4d00 55%, #ffcc66 75%, #ff4d00 100%)",
+          backgroundSize: "200% auto",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          animation: mounted ? "titleReveal 0.9s ease 0.25s both, nameShimmer 4s linear infinite" : "none",
         }}>
           TechSuperStar
         </h1>
 
         <p style={{
-          color:"#666", fontSize:"18px", lineHeight:"1.7",
-          margin:"0 auto 40px", maxWidth:"500px",
-          animation: mounted ? "fadeUp 0.8s ease 0.4s both" : "none",
+          color: "#666",
+          fontSize: "clamp(14px, 2.2vw, 18px)",
+          lineHeight: "1.75",
+          margin: "0 auto 44px",
+          maxWidth: "520px",
+          fontFamily: "'DM Sans', sans-serif",
+          fontWeight: "400",
+          animation: mounted ? "subtitleFade 0.8s ease 0.5s both" : "none",
         }}>
-          Your ultimate source for honest tech reviews, buying guides, and the latest news
+          Your ultimate source for <span style={{ color: "#ff6622", fontWeight: 600 }}>honest tech reviews</span>, buying guides, and the latest news — all in Tamil.
         </p>
 
-        <div style={{ animation: mounted ? "fadeUp 0.8s ease 0.5s both" : "none" }}>
-          <Link href="/articles" className="holo-btn" style={{
-            display:"inline-block",
-            background:"linear-gradient(135deg, #ff4d00, #ff6600, #ff8800, #ff6600, #ff4d00)",
-            backgroundSize:"300% auto",
-            color:"#fff", padding:"16px 40px", borderRadius:"50px",
-            textDecoration:"none", fontWeight:"700", fontSize:"15px",
-            boxShadow:"0 0 20px rgba(255,77,0,0.4)",
-            transition:"all 0.3s ease",
-            animation:"btnHolo 3s linear infinite",
-          }}>
-            Browse All Articles →
+        {/* CTAs */}
+        <div className="hero-actions" style={{
+          display: "flex", justifyContent: "center",
+          gap: "14px", flexWrap: "wrap",
+          animation: mounted ? "subtitleFade 0.8s ease 0.65s both" : "none",
+        }}>
+          <Link href="/articles" className="hero-btn">
+            Browse All Articles
+            <span style={{ fontSize: "18px", lineHeight: 1 }}>→</span>
+          </Link>
+          <Link href="https://www.youtube.com/@TechSuperStarOfficial" target="_blank" className="hero-secondary-btn">
+            ▶ Watch on YouTube
           </Link>
         </div>
 
+        {/* Divider */}
+        <div style={{
+          width: "1px", height: "48px",
+          background: "linear-gradient(to bottom, transparent, rgba(255,77,0,0.3), transparent)",
+          margin: "48px auto 0",
+          animation: mounted ? "subtitleFade 0.8s ease 0.8s both" : "none",
+        }} />
+
         {/* Stats */}
         <div style={{
-          display:"flex", justifyContent:"center", gap:"48px",
-          marginTop:"60px", flexWrap:"wrap",
-          animation: mounted ? "fadeUp 0.8s ease 0.6s both" : "none",
+          display: "flex", justifyContent: "center",
+          gap: "12px", marginTop: "28px",
+          flexWrap: "wrap",
+          animation: mounted ? "statsReveal 0.8s ease 0.9s both" : "none",
         }}>
           {[
-                { num:"2.06M", label:"YouTube Subscribers" },
-                { num:"3.2M+", label:"Video Views" },
-                { num:"203K", label:"Likes" },
+            { num: `${count.subs / 10}M`,  suffix: "+", label: "YouTube Subscribers" },
+            { num: `${count.views / 100}M`, suffix: "+", label: "Video Views" },
+            { num: `${count.likes}K`,       suffix: "",  label: "Likes" },
           ].map((stat, i) => (
-            <div key={i} style={{ textAlign:"center" }}>
-              <div style={{ fontSize:"28px", fontWeight:"800", color:"#ff4d00", fontFamily:"'Georgia', serif" }}>{stat.num}</div>
-              <div style={{ fontSize:"11px", color:"#555", letterSpacing:"1px", textTransform:"uppercase", marginTop:"4px" }}>{stat.label}</div>
+            <div key={i} className="stat-card">
+              <div style={{
+                fontSize: "clamp(22px, 3.5vw, 30px)",
+                fontWeight: "900",
+                fontFamily: "'Playfair Display', serif",
+                color: "#ff4d00",
+                lineHeight: "1",
+                marginBottom: "6px",
+              }}>
+                {stat.num}<span style={{ color: "#ff7733" }}>{stat.suffix}</span>
+              </div>
+              <div style={{
+                fontSize: "10px",
+                color: "#444",
+                letterSpacing: "1.5px",
+                textTransform: "uppercase",
+                fontFamily: "'DM Sans', sans-serif",
+                fontWeight: "600",
+              }}>
+                {stat.label}
+              </div>
             </div>
           ))}
         </div>
+
       </div>
-    </div>
+    </section>
   );
 }
