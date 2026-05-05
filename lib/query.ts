@@ -79,12 +79,16 @@ export async function getPost(slug: string) {
     const post = await withTimeout(
       client.fetch(
         `*[_type == "post" && slug.current == $slug][0]{
+          _id,
           title, author,
           "image": mainImage.asset->url,
           "categories": categories[]->title,
-          publishedAt, 
+          publishedAt,
           youtubeUrl,
-          body
+          body,
+          "comments": *[_type == "comment" && references(^._id) && approved == true] | order(createdAt asc) {
+            _id, name, message, createdAt
+          }
         }`,
         { slug }
       ),
@@ -92,7 +96,7 @@ export async function getPost(slug: string) {
     );
     return post || null;
   } catch (error) {
-    console.warn("⚠️ Sanity fetch failed for post:", slug);
+    console.warn("Sanity fetch failed for post:", slug);
     return null;
   }
 }

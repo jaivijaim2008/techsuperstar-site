@@ -16,6 +16,19 @@ export default defineConfig({
   schema: {
     types: [
       {
+  name: "comment",
+  title: "Comment",
+  type: "document",
+  fields: [
+    { name: "name", title: "Name", type: "string" },
+    { name: "email", title: "Email", type: "string" },
+    { name: "message", title: "Message", type: "text" },
+    { name: "approved", title: "Approved", type: "boolean" },
+    { name: "post", title: "Post", type: "reference", to: [{ type: "post" }] },
+    { name: "createdAt", title: "Created At", type: "datetime" },
+  ],
+},
+      {
         name: "category",
         title: "Category",
         type: "document",
