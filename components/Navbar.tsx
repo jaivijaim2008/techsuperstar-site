@@ -1,10 +1,17 @@
 "use client";
 import Link from "next/link";
 import SearchBar from "./SearchBar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const categories = [
     { name: "All Articles", slug: "all" },
@@ -17,108 +24,55 @@ export default function Navbar() {
   ];
 
   return (
-    <nav style={{
-      background: "#0f0f0f",
-      borderBottom: "1px solid #1e1e1e",
-      position: "sticky",
-      top: 0,
-      zIndex: 100,
-      fontFamily: "'Georgia', serif",
-    }}>
-      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: "64px" }}>
-
-          {/* Logo */}
-          <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "10px" }}>
-            <div style={{
-              width: "36px", height: "36px", borderRadius: "50%",
-              overflow: "hidden", border: "2px solid #ff4d00",
-            }}>
-              <img src="/favicon.jpg" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            </div>
-            <span style={{
-              fontSize: "20px", fontWeight: "700", color: "#ffffff",
-              letterSpacing: "-0.5px",
-            }}>
-              Tech<span style={{ color: "#ff4d00" }}>SuperStar</span>
-            </span>
-          </Link>
-
-          {/* Desktop Nav + Search */}
-          <div style={{ display: "flex", alignItems: "center", gap: "4px" }} className="desktop-nav">
-            {categories.map((cat) => (
-              <Link
-                key={cat.slug}
-                href={cat.slug === "all" ? "/articles" : `/category/${cat.slug}`}
-                style={{
-                  padding: "6px 14px",
-                  color: "#aaaaaa",
-                  textDecoration: "none",
-                  fontSize: "13px",
-                  fontFamily: "'Arial', sans-serif",
-                  fontWeight: "500",
-                  borderRadius: "6px",
-                  transition: "all 0.2s",
-                  letterSpacing: "0.3px",
-                }}
-                onMouseEnter={e => {
-                  (e.target as HTMLElement).style.color = "#ffffff";
-                  (e.target as HTMLElement).style.background = "#1a1a1a";
-                }}
-                onMouseLeave={e => {
-                  (e.target as HTMLElement).style.color = "#aaaaaa";
-                  (e.target as HTMLElement).style.background = "transparent";
-                }}
-              >
-                {cat.name}
-              </Link>
-            ))}
-
-            {/* 👇 Search bar added here — right after nav links */}
-            <SearchBar />
-          </div>
-
-          {/* Mobile: Search + Hamburger */}
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }} className="mobile-btn">
-            <SearchBar />
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              style={{
-                background: "none", border: "1px solid #333", color: "#fff",
-                padding: "6px 10px", borderRadius: "6px", cursor: "pointer",
-              }}
-            >
-              ☰
-            </button>
-          </div>
-
-        </div>
-
-        {/* Mobile Menu */}
-        {menuOpen && (
-          <div style={{
-            paddingBottom: "1rem",
-            display: "flex", flexDirection: "column", gap: "4px",
-          }}>
-            {categories.map((cat) => (
-              <Link
-                key={cat.slug}
-                href={cat.slug === "all" ? "/articles" : `/category/${cat.slug}`}
-                onClick={() => setMenuOpen(false)}
-                style={{
-                  padding: "10px 12px", color: "#cccccc",
-                  textDecoration: "none", fontSize: "14px",
-                  borderRadius: "6px", fontFamily: "'Arial', sans-serif",
-                }}
-              >
-                {cat.name}
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
-
+    <>
       <style>{`
+        @keyframes logoPulse {
+          0%,100%{box-shadow:0 0 8px rgba(255,77,0,0.4),0 0 16px rgba(255,77,0,0.2)}
+          50%{box-shadow:0 0 16px rgba(255,77,0,0.8),0 0 32px rgba(255,77,0,0.4)}
+        }
+        @keyframes navGlow {
+          0%,100%{border-color:rgba(255,77,0,0.1)}
+          50%{border-color:rgba(255,77,0,0.3)}
+        }
+        @keyframes slideDown {
+          from{opacity:0;transform:translateY(-10px)}
+          to{opacity:1;transform:translateY(0)}
+        }
+        .nav-link {
+          padding: 7px 14px;
+          color: #888;
+          text-decoration: none;
+          font-size: 13px;
+          font-family: 'Arial', sans-serif;
+          font-weight: 500;
+          border-radius: 8px;
+          transition: all 0.25s ease;
+          position: relative;
+          letter-spacing: 0.3px;
+          border: 1px solid transparent;
+        }
+        .nav-link:hover {
+          color: #ff4d00 !important;
+          background: rgba(255,77,0,0.08) !important;
+          border-color: rgba(255,77,0,0.2) !important;
+          box-shadow: 0 0 12px rgba(255,77,0,0.15);
+        }
+        .mobile-nav-link {
+          padding: 12px 16px;
+          color: #aaa;
+          text-decoration: none;
+          font-size: 14px;
+          border-radius: 10px;
+          font-family: 'Arial', sans-serif;
+          transition: all 0.2s ease;
+          border: 1px solid transparent;
+          display: block;
+        }
+        .mobile-nav-link:hover {
+          color: #ff4d00;
+          background: rgba(255,77,0,0.08);
+          border-color: rgba(255,77,0,0.2);
+        }
         @media (max-width: 768px) {
           .desktop-nav { display: none !important; }
           .mobile-btn { display: flex !important; }
@@ -127,6 +81,111 @@ export default function Navbar() {
           .mobile-btn { display: none !important; }
         }
       `}</style>
-    </nav>
+
+      <nav style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 100,
+        background: scrolled
+          ? "rgba(10,10,10,0.85)"
+          : "#0a0a0a",
+        backdropFilter: scrolled ? "blur(20px)" : "none",
+        WebkitBackdropFilter: scrolled ? "blur(20px)" : "none",
+        borderBottom: "1px solid rgba(255,77,0,0.15)",
+        transition: "all 0.3s ease",
+        animation: "navGlow 3s ease-in-out infinite",
+      }}>
+        {/* Top accent line */}
+        <div style={{
+          height: "2px",
+          background: "linear-gradient(90deg, transparent, #ff4d00, #ff8800, #ff4d00, transparent)",
+          backgroundSize: "200% auto",
+        }} />
+
+        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem" }}>
+          <div style={{
+            display: "flex", alignItems: "center",
+            justifyContent: "space-between", height: "64px",
+          }}>
+
+            {/* Logo */}
+            <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "12px" }}>
+              <div style={{
+                width: "38px", height: "38px", borderRadius: "50%",
+                overflow: "hidden",
+                border: "2px solid #ff4d00",
+                animation: "logoPulse 2.5s ease-in-out infinite",
+                flexShrink: 0,
+              }}>
+                <img src="/favicon.jpg" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              </div>
+              <span style={{ fontSize: "20px", fontWeight: "800", color: "#ffffff", letterSpacing: "-0.5px", fontFamily: "'Georgia', serif" }}>
+                Tech<span style={{
+                  color: "#ff4d00",
+                  filter: "drop-shadow(0 0 8px rgba(255,77,0,0.5))",
+                }}>SuperStar</span>
+              </span>
+            </Link>
+
+            {/* Desktop Nav */}
+            <div style={{ display: "flex", alignItems: "center", gap: "2px" }} className="desktop-nav">
+              {categories.map((cat) => (
+                <Link
+                  key={cat.slug}
+                  href={cat.slug === "all" ? "/articles" : `/category/${cat.slug}`}
+                  className="nav-link"
+                >
+                  {cat.name}
+                </Link>
+              ))}
+              <div style={{ marginLeft: "8px" }}>
+                <SearchBar />
+              </div>
+            </div>
+
+            {/* Mobile buttons */}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }} className="mobile-btn">
+              <SearchBar />
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                style={{
+                  background: menuOpen ? "rgba(255,77,0,0.15)" : "rgba(255,255,255,0.05)",
+                  border: `1px solid ${menuOpen ? "rgba(255,77,0,0.4)" : "rgba(255,255,255,0.1)"}`,
+                  color: menuOpen ? "#ff4d00" : "#fff",
+                  padding: "8px 12px", borderRadius: "8px",
+                  cursor: "pointer", fontSize: "16px",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                {menuOpen ? "✕" : "☰"}
+              </button>
+            </div>
+
+          </div>
+
+          {/* Mobile Menu */}
+          {menuOpen && (
+            <div style={{
+              paddingBottom: "16px",
+              display: "flex", flexDirection: "column", gap: "4px",
+              animation: "slideDown 0.2s ease forwards",
+              borderTop: "1px solid rgba(255,77,0,0.1)",
+              paddingTop: "12px",
+            }}>
+              {categories.map((cat) => (
+                <Link
+                  key={cat.slug}
+                  href={cat.slug === "all" ? "/articles" : `/category/${cat.slug}`}
+                  onClick={() => setMenuOpen(false)}
+                  className="mobile-nav-link"
+                >
+                  {cat.name}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </nav>
+    </>
   );
 }
