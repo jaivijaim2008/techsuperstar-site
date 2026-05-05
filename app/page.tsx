@@ -228,6 +228,27 @@ export default async function Home() {
           line-height: 1.6;
           max-width: 400px;
         }
+        .cta-stats {
+          display: flex;
+          gap: 24px;
+          margin-top: 18px;
+          flex-wrap: wrap;
+        }
+        .cta-stat-value {
+          font-size: 20px;
+          font-weight: 800;
+          color: #ff4d00;
+          font-family: 'DM Sans', sans-serif;
+          line-height: 1.1;
+        }
+        .cta-stat-label {
+          font-size: 10px;
+          color: #555;
+          font-weight: 600;
+          letter-spacing: 1.5px;
+          text-transform: uppercase;
+          margin-top: 3px;
+        }
         .cta-actions {
           display: flex;
           gap: 12px;
@@ -275,6 +296,7 @@ export default async function Home() {
         @media (max-width: 640px) {
           .cta-banner { text-align: center; justify-content: center; }
           .cta-text p { max-width: 100%; }
+          .cta-stats { justify-content: center; }
           .cta-actions { justify-content: center; width: 100%; }
           .cta-btn-primary, .cta-btn-secondary { flex: 1; justify-content: center; }
         }
@@ -300,7 +322,7 @@ export default async function Home() {
 
       <div className="section-wrapper">
 
-        {/* ✅ CategoryGrid — NO reveal wrapper */}
+        {/* CategoryGrid — NO reveal wrapper */}
         <CategoryGrid />
 
         {/* Latest Articles */}
@@ -339,7 +361,22 @@ export default async function Home() {
           <div className="cta-text">
             <h3>Stay ahead of the tech curve 🚀</h3>
             <p>Subscribe to our YouTube channel and never miss a review, unboxing or buying guide — all in Tamil.</p>
+
+            {/* YouTube Stats */}
+            <div className="cta-stats">
+              {[
+                { label: "Subscribers", value: "2.06M" },
+                { label: "Total Views",  value: "3.2M"  },
+                { label: "Likes",        value: "203K"  },
+              ].map((stat) => (
+                <div key={stat.label}>
+                  <div className="cta-stat-value">{stat.value}</div>
+                  <div className="cta-stat-label">{stat.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
+
           <div className="cta-actions">
             <Link href="https://www.youtube.com/@TechSuperStarOfficial" target="_blank" className="cta-btn-primary">
               ▶ Subscribe on YouTube
