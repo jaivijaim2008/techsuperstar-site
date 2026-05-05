@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
 
   const postTitle = body.title;
   const postSlug = body.slug?.current || "";
-  const postUrl = `https://www.techsuperstar.in/post/${postSlug}`;
+  const postUrl = `https://techsuperstar-site.vercel.app/post/${postSlug}`;
 
   try {
     const res = await fetch("https://api.brevo.com/v3/emailCampaigns", {
