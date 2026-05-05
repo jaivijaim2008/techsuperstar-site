@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { FaWhatsapp, FaXTwitter, FaInstagram, FaLink } from "react-icons/fa6";
 
 export function ShareButtons({ title, slug }: { title: string; slug: string }) {
   const url = `https://techsuperstar-site.vercel.app/post/${slug}`;
@@ -14,19 +15,19 @@ export function ShareButtons({ title, slug }: { title: string; slug: string }) {
       <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
         <a href={`https://wa.me/?text=${text}%20${encodedUrl}`} target="_blank" rel="noopener noreferrer"
           style={{ display: "flex", alignItems: "center", gap: "8px", background: "#25D366", color: "#fff", padding: "10px 18px", borderRadius: "8px", textDecoration: "none", fontSize: "13px", fontWeight: "700" }}>
-          WhatsApp
+          <FaWhatsapp size={16} /> WhatsApp
         </a>
         <a href={`https://twitter.com/intent/tweet?text=${text}&url=${encodedUrl}`} target="_blank" rel="noopener noreferrer"
           style={{ display: "flex", alignItems: "center", gap: "8px", background: "#000", border: "1px solid #333", color: "#fff", padding: "10px 18px", borderRadius: "8px", textDecoration: "none", fontSize: "13px", fontWeight: "700" }}>
-          X / Twitter
+          <FaXTwitter size={16} /> X / Twitter
         </a>
         <button onClick={() => { navigator.clipboard.writeText(url); alert("Link copied! Paste it on Instagram."); }}
           style={{ display: "flex", alignItems: "center", gap: "8px", background: "linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)", color: "#fff", padding: "10px 18px", borderRadius: "8px", border: "none", fontSize: "13px", fontWeight: "700", cursor: "pointer" }}>
-          Instagram (Copy Link)
+          <FaInstagram size={16} /> Instagram (Copy Link)
         </button>
         <button onClick={() => { navigator.clipboard.writeText(url); alert("Link copied!"); }}
           style={{ display: "flex", alignItems: "center", gap: "8px", background: "#1a1a1a", border: "1px solid #2a2a2a", color: "#aaa", padding: "10px 18px", borderRadius: "8px", fontSize: "13px", fontWeight: "700", cursor: "pointer" }}>
-          🔗 Copy Link
+          <FaLink size={16} /> Copy Link
         </button>
       </div>
     </div>

@@ -2,6 +2,41 @@
   {
     "fields": [
       {
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "name": "email",
+        "type": "string"
+      },
+      {
+        "name": "message",
+        "type": "text"
+      },
+      {
+        "name": "approved",
+        "type": "boolean"
+      },
+      {
+        "to": [
+          {
+            "type": "post"
+          }
+        ],
+        "name": "post",
+        "type": "reference"
+      },
+      {
+        "name": "createdAt",
+        "type": "datetime"
+      }
+    ],
+    "name": "comment",
+    "type": "document"
+  },
+  {
+    "fields": [
+      {
         "name": "title",
         "type": "string"
       },

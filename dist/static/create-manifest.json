@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-05-05T10:27:47.782Z",
+  "createdAt": "2026-05-05T12:19:48.602Z",
   "studioVersion": "5.23.0",
   "version": 3,
   "workspaces": [
@@ -13,7 +13,7 @@
       },
       "name": "default",
       "projectId": "ba3aow7c",
-      "schema": "58502e6c.create-schema.json",
+      "schema": "1e330938.create-schema.json",
       "title": "TechSuperStar",
       "tools": "ef87c8fe.create-tools.json"
     }
