@@ -26,7 +26,6 @@ export default async function Home() {
           overflow-x: hidden;
         }
 
-        /* ── Noise overlay ── */
         .home-root::before {
           content: '';
           position: fixed;
@@ -37,7 +36,6 @@ export default async function Home() {
           opacity: 0.4;
         }
 
-        /* ── Ambient glow ── */
         .ambient-glow {
           position: fixed;
           top: -200px;
@@ -50,7 +48,6 @@ export default async function Home() {
           z-index: 0;
         }
 
-        /* ── Page fade-in ── */
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(28px); }
           to   { opacity: 1; transform: translateY(0); }
@@ -71,10 +68,6 @@ export default async function Home() {
           0%,100% { transform: translateY(0); }
           50%     { transform: translateY(-6px); }
         }
-        @keyframes rotateOrbit {
-          from { transform: rotate(0deg) translateX(120px) rotate(0deg); }
-          to   { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
-        }
 
         .section-wrapper {
           position: relative;
@@ -84,7 +77,6 @@ export default async function Home() {
           padding: 0 1.5rem;
         }
 
-        /* ── Section header ── */
         .section-header {
           display: flex;
           align-items: flex-end;
@@ -163,7 +155,6 @@ export default async function Home() {
           box-shadow: 0 0 20px rgba(255,77,0,0.15);
         }
 
-        /* ── Posts grid ── */
         .posts-grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -171,7 +162,6 @@ export default async function Home() {
           animation: fadeUp 0.7s ease 0.25s both;
         }
 
-        /* ── Empty state ── */
         .empty-state {
           text-align: center;
           padding: 80px 24px;
@@ -183,85 +173,18 @@ export default async function Home() {
           animation: fadeUp 0.5s ease both;
         }
 
-        /* ── Divider ── */
-        .section-divider {
-          position: relative;
-          height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(255,77,0,0.15), transparent);
-          margin: 0 auto;
-          max-width: 1200px;
-          padding: 0 1.5rem;
+        .reveal {
+          opacity: 0;
+          transform: translateY(24px);
+          transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal.visible {
+          opacity: 1;
+          transform: translateY(0);
         }
 
-        /* ── Stats strip ── */
-        .stats-strip {
-          position: relative;
-          z-index: 1;
-          background: linear-gradient(135deg, #0e0e0e, #111);
-          border-top: 1px solid rgba(255,77,0,0.08);
-          border-bottom: 1px solid rgba(255,77,0,0.08);
-          padding: 28px 1.5rem;
-          margin: 56px 0;
-          overflow: hidden;
-          animation: fadeUp 0.6s ease 0.4s both;
-        }
-        .stats-strip::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: repeating-linear-gradient(
-            90deg,
-            rgba(255,77,0,0.015) 0px,
-            rgba(255,77,0,0.015) 1px,
-            transparent 1px,
-            transparent 80px
-          );
-          pointer-events: none;
-        }
-        .stats-inner {
-          max-width: 1200px;
-          margin: 0 auto;
-          display: flex;
-          align-items: center;
-          justify-content: space-around;
-          flex-wrap: wrap;
-          gap: 24px;
-        }
-        .stat-item {
-          text-align: center;
-          flex: 1;
-          min-width: 100px;
-        }
-        .stat-number {
-          font-size: clamp(24px, 4vw, 36px);
-          font-weight: 900;
-          font-family: 'Playfair Display', serif;
-          color: #ff4d00;
-          line-height: 1;
-          margin-bottom: 4px;
-        }
-        .stat-label {
-          font-size: 11px;
-          color: #444;
-          letter-spacing: 1.5px;
-          text-transform: uppercase;
-          font-weight: 600;
-        }
-        .stat-divider {
-          width: 1px;
-          height: 40px;
-          background: rgba(255,255,255,0.05);
-          flex-shrink: 0;
-        }
-
-        /* ── CTA Banner ── */
         .cta-banner {
           position: relative;
-          z-index: 1;
-          margin: 0 1.5rem 72px;
-          max-width: 1200px;
-          margin-left: auto;
-          margin-right: auto;
           background: linear-gradient(135deg, #1a0800 0%, #0e0500 50%, #1a0800 100%);
           border: 1px solid rgba(255,77,0,0.2);
           border-radius: 24px;
@@ -272,7 +195,6 @@ export default async function Home() {
           gap: 24px;
           flex-wrap: wrap;
           overflow: hidden;
-          animation: fadeUp 0.7s ease 0.5s both;
         }
         .cta-banner::before {
           content: '';
@@ -350,21 +272,7 @@ export default async function Home() {
           transform: translateY(-2px);
         }
 
-        /* ── Scroll-reveal utility ── */
-        .reveal {
-          opacity: 0;
-          transform: translateY(24px);
-          transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-        .reveal.visible {
-          opacity: 1;
-          transform: translateY(0);
-        }
-
-        /* ── Mobile tweaks ── */
         @media (max-width: 640px) {
-          .stats-inner { gap: 16px; }
-          .stat-divider { display: none; }
           .cta-banner { text-align: center; justify-content: center; }
           .cta-text p { max-width: 100%; }
           .cta-actions { justify-content: center; width: 100%; }
@@ -372,7 +280,6 @@ export default async function Home() {
         }
       `}</style>
 
-      {/* Inline scroll-reveal script */}
       <script dangerouslySetInnerHTML={{ __html: `
         document.addEventListener('DOMContentLoaded', function() {
           const els = document.querySelectorAll('.reveal');
@@ -387,17 +294,14 @@ export default async function Home() {
 
       <HeroSection />
 
-      {/* Hidden SEO H1 */}
       <h1 style={{ position:"absolute", left:"-9999px", width:"1px", height:"1px", overflow:"hidden" }}>
         TechSuperStar - Tech Reviews, News & Buying Guides
       </h1>
 
-
-
       <div className="section-wrapper">
-        <div className="reveal">
-          <CategoryGrid />
-        </div>
+
+        {/* ✅ CategoryGrid — NO reveal wrapper */}
+        <CategoryGrid />
 
         {/* Latest Articles */}
         <div style={{ padding: "40px 0 80px" }}>
