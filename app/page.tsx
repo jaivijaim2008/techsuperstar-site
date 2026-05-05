@@ -18,6 +18,17 @@ export default async function Home() {
       <HeroSection />
 
       <div style={{ maxWidth:"1200px", margin:"0 auto", padding:"0 1.5rem" }}>
+        {/* SEO H1 - Hidden visually but present for search engines */}
+        <h1 style={{
+          position: "absolute",
+          left: "-9999px",
+          width: "1px",
+          height: "1px",
+          overflow: "hidden"
+        }}>
+          TechSuperStar - Tech Reviews, News & Buying Guides
+        </h1>
+
         <CategoryGrid />
 
         <div style={{ padding:"60px 0" }}>
@@ -34,7 +45,7 @@ export default async function Home() {
                 WebkitBackgroundClip:"text",
                 WebkitTextFillColor:"transparent",
               }}>
-                Latest Articles
+                Latest Tech Articles & Reviews
               </h2>
               <div style={{ width:"60px", height:"3px", background:"linear-gradient(90deg, #ff4d00, transparent)", borderRadius:"2px" }} />
             </div>
