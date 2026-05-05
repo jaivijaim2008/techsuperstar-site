@@ -132,9 +132,9 @@ export default function HeroSection() {
           animation: mounted ? "fadeUp 0.8s ease 0.6s both" : "none",
         }}>
           {[
-            { num:"2.06M", label:"YouTube Subscribers" },
-            { num:"98K+", label:"Video Views" },
-            { num:"100%", label:"Honest Reviews" },
+                { num:"2.06M", label:"YouTube Subscribers" },
+                { num:"3.2M+", label:"Video Views" },
+                { num:"203K", label:"Likes" },
           ].map((stat, i) => (
             <div key={i} style={{ textAlign:"center" }}>
               <div style={{ fontSize:"28px", fontWeight:"800", color:"#ff4d00", fontFamily:"'Georgia', serif" }}>{stat.num}</div>
