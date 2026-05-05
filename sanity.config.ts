@@ -36,6 +36,12 @@ export default defineConfig({
           { name: "mainImage", title: "Main Image", type: "image", options: { hotspot: true } },
           { name: "categories", title: "Categories", type: "array", of: [{ type: "reference", to: [{ type: "category" }] }] },
           { name: "publishedAt", title: "Published At", type: "datetime" },
+          {
+            name: "youtubeUrl",
+            title: "YouTube Video URL",
+            type: "url",
+            description: "Paste the full YouTube URL (e.g., https://www.youtube.com/watch?v=xxxxx). Video will appear at the top of the article.",
+          },
           { name: "body", title: "Body", type: "array", of: [{ type: "block" }, { type: "image", options: { hotspot: true } }] },
         ],
       },
