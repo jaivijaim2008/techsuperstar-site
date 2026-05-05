@@ -8,7 +8,7 @@ export const revalidate = 0;
 
 export async function generateStaticParams() {
   const posts = await getPosts();
-  return posts?.map((post: any) => ({ slug: post.slug.current })) || [];
+  return posts?.filter((post: any) => post?.slug?.current).map((post: any) => ({ slug: post.slug.current })) || [];
 }
 
 export default async function PostPage({ params }: { params: { slug: string } }) {
