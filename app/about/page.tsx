@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
+import { FaYoutube, FaInstagram, FaXTwitter } from "react-icons/fa6";
 
 export default function AboutPage() {
   return (
@@ -113,7 +114,9 @@ export default function AboutPage() {
           borderRadius: "16px", padding: "40px",
           marginBottom: "24px", textAlign: "center",
         }}>
-          <div style={{ fontSize: "48px", marginBottom: "16px" }}>▶</div>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
+            <FaYoutube size={52} color="#FF0000" />
+          </div>
           <h2 style={{
             color: "#fff", fontSize: "22px", fontWeight: "700",
             fontFamily: "'Georgia', serif", margin: "0 0 12px",
@@ -127,13 +130,13 @@ export default function AboutPage() {
             href="https://www.youtube.com/@TechSuperStarOfficial"
             target="_blank"
             style={{
-              display: "inline-block",
+              display: "inline-flex", alignItems: "center", gap: "8px",
               background: "#ff4d00", color: "#fff",
               padding: "12px 32px", borderRadius: "8px",
               textDecoration: "none", fontWeight: "700", fontSize: "14px",
             }}
           >
-            Subscribe Now →
+            <FaYoutube size={16} /> Subscribe Now →
           </Link>
         </div>
 
@@ -154,9 +157,9 @@ export default function AboutPage() {
           </p>
           <div style={{ display: "flex", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
             {[
-              { label: "YouTube", icon: "▶", url: "https://www.youtube.com/@TechSuperStarOfficial" },
-              { label: "Instagram", icon: "📸", url: "https://www.instagram.com/techsuperstarofficial/" },
-              { label: "Twitter", icon: "🐦", url: "https://x.com/Tech_SuperStar" },
+              { label: "YouTube", icon: <FaYoutube size={16} color="#FF0000" />, url: "https://www.youtube.com/@TechSuperStarOfficial" },
+              { label: "Instagram", icon: <FaInstagram size={16} color="#e1306c" />, url: "https://www.instagram.com/techsuperstarofficial/" },
+              { label: "Twitter / X", icon: <FaXTwitter size={16} color="#fff" />, url: "https://x.com/Tech_SuperStar" },
             ].map((social) => (
               <Link
                 key={social.label}
