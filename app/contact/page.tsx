@@ -8,13 +8,25 @@ export default function ContactPage() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [hovered, setHovered] = useState<string | null>(null);
 
-  const handleSubmit = async () => {
+const handleSubmit = async () => {
     if (!formData.name || !formData.email || !formData.message) return;
     setStatus("loading");
-    await new Promise(r => setTimeout(r, 1500));
-    setStatus("success");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      if (res.ok) {
+        setStatus("success");
+        setFormData({ name: "", email: "", subject: "", message: "" });
+      } else {
+        setStatus("error");
+      }
+    } catch {
+      setStatus("error");
+    }
   };
-
   const contactInfo = [
     
   { icon: "📺", label: "YouTube", value: "@TechSuperStarOfficial", link: "https://www.youtube.com/@TechSuperStarOfficial", color: "#ff0000" },

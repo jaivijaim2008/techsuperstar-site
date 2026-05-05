@@ -84,6 +84,33 @@
         "type": "datetime"
       },
       {
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "description": "Paste the full YouTube URL (e.g., https://www.youtube.com/watch?v=xxxxx). Video will appear at the top of the article.",
+        "name": "youtubeUrl",
+        "type": "url",
+        "title": "YouTube Video URL"
+      },
+      {
         "of": [
           {
             "lists": [
