@@ -392,29 +392,7 @@ export default async function Home() {
         TechSuperStar - Tech Reviews, News & Buying Guides
       </h1>
 
-      {/* Stats Strip */}
-      <div className="stats-strip reveal">
-        <div className="stats-inner">
-          {[
-            { number: "100+", label: "Reviews Published" },
-            null,
-            { number: "50K+", label: "Monthly Readers" },
-            null,
-            { number: "6+", label: "Categories Covered" },
-            null,
-            { number: "Weekly", label: "New Content" },
-          ].map((item, i) =>
-            item === null
-              ? <div key={i} className="stat-divider" />
-              : (
-                <div key={i} className="stat-item">
-                  <div className="stat-number">{item.number}</div>
-                  <div className="stat-label">{item.label}</div>
-                </div>
-              )
-          )}
-        </div>
-      </div>
+
 
       <div className="section-wrapper">
         <div className="reveal">
