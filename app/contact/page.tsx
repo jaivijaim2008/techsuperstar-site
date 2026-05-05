@@ -168,12 +168,7 @@ export default function ContactPage() {
                     </div>
 <div style={{ color:"#ccc", fontSize:"13px", fontWeight:"500" }}>
   {info.label === "Email" ? (
-    <a
-      href={`mailto:${info.value}`}
-      style={{ color: info.color, textDecoration: "none" }}
-      onMouseEnter={e => (e.currentTarget.style.textDecoration = "underline")}
-      onMouseLeave={e => (e.currentTarget.style.textDecoration = "none")}
-    >
+    <a href={`mailto:${info.value}`} style={{ color: info.color }}>
       {info.value}
     </a>
   ) : (
