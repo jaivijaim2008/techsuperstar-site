@@ -167,13 +167,14 @@ export default function ContactPage() {
                       {info.label}
                     </div>
 <div style={{ color:"#ccc", fontSize:"13px", fontWeight:"500" }}>
-  {info.label === "Email" ? (
-    <a href={`mailto:${info.value}`} style={{ color: info.color }}>
-      {info.value}
-    </a>
-  ) : (
-    info.value
-  )}
+  <a
+    href={info.link}
+    target="_blank"
+    rel="noopener noreferrer"
+    style={{ color: info.color, textDecoration: "none" }}
+  >
+    {info.value}
+  </a>
 </div>
                   </div>
                 </div>
