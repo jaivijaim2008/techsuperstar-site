@@ -16,7 +16,7 @@ export default function ContactPage() {
   };
 
   const contactInfo = [
-    { icon: "📧", label: "Email", value: "jaivijai188@gmail.com", color: "#ff4d00" },
+    { icon: "📧", label: "Email", value: "collab@techsuperstar.in", color: "#ff4d00" },
     { icon: "📺", label: "YouTube", value: "@TechSuperStarOfficial", color: "#ff0000" },
     { icon: "📸", label: "Instagram", value: "@techsuperstarofficial", color: "#e1306c" },
     { icon: "🐦", label: "Twitter/X", value: "@Tech_SuperStar", color: "#1da1f2" },
@@ -166,9 +166,20 @@ export default function ContactPage() {
                     <div style={{ color:"#555", fontSize:"11px", fontWeight:"600", letterSpacing:"1px", textTransform:"uppercase", marginBottom:"2px" }}>
                       {info.label}
                     </div>
-                    <div style={{ color:"#ccc", fontSize:"13px", fontWeight:"500" }}>
-                      {info.value}
-                    </div>
+<div style={{ color:"#ccc", fontSize:"13px", fontWeight:"500" }}>
+  {info.label === "Email" ? (
+    <a
+      href={`mailto:${info.value}`}
+      style={{ color: info.color, textDecoration: "none" }}
+      onMouseEnter={e => (e.currentTarget.style.textDecoration = "underline")}
+      onMouseLeave={e => (e.currentTarget.style.textDecoration = "none")}
+    >
+      {info.value}
+    </a>
+  ) : (
+    info.value
+  )}
+</div>
                   </div>
                 </div>
               ))}
