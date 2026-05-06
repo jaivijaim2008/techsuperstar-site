@@ -32,7 +32,6 @@ function PillCard({
   const [shockwave, setShockwave] = useState(false);
   const [flash,     setFlash]     = useState(false);
 
-  // Track touch start position for tap-vs-drag detection
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
 
@@ -57,14 +56,12 @@ function PillCard({
     setTimeout(() => setParticles([]),    700);
   }, []);
 
-  // ── Touch on the card: only fire effects if it's a real tap (not a drag) ──
   const handleCardTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
   }, []);
 
   const handleCardTouchEnd = useCallback((e: React.TouchEvent) => {
-    // If the parent says we were dragging the carousel, skip the tap effect
     if (isDragging.current) return;
     const dx = Math.abs(e.changedTouches[0].clientX - touchStartX.current);
     const dy = Math.abs(e.changedTouches[0].clientY - touchStartY.current);
@@ -87,7 +84,6 @@ function PillCard({
         onMouseDown={triggerEffects}
         onTouchStart={handleCardTouchStart}
         onTouchEnd={handleCardTouchEnd}
-        // Prevent navigation if the user was dragging the carousel
         onClick={(e) => { if (isDragging.current) e.preventDefault(); }}
         draggable={false}
       >
@@ -116,7 +112,6 @@ function PillCard({
           position:  "relative",
           overflow:  "visible",
           cursor:    "pointer",
-          // Float animation only when idle
           animation: clicked || hovered
             ? "none"
             : `${floatAnim} ${floatDuration}s ease-in-out ${floatDelay}s infinite`,
@@ -128,7 +123,6 @@ function PillCard({
           transition: clicked
             ? "transform 0.12s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.15s ease, border 0.15s ease"
             : "transform 0.5s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease, border 0.3s ease, background 0.3s ease",
-          // GPU compositing hint — only transform & opacity, no layout props
           willChange: "transform, opacity",
         }}>
 
@@ -281,10 +275,12 @@ function PillCard({
 
 // ─── CategoryGrid ─────────────────────────────────────────────────────────────
 export default function CategoryGrid() {
-  const [isMobile, setIsMobile] = useState(false);
+  // ✅ FIX: null initial state — server and client both render null on first pass.
+  // After hydration, useEffect sets the real value. This eliminates the mismatch
+  // where server renders isMobile=false but client may immediately be true on mobile.
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
 
   const trackRef       = useRef<HTMLDivElement>(null);
-  // Single source of truth: current X position, tracked in JS (not read from DOM)
   const currentXRef    = useRef(0);
   const trackWidthRef  = useRef(0);
 
@@ -294,12 +290,12 @@ export default function CategoryGrid() {
   const lastTouchTime   = useRef(0);
   const velocityRef     = useRef(0);
   const rafRef          = useRef<number | null>(null);
-  // True once the user has moved enough to be considered a horizontal drag
   const isHorizDrag     = useRef(false);
   const touchStartY     = useRef(0);
 
   // ── Responsive ──────────────────────────────────────────────────────────────
   useEffect(() => {
+    // ✅ FIX: runs only on client after hydration — safe to read window here
     const check = () => setIsMobile(window.innerWidth <= 480);
     check();
     window.addEventListener("resize", check, { passive: true });
@@ -314,15 +310,12 @@ export default function CategoryGrid() {
     }
   }, []);
 
-  /** Normalize x so it always sits within [-trackWidth, 0) */
   const wrap = useCallback((x: number) => {
     const w = trackWidthRef.current;
     if (w === 0) return x;
-    // fast modulo that handles both positive and large negative values
     return ((x % w) - w) % w;
   }, []);
 
-  /** Apply transform directly — no style recalc, no layout */
   const setX = useCallback((x: number) => {
     if (trackRef.current) {
       trackRef.current.style.transform = `translateX(${x}px) translateZ(0)`;
@@ -330,7 +323,6 @@ export default function CategoryGrid() {
     currentXRef.current = x;
   }, []);
 
-  /** Stop JS animation and hand off to the CSS keyframe from current position */
   const handOffToCSS = useCallback(() => {
     cancelRaf();
     const el = trackRef.current;
@@ -339,41 +331,34 @@ export default function CategoryGrid() {
     const w = trackWidthRef.current;
     if (w === 0) { el.style.animation = ""; return; }
 
-    // progress = how far through one loop we are (0..1)
     const x        = wrap(currentXRef.current);
-    const progress = Math.abs(x) / w;           // 0 = start, 1 = end
-    const duration = 30;                          // seconds for one full loop
-    const delay    = -(progress * duration);      // negative = start mid-animation
+    const progress = Math.abs(x) / w;
+    const duration = 30;
+    const delay    = -(progress * duration);
 
     el.style.transform = "";
     el.style.animation = `scrollLeft ${duration}s linear ${delay}s infinite`;
   }, [cancelRaf, wrap]);
 
-  /** Stop CSS animation and switch to JS-controlled transform */
   const handOffToJS = useCallback(() => {
     const el = trackRef.current;
     if (!el) return;
 
     cancelRaf();
 
-    // Read trackWidth lazily (available once mounted)
     if (trackWidthRef.current === 0 && el.scrollWidth > 0) {
-      // 4 copies → one copy width = scrollWidth / 4
       trackWidthRef.current = el.scrollWidth / 4;
     }
 
-    // Snapshot current visual position from the CSS animation
     const matrix = new DOMMatrix(window.getComputedStyle(el).transform);
     const x      = wrap(matrix.m41);
 
-    // Freeze the animation, then set transform
     el.style.animation = "none";
     setX(x);
   }, [cancelRaf, setX, wrap]);
 
   // ── Auto-scroll on mount ──────────────────────────────────────────────────
   useEffect(() => {
-    // Wait one frame so scrollWidth is settled
     const id = requestAnimationFrame(() => {
       const el = trackRef.current;
       if (!el) return;
@@ -383,14 +368,14 @@ export default function CategoryGrid() {
     return () => { cancelAnimationFrame(id); cancelRaf(); };
   }, [cancelRaf]);
 
-  // ── Touch handlers ───────────────────────────────────────────────────────────
+  // ── Touch handlers ────────────────────────────────────────────────────────
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     const touch = e.touches[0];
     lastTouchX.current    = touch.clientX;
     touchStartY.current   = touch.clientY;
     lastTouchTime.current = performance.now();
     velocityRef.current   = 0;
-    isDragging.current    = false;   // not confirmed yet
+    isDragging.current    = false;
     isHorizDrag.current   = false;
     dragStartX.current    = touch.clientX;
 
@@ -402,29 +387,23 @@ export default function CategoryGrid() {
     const dx    = touch.clientX - lastTouchX.current;
     const dy    = touch.clientY - touchStartY.current;
 
-    // Determine drag axis on first significant movement
     if (!isHorizDrag.current && !isDragging.current) {
       if (Math.abs(dx) > Math.abs(dy) && Math.abs(touch.clientX - dragStartX.current) > 5) {
         isHorizDrag.current = true;
         isDragging.current  = true;
       } else if (Math.abs(dy) > 10) {
-        // Vertical scroll — let the browser handle it, restart CSS scroll
         handOffToCSS();
         return;
       } else {
-        return; // not enough movement to decide yet
+        return;
       }
     }
 
     if (!isHorizDrag.current) return;
 
-    // Prevent page scroll only when we've confirmed horizontal drag
-    
-
     const now = performance.now();
     const dt  = Math.max(now - lastTouchTime.current, 1);
 
-    // Smooth velocity with weighted average
     velocityRef.current = velocityRef.current * 0.45 + (dx / dt) * 16 * 0.55;
 
     lastTouchX.current    = touch.clientX;
@@ -441,19 +420,16 @@ export default function CategoryGrid() {
 
     let velocity  = velocityRef.current;
     let x         = currentXRef.current;
-    const w       = trackWidthRef.current;
 
     const glide = () => {
-      velocity *= 0.92;   // friction coefficient
+      velocity *= 0.92;
       x = wrap(x + velocity);
       setX(x);
 
       if (Math.abs(velocity) > 0.3) {
         rafRef.current = requestAnimationFrame(glide);
       } else {
-        // Hand off cleanly to CSS — no jump
         handOffToCSS();
-        // Reset drag flag after a short delay so onClick isn't suppressed on a tap
         setTimeout(() => { isDragging.current = false; }, 50);
       }
     };
@@ -471,6 +447,76 @@ export default function CategoryGrid() {
     const el = trackRef.current;
     if (el) el.style.animationPlayState = "running";
   }, []);
+
+  // ✅ FIX: Don't render carousel until isMobile is resolved on the client.
+  // Server renders null → client resolves to true/false in first useEffect →
+  // React renders the carousel once with the correct isMobile value.
+  // This guarantees server HTML and client HTML match (both render nothing for the carousel),
+  // then the client fills it in — zero hydration mismatch.
+  if (isMobile === null) {
+    return (
+      <div style={{ padding: "32px 0 0", position: "relative", zIndex: 1 }}>
+        <style>{`
+          @keyframes catShimmer {
+            0%   { background-position: 0% center; }
+            100% { background-position: 200% center; }
+          }
+          @keyframes badgePulse {
+            0%,100% { box-shadow: 0 0 0 0 rgba(255,77,0,0.25); }
+            50%     { box-shadow: 0 0 0 6px rgba(255,77,0,0); }
+          }
+          @keyframes floatDot {
+            0%,100% { transform: translateY(0); }
+            50%     { transform: translateY(-4px); }
+          }
+        `}</style>
+        {/* Header renders immediately (no isMobile dependency) */}
+        <div style={{ marginBottom: 36 }}>
+          <div style={{
+            display:        "inline-flex", alignItems: "center", gap: 7,
+            background:     "rgba(255,77,0,0.07)",
+            border:         "1px solid rgba(255,77,0,0.22)",
+            color:          "#ff6622",
+            fontSize:       10, fontWeight: 700,
+            padding:        "5px 14px", borderRadius: 50,
+            letterSpacing:  "2px", textTransform: "uppercase",
+            marginBottom:   14,
+            fontFamily:     "'DM Sans', sans-serif",
+            animation:      "badgePulse 2.5s ease infinite",
+          }}>
+            <span style={{
+              width: 5, height: 5, borderRadius: "50%",
+              background: "#ff4d00", display: "inline-block",
+              animation: "floatDot 2s ease infinite",
+            }} />
+            Explore Topics
+          </div>
+
+          <h2 style={{
+            fontSize:      "clamp(22px, 3.5vw, 30px)",
+            fontWeight:    900, margin: "0 0 12px",
+            fontFamily:    "'Playfair Display', Georgia, serif",
+            letterSpacing: "-0.5px", lineHeight: 1.15,
+            background:    "linear-gradient(90deg, #ffffff 0%, #ff4d00 40%, #ffaa55 60%, #ffffff 100%)",
+            backgroundSize:"200% auto",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor:  "transparent",
+            animation:     "catShimmer 4s linear infinite",
+          }}>
+            Browse by Category
+          </h2>
+
+          <div style={{
+            height:     2,
+            background: "linear-gradient(90deg, #ff4d00, rgba(255,77,0,0.1))",
+            borderRadius: 2,
+          }} />
+        </div>
+        {/* Carousel placeholder — same height to avoid layout shift */}
+        <div style={{ height: 160 }} />
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: "32px 0 0", position: "relative", zIndex: 1 }}>
@@ -533,14 +579,11 @@ export default function CategoryGrid() {
           transform: translateZ(0);
           backface-visibility: hidden;
           -webkit-backface-visibility: hidden;
-          /* animation set via JS after mount */
         }
         .cat-outer {
           position: relative;
           overflow: hidden;
           margin: 0 -1.5rem;
-          /* IMPORTANT: "pan-y" lets vertical page scroll work normally.
-             Horizontal drags are captured by our JS handlers. */
           touch-action: pan-y;
           cursor: grab;
           -webkit-user-select: none;
@@ -637,4 +680,4 @@ export default function CategoryGrid() {
       </div>
     </div>
   );
-} 
+}
