@@ -5,6 +5,8 @@ import ScrollReveal from "@/components/ScrollReveal";
 import { getPostsByCategory } from "@/lib/query";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 const categoryInfo: Record<string, { icon: string; color: string; rgb: string; description: string }> = {
   phones:      { icon: "📱", color: "#ff4d00", rgb: "255,77,0",    description: "Latest smartphone reviews and news" },
   laptops:     { icon: "💻", color: "#0066ff", rgb: "0,102,255",   description: "Laptop reviews and buying guides" },

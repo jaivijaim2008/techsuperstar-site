@@ -5,6 +5,8 @@ import ScrollReveal from "@/components/ScrollReveal";
 import { getPosts } from "@/lib/query";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function SearchPage({
   searchParams,
 }: {

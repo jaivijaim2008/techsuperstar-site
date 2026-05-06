@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import { getPosts } from "@/lib/query";
 import ScrollReveal from "@/components/ScrollReveal";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function AllArticlesPage() {
   const posts = await getPosts();
@@ -46,14 +46,12 @@ export default async function AllArticlesPage() {
         }
       `}</style>
 
-      {/* Hero header */}
       <div style={{
         position: "relative", overflow: "hidden",
         background: "linear-gradient(160deg, #060606 0%, #0f0600 50%, #060606 100%)",
         padding: "60px 1.5rem 52px",
         borderBottom: "1px solid rgba(255,77,0,0.1)",
       }}>
-        {/* Animated grid */}
         <div style={{
           position: "absolute", inset: 0,
           backgroundImage: "linear-gradient(rgba(255,77,0,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,77,0,0.025) 1px, transparent 1px)",
@@ -61,19 +59,16 @@ export default async function AllArticlesPage() {
           animation: "gridPan 20s linear infinite",
           pointerEvents: "none",
         }} />
-        {/* Glow orbs */}
         <div style={{ position: "absolute", top: "-60px", left: "-60px", width: 300, height: 300, borderRadius: "50%", background: "rgba(255,77,0,0.06)", filter: "blur(60px)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", bottom: "-40px", right: "-40px", width: 200, height: 200, borderRadius: "50%", background: "rgba(255,100,0,0.04)", filter: "blur(50px)", pointerEvents: "none" }} />
 
         <div style={{ maxWidth: "1200px", margin: "0 auto", position: "relative", zIndex: 1 }}>
-          {/* Breadcrumb */}
           <p style={{ color: "#444", fontSize: "12px", marginBottom: "20px", fontFamily: "var(--font-dm-sans), sans-serif", letterSpacing: "0.5px" }}>
             <a href="/" style={{ color: "#ff4d00", textDecoration: "none" }}>Home</a>
             <span style={{ margin: "0 8px", color: "#333" }}>→</span>
             <span style={{ color: "#555" }}>All Articles</span>
           </p>
 
-          {/* Badge */}
           <div style={{
             display: "inline-flex", alignItems: "center", gap: "7px",
             background: "rgba(255,77,0,0.08)", border: "1px solid rgba(255,77,0,0.25)",
@@ -109,7 +104,6 @@ export default async function AllArticlesPage() {
         </div>
       </div>
 
-      {/* Posts grid */}
       <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "48px 1.5rem 80px", position: "relative", zIndex: 1 }}>
         <ScrollReveal direction="up">
           {posts && posts.length > 0 ? (

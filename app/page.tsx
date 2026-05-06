@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
 import ScrollReveal from "@/components/ScrollReveal";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const posts = await getPosts();
@@ -280,7 +280,6 @@ export default async function Home() {
 
       <div className="ambient-glow" />
 
-      {/* Hero — no ScrollReveal, shows immediately */}
       <HeroSection />
 
       <h1 style={{ position:"absolute", left:"-9999px", width:"1px", height:"1px", overflow:"hidden" }}>
@@ -289,15 +288,12 @@ export default async function Home() {
 
       <div className="section-wrapper">
 
-        {/* CategoryGrid — slides up when scrolled to */}
         <ScrollReveal direction="up" delay={0}>
           <CategoryGrid />
         </ScrollReveal>
 
-        {/* Latest Articles */}
         <div style={{ padding: "40px 0 80px" }}>
 
-          {/* Header slides up first */}
           <ScrollReveal direction="up" delay={0}>
             <div className="section-header">
               <div>
@@ -314,7 +310,6 @@ export default async function Home() {
             </div>
           </ScrollReveal>
 
-          {/* Posts grid fades up slightly after header */}
           <ScrollReveal direction="up" delay={100}>
             {latestPosts && latestPosts.length > 0 ? (
               <div className="posts-grid">
@@ -332,15 +327,12 @@ export default async function Home() {
         </div>
       </div>
 
-      {/* CTA Banner — slides up from bottom */}
       <ScrollReveal direction="up" delay={0}>
         <div style={{ padding: "0 1.5rem 72px", position: "relative", zIndex: 1 }}>
           <div className="cta-banner" style={{ maxWidth: "1200px", margin: "0 auto" }}>
             <div className="cta-text">
               <h3>Stay ahead of the tech curve 🚀</h3>
               <p>Subscribe to our YouTube channel and never miss a review, unboxing or buying guide — all in Tamil.</p>
-
-              {/* YouTube Stats */}
               <div className="cta-stats">
                 {[
                   { label: "Subscribers", value: "2.06M" },
@@ -354,7 +346,6 @@ export default async function Home() {
                 ))}
               </div>
             </div>
-
             <div className="cta-actions">
               <Link href="https://www.youtube.com/@TechSuperStarOfficial" target="_blank" className="cta-btn-primary">
                 ▶ Subscribe on YouTube
