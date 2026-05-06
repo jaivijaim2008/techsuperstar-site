@@ -364,9 +364,9 @@ export default function HeroSection() {
           animation: mounted ? "statsReveal 0.8s ease 0.9s both" : "none",
         }}>
           {[
-            { num: `${count.subs / 10}M`,  suffix: "+", label: "YouTube Subscribers" },
-            { num: `${count.views / 100}M`, suffix: "+", label: "Video Views" },
-            { num: `${count.likes}K`,       suffix: "",  label: "Likes" },
+            { num: `${(count.subs / 100).toFixed(2)}M`,  suffix: "+", label: "YouTube Subscribers" },
+            { num: `${(count.views / 100).toFixed(1)}M`, suffix: "+", label: "Video Views" },
+            { num: `${count.likes}K`,                    suffix: "",  label: "Likes" },
           ].map((stat, i) => (
             <div key={i} className="stat-card">
               <div style={{
