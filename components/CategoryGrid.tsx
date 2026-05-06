@@ -11,8 +11,7 @@ const categories = [
   { name: "Accessories", slug: "accessories", icon: "🎧", color: "#00ccff", rgb: "0,204,255" },
 ];
 
-// Duplicate for seamless loop
-const tickerItems = [...categories, ...categories, ...categories];
+const tickerItems = [...categories, ...categories, ...categories, ...categories];
 
 function CategoryCard({ cat }: { cat: typeof categories[0] }) {
   const [hovered, setHovered] = useState(false);
@@ -23,22 +22,22 @@ function CategoryCard({ cat }: { cat: typeof categories[0] }) {
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         style={{
-          width: 160,
+          width: 155,
           position: "relative",
           background: hovered
-            ? `linear-gradient(135deg, rgba(${cat.rgb},0.12) 0%, #0f0f0f 100%)`
+            ? `linear-gradient(135deg, rgba(${cat.rgb},0.15) 0%, #0f0f0f 100%)`
             : "linear-gradient(135deg, #111111, #0d0d0d)",
           border: `1px solid ${hovered ? cat.color : "rgba(255,255,255,0.06)"}`,
           borderRadius: "20px",
-          padding: "36px 16px 30px",
+          padding: "32px 16px 26px",
           textAlign: "center",
           cursor: "pointer",
           transition: "all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)",
           overflow: "hidden",
           boxShadow: hovered
-            ? `0 20px 56px rgba(${cat.rgb},0.25), 0 0 0 1px rgba(${cat.rgb},0.15), inset 0 1px 0 rgba(255,255,255,0.06)`
+            ? `0 20px 56px rgba(${cat.rgb},0.3), 0 0 0 1px rgba(${cat.rgb},0.15), inset 0 1px 0 rgba(255,255,255,0.06)`
             : "0 2px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03)",
-          transform: hovered ? "translateY(-10px) scale(1.04)" : "translateY(0) scale(1)",
+          transform: hovered ? "translateY(-12px) scale(1.06)" : "translateY(0) scale(1)",
         }}
       >
         {/* Corner accents */}
@@ -49,7 +48,7 @@ function CategoryCard({ cat }: { cat: typeof categories[0] }) {
             bottom: pos.startsWith("b") ? 0 : "auto",
             left: pos.endsWith("l") ? 0 : "auto",
             right: pos.endsWith("r") ? 0 : "auto",
-            width: 20, height: 20,
+            width: 18, height: 18,
             borderTop: pos.startsWith("t") ? `2px solid ${cat.color}` : "none",
             borderBottom: pos.startsWith("b") ? `2px solid ${cat.color}` : "none",
             borderLeft: pos.endsWith("l") ? `2px solid ${cat.color}` : "none",
@@ -63,7 +62,7 @@ function CategoryCard({ cat }: { cat: typeof categories[0] }) {
           }} />
         ))}
 
-        {/* Hologram grid lines */}
+        {/* Hologram grid */}
         <div style={{
           position: "absolute", inset: 0,
           backgroundImage: `
@@ -81,20 +80,20 @@ function CategoryCard({ cat }: { cat: typeof categories[0] }) {
         <div style={{
           position: "absolute", top: "40%", left: "50%",
           transform: "translate(-50%, -50%)",
-          width: 120, height: 120, borderRadius: "50%",
-          background: `radial-gradient(circle, rgba(${cat.rgb},0.3), transparent 70%)`,
-          filter: "blur(20px)",
+          width: 110, height: 110, borderRadius: "50%",
+          background: `radial-gradient(circle, rgba(${cat.rgb},0.35), transparent 70%)`,
+          filter: "blur(18px)",
           opacity: hovered ? 1 : 0,
           transition: "opacity 0.4s ease",
           pointerEvents: "none",
         }} />
 
-        {/* Scan line shimmer */}
+        {/* Scan line */}
         <div style={{
           position: "absolute", top: 0,
           left: hovered ? "150%" : "-100%",
           width: "60%", height: "100%",
-          background: `linear-gradient(90deg, transparent, rgba(${cat.rgb},0.08), transparent)`,
+          background: `linear-gradient(90deg, transparent, rgba(${cat.rgb},0.1), transparent)`,
           transform: "skewX(-20deg)",
           transition: "left 0.65s ease",
           pointerEvents: "none",
@@ -103,18 +102,18 @@ function CategoryCard({ cat }: { cat: typeof categories[0] }) {
         {/* Top shimmer line */}
         <div style={{
           position: "absolute", top: 0, left: 0, right: 0, height: 1,
-          background: `linear-gradient(90deg, transparent, rgba(${cat.rgb},0.6), transparent)`,
+          background: `linear-gradient(90deg, transparent, rgba(${cat.rgb},0.7), transparent)`,
           opacity: hovered ? 1 : 0,
           transition: "opacity 0.3s ease",
         }} />
 
         {/* Icon */}
         <div style={{
-          fontSize: 44, marginBottom: 16, display: "block",
-          transform: hovered ? "scale(1.3) translateY(-4px)" : "scale(1) translateY(0)",
+          fontSize: 42, marginBottom: 14, display: "block",
+          transform: hovered ? "scale(1.35) translateY(-4px)" : "scale(1) translateY(0)",
           transition: "transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)",
           filter: hovered
-            ? `drop-shadow(0 0 14px rgba(${cat.rgb},0.9)) drop-shadow(0 0 28px rgba(${cat.rgb},0.4))`
+            ? `drop-shadow(0 0 16px rgba(${cat.rgb},1)) drop-shadow(0 0 32px rgba(${cat.rgb},0.5))`
             : "none",
           position: "relative", lineHeight: 1,
         }}>
@@ -123,19 +122,19 @@ function CategoryCard({ cat }: { cat: typeof categories[0] }) {
 
         {/* Name */}
         <div style={{
-          color: hovered ? cat.color : "#666",
-          fontSize: 11, fontWeight: 700,
+          color: hovered ? cat.color : "#555",
+          fontSize: 10, fontWeight: 700,
           letterSpacing: "2.5px", textTransform: "uppercase",
           fontFamily: "'DM Sans', sans-serif",
           transition: "color 0.35s ease", position: "relative",
-          textShadow: hovered ? `0 0 12px rgba(${cat.rgb},0.5)` : "none",
+          textShadow: hovered ? `0 0 14px rgba(${cat.rgb},0.6)` : "none",
         }}>
           {cat.name}
         </div>
 
         {/* Explore arrow */}
         <div style={{
-          marginTop: 10, fontSize: 10, color: cat.color,
+          marginTop: 8, fontSize: 10, color: cat.color,
           opacity: hovered ? 1 : 0,
           transform: hovered ? "translateY(0)" : "translateY(8px)",
           transition: "all 0.3s ease",
@@ -153,7 +152,7 @@ function CategoryCard({ cat }: { cat: typeof categories[0] }) {
           background: `linear-gradient(90deg, transparent, ${cat.color}, transparent)`,
           transition: "transform 0.4s ease",
           borderRadius: 2,
-          boxShadow: `0 0 8px rgba(${cat.rgb},0.6)`,
+          boxShadow: `0 0 10px rgba(${cat.rgb},0.7)`,
         }} />
       </div>
     </Link>
@@ -178,35 +177,45 @@ export default function CategoryGrid() {
         }
         @keyframes ticker {
           0%   { transform: translateX(0); }
-          100% { transform: translateX(-33.333%); }
+          100% { transform: translateX(-50%); }
         }
         .ticker-track {
           display: flex;
           gap: 16px;
           width: max-content;
-          animation: ticker 18s linear infinite;
+          animation: ticker 22s linear infinite;
+          will-change: transform;
         }
         .ticker-track:hover {
           animation-play-state: paused;
         }
+        .ticker-outer {
+          position: relative;
+          overflow: hidden;
+          padding: 12px 0 20px;
+          margin: 0 -1.5rem;
+        }
         .ticker-fade-left {
           position: absolute; left: 0; top: 0; bottom: 0;
-          width: 80px;
-          background: linear-gradient(90deg, #060606, transparent);
+          width: 120px;
+          background: linear-gradient(90deg, #060606 0%, #060606 30%, transparent 100%);
           pointer-events: none;
           z-index: 2;
         }
         .ticker-fade-right {
           position: absolute; right: 0; top: 0; bottom: 0;
-          width: 80px;
-          background: linear-gradient(270deg, #060606, transparent);
+          width: 120px;
+          background: linear-gradient(270deg, #060606 0%, #060606 30%, transparent 100%);
           pointer-events: none;
           z-index: 2;
+        }
+        .ticker-inner {
+          padding: 0 120px;
         }
       `}</style>
 
       {/* Section header */}
-      <div style={{ marginBottom: 40 }}>
+      <div style={{ marginBottom: 36 }}>
         <div style={{
           display: "inline-flex", alignItems: "center", gap: 7,
           background: "rgba(255,77,0,0.07)",
@@ -249,13 +258,15 @@ export default function CategoryGrid() {
       </div>
 
       {/* Ticker */}
-      <div style={{ position: "relative", overflow: "hidden", paddingBottom: 12 }}>
+      <div className="ticker-outer">
         <div className="ticker-fade-left" />
         <div className="ticker-fade-right" />
-        <div className="ticker-track">
-          {tickerItems.map((cat, i) => (
-            <CategoryCard key={`${cat.slug}-${i}`} cat={cat} />
-          ))}
+        <div className="ticker-inner">
+          <div className="ticker-track">
+            {tickerItems.map((cat, i) => (
+              <CategoryCard key={`${cat.slug}-${i}`} cat={cat} />
+            ))}
+          </div>
         </div>
       </div>
     </div>
