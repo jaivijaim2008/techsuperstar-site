@@ -229,7 +229,6 @@ export default function Footer() {
         overflow: "hidden",
       }}>
 
-        {/* Hologram grid bg */}
         <div style={{
           position: "absolute", inset: 0,
           backgroundImage: "linear-gradient(rgba(255,77,0,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,77,0,0.018) 1px, transparent 1px)",
@@ -238,7 +237,6 @@ export default function Footer() {
           zIndex: 0,
         }} />
 
-        {/* Top ambient glow */}
         <div style={{
           position: "absolute", top: 0, left: "50%",
           transform: "translateX(-50%)",
@@ -248,7 +246,6 @@ export default function Footer() {
           zIndex: 0,
         }} />
 
-        {/* Animated top bar */}
         <div style={{
           height: "2px",
           background: "linear-gradient(90deg, transparent 0%, #ff4d00 30%, #ffaa44 50%, #ff4d00 70%, transparent 100%)",
@@ -266,7 +263,6 @@ export default function Footer() {
 
         <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "52px 1.5rem 32px", position: "relative", zIndex: 1 }}>
 
-          {/* Brand row */}
           <div style={{
             display: "flex", flexWrap: "wrap",
             alignItems: "center", justifyContent: "space-between",
@@ -274,8 +270,6 @@ export default function Footer() {
             borderBottom: "1px solid rgba(255,77,0,0.08)",
             marginBottom: "40px",
           }}>
-
-            {/* Logo + tagline */}
             <Link href="/" style={{ textDecoration: "none" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
                 <div style={{
@@ -309,7 +303,6 @@ export default function Footer() {
               </div>
             </Link>
 
-            {/* Socials */}
             <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
               {socials.map((s, i) => (
                 <a key={i} href={s.href} target="_blank" rel="noopener noreferrer"
@@ -337,14 +330,11 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Main grid */}
           <div style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
             gap: "40px", marginBottom: "44px",
           }}>
-
-            {/* About */}
             <div>
               <h4 style={{
                 color: "#ff4d00", fontSize: "10px", fontWeight: "700",
@@ -387,7 +377,6 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* Categories */}
             <div>
               <h4 style={{
                 color: "#ff4d00", fontSize: "10px", fontWeight: "700",
@@ -409,7 +398,6 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* Quick Links */}
             <div>
               <h4 style={{
                 color: "#ff4d00", fontSize: "10px", fontWeight: "700",
@@ -431,7 +419,6 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* Newsletter */}
             <div>
               <h4 style={{
                 color: "#ff4d00", fontSize: "10px", fontWeight: "700",
@@ -452,7 +439,6 @@ export default function Footer() {
               </p>
               <NewsletterForm />
             </div>
-
           </div>
 
           {/* Bottom bar */}
@@ -474,11 +460,12 @@ export default function Footer() {
               }}>TechSuperStar</span>. All rights reserved.
             </p>
             <div style={{ display: "flex", gap: "20px" }}>
-              {["Privacy Policy", "Terms of Use"].map(item => (
-                <Link key={item} href="#" className="footer-bottom-link">
-                  {item}
-                </Link>
-              ))}
+              <Link href="/privacy-policy" className="footer-bottom-link">
+                Privacy Policy
+              </Link>
+              <Link href="#" className="footer-bottom-link">
+                Terms of Use
+              </Link>
             </div>
           </div>
 
