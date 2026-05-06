@@ -1,6 +1,5 @@
 import { client } from "./sanity";
 
-// helper — races Sanity against a timeout
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return Promise.race([
     promise,
@@ -15,7 +14,8 @@ export async function getPosts() {
     const posts = await withTimeout(
       client.fetch(`
         *[_type == "post"] | order(publishedAt desc) {
-          title, slug, author,
+          title, slug,
+          "author": coalesce(author->name, author),
           "image": mainImage.asset->url,
           "categories": categories[]->title,
           publishedAt
@@ -35,7 +35,8 @@ export async function getPostsByCategory(categorySlug: string) {
     const posts = await withTimeout(
       client.fetch(
         `*[_type == "post" && $categorySlug in categories[]->slug.current] | order(publishedAt desc) {
-          title, slug, author,
+          title, slug,
+          "author": coalesce(author->name, author),
           "image": mainImage.asset->url,
           "categories": categories[]->title,
           publishedAt
@@ -80,7 +81,8 @@ export async function getPost(slug: string) {
       client.fetch(
         `*[_type == "post" && slug.current == $slug][0]{
           _id,
-          title, author,
+          title,
+          "author": coalesce(author->name, author),
           "image": mainImage.asset->url,
           "categories": categories[]->title,
           publishedAt,
