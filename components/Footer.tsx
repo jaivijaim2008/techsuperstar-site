@@ -382,7 +382,7 @@ export default function Footer() {
                   fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
                   fontWeight: 600,
                 }}>
-                  Publishing Weekly
+                  Publishing Daily
                 </span>
               </div>
             </div>
