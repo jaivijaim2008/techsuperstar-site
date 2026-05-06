@@ -419,7 +419,7 @@ export default function CategoryGrid() {
     if (!isHorizDrag.current) return;
 
     // Prevent page scroll only when we've confirmed horizontal drag
-    e.preventDefault();
+    
 
     const now = performance.now();
     const dt  = Math.max(now - lastTouchTime.current, 1);
