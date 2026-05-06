@@ -34,6 +34,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
         .slice(0, 160)
     : "";
 
+  const ogImage = post.image
+    ? `https://wsrv.nl/?url=${encodeURIComponent(post.image)}&w=1200&h=630&fit=cover&output=jpg&q=80`
+    : "https://techsuperstar-site.vercel.app/favicon.jpg";
+
   return {
     title: post.title,
     description,
@@ -42,15 +46,13 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       description,
       type: "article",
       publishedTime: post.publishedAt,
-      images: post.image
-        ? [{ url: post.image, width: 1200, height: 630, alt: post.title }]
-        : [],
+      images: [{ url: ogImage, width: 1200, height: 630, alt: post.title }],
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
       description,
-      images: post.image ? [post.image] : [],
+      images: [ogImage],
     },
   };
 }
