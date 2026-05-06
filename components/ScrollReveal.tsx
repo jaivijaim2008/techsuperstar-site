@@ -12,9 +12,9 @@ export default function ScrollReveal({ children, delay = 0, direction = "up" }: 
 
   const getTransform = () => {
     switch (direction) {
-      case "up":    return "translateY(32px)";
-      case "left":  return "translateX(-32px)";
-      case "right": return "translateX(32px)";
+      case "up":    return "translateY(16px)";
+      case "left":  return "translateX(-16px)";
+      case "right": return "translateX(16px)";
       default:      return "none";
     }
   };
@@ -36,7 +36,7 @@ export default function ScrollReveal({ children, delay = 0, direction = "up" }: 
           el.style.transform = getTransform();
         }
       },
-      { threshold: 0.12 }
+      { threshold: 0.01 }
     );
 
     observer.observe(el);
