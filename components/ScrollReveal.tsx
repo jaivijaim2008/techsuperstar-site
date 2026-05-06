@@ -10,16 +10,30 @@ interface Props {
 export default function ScrollReveal({ children, delay = 0, direction = "up" }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
+  const getTransform = () => {
+    switch (direction) {
+      case "up":    return "translateY(32px)";
+      case "left":  return "translateX(-32px)";
+      case "right": return "translateX(32px)";
+      default:      return "none";
+    }
+  };
+
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    el.style.opacity = "0";
+    el.style.transform = getTransform();
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           el.style.opacity = "1";
           el.style.transform = "translateY(0) translateX(0)";
-          observer.unobserve(el);
+        } else {
+          el.style.opacity = "0";
+          el.style.transform = getTransform();
         }
       },
       { threshold: 0.12 }
@@ -27,20 +41,14 @@ export default function ScrollReveal({ children, delay = 0, direction = "up" }: 
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
-
-  const initialTransform =
-    direction === "up"    ? "translateY(32px)" :
-    direction === "left"  ? "translateX(-32px)" :
-    direction === "right" ? "translateX(32px)" :
-    "none";
+  }, [direction, delay]);
 
   return (
     <div
       ref={ref}
       style={{
         opacity: 0,
-        transform: initialTransform,
+        transform: getTransform(),
         transition: `opacity 0.65s ease ${delay}ms, transform 0.65s ease ${delay}ms`,
         willChange: "opacity, transform",
       }}
