@@ -23,12 +23,15 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
   const [shockwave, setShockwave] = useState(false);
   const [flash, setFlash] = useState(false);
 
+  // Track touch start position to distinguish tap from swipe
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+
   const floatDuration = 2.4 + (idx % 6) * 0.35;
   const floatDelay = (idx % 6) * 0.3;
   const floatAnim = `float${idx % 6}`;
 
   const handleInteract = () => {
-    // Generate burst particles
     const newParticles: Particle[] = Array.from({ length: 12 }, (_, i) => ({
       id: Date.now() + i,
       x: 50,
@@ -49,6 +52,20 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
     setTimeout(() => setParticles([]), 700);
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const dx = Math.abs(e.changedTouches[0].clientX - touchStartX.current);
+    const dy = Math.abs(e.changedTouches[0].clientY - touchStartY.current);
+    // Only trigger animation if finger barely moved = real tap, not a swipe
+    if (dx < 8 && dy < 8) {
+      handleInteract();
+    }
+  };
+
   return (
     <div
       style={{ flexShrink: 0, perspective: "800px" }}
@@ -59,7 +76,8 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
         href={`/category/${cat.slug}`}
         style={{ textDecoration: "none", display: "block" }}
         onMouseDown={handleInteract}
-        onTouchStart={handleInteract}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
       >
         <div style={{
           display: "flex",
@@ -176,7 +194,6 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
                   boxShadow: `0 0 ${p.size * 2}px ${cat.color}`,
                   transform: "translate(-50%, -50%)",
                   animation: `particleFly 0.7s ease-out forwards`,
-                  // CSS custom props via inline style trick
                   ["--tx" as string]: `${tx}px`,
                   ["--ty" as string]: `${ty}px`,
                   pointerEvents: "none",
@@ -252,10 +269,9 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
             transform: `translateX(-50%) scaleX(${hovered || clicked ? 1 : 0})`,
             width: "70%", height: 2,
             background: `linear-gradient(90deg, transparent, ${cat.color}, transparent)`,
-            
+            borderRadius: 2,
             boxShadow: `0 0 16px rgba(${cat.rgb},0.9)`,
             transition: "transform 0.4s ease",
-            borderRadius: 2,
           }} />
         </div>
       </Link>
