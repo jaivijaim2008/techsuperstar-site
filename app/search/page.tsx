@@ -5,8 +5,13 @@ import ScrollReveal from "@/components/ScrollReveal";
 import { getPosts } from "@/lib/query";
 import Link from "next/link";
 
-export default async function SearchPage({ searchParams }: { searchParams: { q?: string } }) {
-  const query = searchParams.q || "";
+export default async function SearchPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
+  const query = q || "";
   const allPosts = await getPosts();
 
   const results = allPosts?.filter((post: any) =>
@@ -38,7 +43,6 @@ export default async function SearchPage({ searchParams }: { searchParams: { q?:
         }
       `}</style>
 
-      {/* Hero header */}
       <div style={{
         position: "relative", overflow: "hidden",
         background: "linear-gradient(160deg, #060606 0%, #0f0600 50%, #060606 100%)",
@@ -97,7 +101,6 @@ export default async function SearchPage({ searchParams }: { searchParams: { q?:
         </div>
       </div>
 
-      {/* Results */}
       <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "48px 1.5rem 80px", position: "relative", zIndex: 1 }}>
         <ScrollReveal direction="up">
           {results && results.length > 0 ? (

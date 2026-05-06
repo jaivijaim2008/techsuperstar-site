@@ -14,8 +14,12 @@ const categoryInfo: Record<string, { icon: string; color: string; rgb: string; d
   accessories: { icon: "🎧", color: "#0099cc", rgb: "0,153,204",   description: "Tech accessories and gadgets" },
 };
 
-export default async function CategoryPage({ params }: { params: { slug: string } }) {
-  const { slug } = params;
+export default async function CategoryPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
   const posts = await getPostsByCategory(slug);
   const info = categoryInfo[slug] || { icon: "📂", color: "#ff4d00", rgb: "255,77,0", description: "" };
   const label = slug.charAt(0).toUpperCase() + slug.slice(1);
@@ -48,14 +52,12 @@ export default async function CategoryPage({ params }: { params: { slug: string 
         }
       `}</style>
 
-      {/* Hero header */}
       <div style={{
         position: "relative", overflow: "hidden",
         background: `linear-gradient(160deg, #060606 0%, rgba(${info.rgb},0.04) 50%, #060606 100%)`,
         padding: "60px 1.5rem 52px",
         borderBottom: `1px solid rgba(${info.rgb},0.12)`,
       }}>
-        {/* Animated grid */}
         <div style={{
           position: "absolute", inset: 0,
           backgroundImage: `linear-gradient(rgba(${info.rgb},0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(${info.rgb},0.02) 1px, transparent 1px)`,
@@ -63,19 +65,16 @@ export default async function CategoryPage({ params }: { params: { slug: string 
           animation: "gridPan 20s linear infinite",
           pointerEvents: "none",
         }} />
-        {/* Glow orbs */}
         <div style={{ position: "absolute", top: "-80px", left: "-80px", width: 320, height: 320, borderRadius: "50%", background: `rgba(${info.rgb},0.07)`, filter: "blur(70px)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", bottom: "-40px", right: "10%", width: 200, height: 200, borderRadius: "50%", background: `rgba(${info.rgb},0.04)`, filter: "blur(50px)", pointerEvents: "none" }} />
 
         <div style={{ maxWidth: "1200px", margin: "0 auto", position: "relative", zIndex: 1 }}>
-          {/* Breadcrumb */}
           <p style={{ color: "#444", fontSize: "12px", marginBottom: "24px", letterSpacing: "0.5px" }}>
             <Link href="/" style={{ color: "#ff4d00", textDecoration: "none" }}>Home</Link>
             <span style={{ margin: "0 8px", color: "#333" }}>→</span>
             <span style={{ color: "#555" }}>{label}</span>
           </p>
 
-          {/* Icon + title row */}
           <div style={{ display: "flex", alignItems: "center", gap: "20px", flexWrap: "wrap" }}>
             <div style={{
               width: "68px", height: "68px",
@@ -91,7 +90,6 @@ export default async function CategoryPage({ params }: { params: { slug: string 
             </div>
 
             <div>
-              {/* Badge */}
               <div style={{
                 display: "inline-flex", alignItems: "center", gap: "7px",
                 background: `rgba(${info.rgb},0.08)`,
@@ -132,7 +130,6 @@ export default async function CategoryPage({ params }: { params: { slug: string 
         </div>
       </div>
 
-      {/* Posts grid */}
       <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "48px 1.5rem 80px", position: "relative", zIndex: 1 }}>
         <ScrollReveal direction="up">
           {posts && posts.length > 0 ? (

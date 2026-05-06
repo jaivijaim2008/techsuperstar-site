@@ -21,8 +21,13 @@ function getYouTubeId(url: string) {
   return null;
 }
 
-export default async function PostPage({ params }: { params: { slug: string } }) {
-  const post = await getPost(params.slug);
+export default async function PostPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const post = await getPost(slug);
 
   if (!post) {
     return (
@@ -81,7 +86,6 @@ export default async function PostPage({ params }: { params: { slug: string } })
         .prose-content a:hover { border-color: #ff4d00; }
       `}</style>
 
-      {/* Post hero */}
       <div style={{
         position: "relative", overflow: "hidden",
         background: "linear-gradient(160deg, #060606 0%, #0f0600 50%, #060606 100%)",
@@ -92,7 +96,6 @@ export default async function PostPage({ params }: { params: { slug: string } })
         <div style={{ position: "absolute", top: "-80px", left: "-60px", width: 300, height: 300, borderRadius: "50%", background: "rgba(255,77,0,0.06)", filter: "blur(70px)", pointerEvents: "none" }} />
 
         <div style={{ maxWidth: "800px", margin: "0 auto", position: "relative", zIndex: 1 }}>
-          {/* Breadcrumb */}
           <p style={{ color: "#444", fontSize: "12px", marginBottom: "20px", letterSpacing: "0.5px" }}>
             <Link href="/" style={{ color: "#ff4d00", textDecoration: "none" }}>Home</Link>
             {post.categories?.[0] && (
@@ -107,7 +110,6 @@ export default async function PostPage({ params }: { params: { slug: string } })
             <span style={{ color: "#555" }}>{post.title}</span>
           </p>
 
-          {/* Category badge */}
           {post.categories?.[0] && (
             <div style={{
               display: "inline-flex", alignItems: "center", gap: "6px",
@@ -122,7 +124,6 @@ export default async function PostPage({ params }: { params: { slug: string } })
             </div>
           )}
 
-          {/* Title */}
           <h1 style={{
             color: "#ffffff",
             fontSize: "clamp(1.6rem, 4vw, 2.6rem)",
@@ -134,11 +135,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
             {post.title}
           </h1>
 
-          {/* Meta */}
-          <div style={{
-            display: "flex", alignItems: "center", gap: "20px",
-            flexWrap: "wrap",
-          }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "20px", flexWrap: "wrap" }}>
             <div style={{
               display: "flex", alignItems: "center", gap: "8px",
               background: "rgba(255,255,255,0.03)",
@@ -165,11 +162,8 @@ export default async function PostPage({ params }: { params: { slug: string } })
         </div>
       </div>
 
-      {/* Post content */}
       <div style={{ maxWidth: "800px", margin: "0 auto", padding: "48px 1.5rem 80px" }}>
-
         <ScrollReveal direction="up">
-          {/* YouTube embed */}
           {youtubeId && (
             <div style={{
               marginBottom: "40px", position: "relative",
@@ -188,7 +182,6 @@ export default async function PostPage({ params }: { params: { slug: string } })
             </div>
           )}
 
-          {/* Featured image */}
           {!youtubeId && post.image && (
             <div style={{ marginBottom: "40px" }}>
               <img
@@ -204,10 +197,8 @@ export default async function PostPage({ params }: { params: { slug: string } })
             </div>
           )}
 
-          {/* Divider */}
           <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(255,77,0,0.3), transparent)", marginBottom: "40px" }} />
 
-          {/* Body */}
           <div className="prose-content">
             {post.body ? (
               <PortableText value={post.body} components={{
@@ -248,13 +239,11 @@ export default async function PostPage({ params }: { params: { slug: string } })
             )}
           </div>
 
-          {/* Divider */}
           <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(255,77,0,0.2), transparent)", margin: "48px 0" }} />
 
-          <ShareButtons title={post.title} slug={params.slug} />
+          <ShareButtons title={post.title} slug={slug} />
           <CommentsSection postId={post._id} initialComments={post.comments || []} />
 
-          {/* Back link */}
           <div style={{ marginTop: "48px" }}>
             <Link href="/" style={{
               display: "inline-flex", alignItems: "center", gap: "8px",
@@ -264,15 +253,11 @@ export default async function PostPage({ params }: { params: { slug: string } })
               border: "1px solid rgba(255,77,0,0.2)",
               padding: "10px 20px", borderRadius: "50px",
               transition: "all 0.25s ease",
-            }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,77,0,0.15)"; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,77,0,0.08)"; }}
-            >
+            }}>
               ← Back to Home
             </Link>
           </div>
         </ScrollReveal>
-
       </div>
 
       <Footer />
