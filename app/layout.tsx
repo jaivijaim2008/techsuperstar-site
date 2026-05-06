@@ -21,24 +21,38 @@ export const metadata: Metadata = {
     default: "TechSuperStar - Tech Reviews & News in Tamil",
     template: "%s | TechSuperStar",
   },
-  description: "Your ultimate source for honest tech reviews, buying guides, and the latest news in Tamil. Phones, laptops, tablets, gaming and more.",
-  keywords: ["tech reviews tamil", "phone review tamil", "laptop review", "TechSuperStar", "tech news india"],
+  description: "TechSuperStar — Tamil Nadu's #1 tech review channel. Get honest smartphone reviews, laptop buying guides, gaming gear comparisons and the latest tech news in Tamil. 2M+ YouTube subscribers trust us.",
+  keywords: [
+    "tech reviews tamil",
+    "phone review tamil",
+    "laptop review tamil",
+    "TechSuperStar",
+    "tech news india",
+    "smartphone review tamil",
+    "gaming tamil",
+    "tablet review tamil",
+    "best phone tamil",
+    "tech channel tamil",
+  ],
   metadataBase: new URL("https://techsuperstar-site.vercel.app"),
   openGraph: {
     type: "website",
     siteName: "TechSuperStar",
     title: "TechSuperStar - Tech Reviews & News in Tamil",
-    description: "Honest tech reviews, buying guides, and latest news in Tamil.",
+    description: "Tamil Nadu's #1 tech review channel. Honest smartphone reviews, laptop guides and tech news in Tamil. Trusted by 2M+ subscribers.",
     images: [{ url: "/favicon.jpg", width: 1200, height: 630, alt: "TechSuperStar" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "TechSuperStar - Tech Reviews & News in Tamil",
-    description: "Honest tech reviews, buying guides, and latest news in Tamil.",
+    description: "Tamil Nadu's #1 tech review channel. Honest smartphone reviews, laptop guides and tech news in Tamil. Trusted by 2M+ subscribers.",
     images: ["/favicon.jpg"],
     creator: "@Tech_SuperStar",
   },
   robots: { index: true, follow: true },
+  alternates: {
+    canonical: "https://techsuperstar-site.vercel.app",
+  },
 };
 
 export default function RootLayout({
@@ -47,12 +61,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${dmSans.variable} ${playfair.variable}`}>
+    <html lang="ta-IN" className={`${dmSans.variable} ${playfair.variable}`}>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
-<link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
-<link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
-<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
+        <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
       <body className="min-h-screen bg-gray-900 text-white">
         {children}
