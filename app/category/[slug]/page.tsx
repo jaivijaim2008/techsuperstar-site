@@ -1,103 +1,168 @@
 import Navbar from "@/components/Navbar";
 import PostCard from "@/components/PostCard";
 import Footer from "@/components/Footer";
+import ScrollReveal from "@/components/ScrollReveal";
 import { getPostsByCategory } from "@/lib/query";
 import Link from "next/link";
 
-const categoryInfo: Record<string, { icon: string; color: string; description: string }> = {
-  phones: { icon: "📱", color: "#ff4d00", description: "Latest smartphone reviews and news" },
-  laptops: { icon: "💻", color: "#0066ff", description: "Laptop reviews and buying guides" },
-  tablets: { icon: "📟", color: "#00aa44", description: "Tablet reviews and comparisons" },
-  gaming: { icon: "🎮", color: "#aa00ff", description: "Gaming hardware, reviews and news" },
-  reviews: { icon: "⭐", color: "#ff6600", description: "In-depth product reviews" },
-  accessories: { icon: "🎧", color: "#0099cc", description: "Tech accessories and gadgets" },
+const categoryInfo: Record<string, { icon: string; color: string; rgb: string; description: string }> = {
+  phones:      { icon: "📱", color: "#ff4d00", rgb: "255,77,0",    description: "Latest smartphone reviews and news" },
+  laptops:     { icon: "💻", color: "#0066ff", rgb: "0,102,255",   description: "Laptop reviews and buying guides" },
+  tablets:     { icon: "📟", color: "#00aa44", rgb: "0,170,68",    description: "Tablet reviews and comparisons" },
+  gaming:      { icon: "🎮", color: "#aa00ff", rgb: "170,0,255",   description: "Gaming hardware, reviews and news" },
+  reviews:     { icon: "⭐", color: "#ff6600", rgb: "255,102,0",   description: "In-depth product reviews" },
+  accessories: { icon: "🎧", color: "#0099cc", rgb: "0,153,204",   description: "Tech accessories and gadgets" },
 };
 
-export default async function CategoryPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
+export default async function CategoryPage({ params }: { params: { slug: string } }) {
   const { slug } = params;
   const posts = await getPostsByCategory(slug);
-  const info = categoryInfo[slug] || { icon: "📂", color: "#ff4d00", description: "" };
+  const info = categoryInfo[slug] || { icon: "📂", color: "#ff4d00", rgb: "255,77,0", description: "" };
+  const label = slug.charAt(0).toUpperCase() + slug.slice(1);
 
   return (
-    <div style={{ background: "#0a0a0a", minHeight: "100vh", fontFamily: "'Arial', sans-serif" }}>
+    <div style={{ background: "#060606", minHeight: "100vh", fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", overflowX: "hidden" }}>
       <Navbar />
 
-      {/* Category Header */}
+      <style>{`
+        @keyframes shimmerText {
+          0%   { background-position: 0% center; }
+          100% { background-position: 200% center; }
+        }
+        @keyframes badgePulse {
+          0%,100% { box-shadow: 0 0 0 0 rgba(255,77,0,0.25); }
+          50%     { box-shadow: 0 0 0 6px rgba(255,77,0,0); }
+        }
+        @keyframes gridPan {
+          from { background-position: 0 0; }
+          to   { background-position: 50px 50px; }
+        }
+        @keyframes iconPulse {
+          0%,100% { box-shadow: 0 0 0 0 rgba(${info.rgb},0.3); }
+          50%     { box-shadow: 0 0 0 10px rgba(${info.rgb},0); }
+        }
+        .posts-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 22px;
+        }
+      `}</style>
+
+      {/* Hero header */}
       <div style={{
-        background: "#0f0f0f",
-        borderBottom: "1px solid #1a1a1a",
-        padding: "48px 1.5rem",
+        position: "relative", overflow: "hidden",
+        background: `linear-gradient(160deg, #060606 0%, rgba(${info.rgb},0.04) 50%, #060606 100%)`,
+        padding: "60px 1.5rem 52px",
+        borderBottom: `1px solid rgba(${info.rgb},0.12)`,
       }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <p style={{ color: "#555", fontSize: "13px", marginBottom: "12px" }}>
+        {/* Animated grid */}
+        <div style={{
+          position: "absolute", inset: 0,
+          backgroundImage: `linear-gradient(rgba(${info.rgb},0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(${info.rgb},0.02) 1px, transparent 1px)`,
+          backgroundSize: "55px 55px",
+          animation: "gridPan 20s linear infinite",
+          pointerEvents: "none",
+        }} />
+        {/* Glow orbs */}
+        <div style={{ position: "absolute", top: "-80px", left: "-80px", width: 320, height: 320, borderRadius: "50%", background: `rgba(${info.rgb},0.07)`, filter: "blur(70px)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: "-40px", right: "10%", width: 200, height: 200, borderRadius: "50%", background: `rgba(${info.rgb},0.04)`, filter: "blur(50px)", pointerEvents: "none" }} />
+
+        <div style={{ maxWidth: "1200px", margin: "0 auto", position: "relative", zIndex: 1 }}>
+          {/* Breadcrumb */}
+          <p style={{ color: "#444", fontSize: "12px", marginBottom: "24px", letterSpacing: "0.5px" }}>
             <Link href="/" style={{ color: "#ff4d00", textDecoration: "none" }}>Home</Link>
-            {" → "}
-            <span style={{ color: "#777" }}>{slug.charAt(0).toUpperCase() + slug.slice(1)}</span>
+            <span style={{ margin: "0 8px", color: "#333" }}>→</span>
+            <span style={{ color: "#555" }}>{label}</span>
           </p>
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+
+          {/* Icon + title row */}
+          <div style={{ display: "flex", alignItems: "center", gap: "20px", flexWrap: "wrap" }}>
             <div style={{
-              width: "56px", height: "56px",
-              background: info.color + "22",
-              border: `2px solid ${info.color}`,
-              borderRadius: "12px",
-              display: "flex", alignItems: "center",
-              justifyContent: "center", fontSize: "28px",
+              width: "68px", height: "68px",
+              background: `rgba(${info.rgb},0.1)`,
+              border: `2px solid rgba(${info.rgb},0.4)`,
+              borderRadius: "18px",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: "32px", flexShrink: 0,
+              boxShadow: `0 0 30px rgba(${info.rgb},0.2)`,
+              animation: "iconPulse 2.5s ease-in-out infinite",
             }}>
               {info.icon}
             </div>
+
             <div>
-              <h1 style={{
-                color: "#fff", fontSize: "28px", fontWeight: "700",
-                fontFamily: "'Georgia', serif", margin: "0 0 6px",
+              {/* Badge */}
+              <div style={{
+                display: "inline-flex", alignItems: "center", gap: "7px",
+                background: `rgba(${info.rgb},0.08)`,
+                border: `1px solid rgba(${info.rgb},0.25)`,
+                color: info.color,
+                fontSize: "10px", fontWeight: "700",
+                padding: "4px 12px", borderRadius: "50px",
+                letterSpacing: "2px", textTransform: "uppercase",
+                marginBottom: "10px",
               }}>
-                {slug.charAt(0).toUpperCase() + slug.slice(1)}
+                Category
+              </div>
+
+              <h1 style={{
+                fontSize: "clamp(1.8rem, 4vw, 3rem)",
+                fontWeight: "900", margin: "0 0 8px",
+                fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif",
+                background: `linear-gradient(90deg, #ffffff 0%, ${info.color} 50%, #ffffff 100%)`,
+                backgroundSize: "200% auto",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                animation: "shimmerText 4s linear infinite",
+                lineHeight: 1.1,
+              }}>
+                {label}
               </h1>
-              <p style={{ color: "#666", fontSize: "14px", margin: 0 }}>
-                {info.description} • {posts?.length || 0} article{posts?.length !== 1 ? "s" : ""}
+
+              <p style={{ color: "#555", fontSize: "13px", margin: 0 }}>
+                {info.description}
+                <span style={{ color: info.color, fontWeight: 700, marginLeft: 8 }}>
+                  • {posts?.length || 0} article{posts?.length !== 1 ? "s" : ""}
+                </span>
               </p>
             </div>
           </div>
+
+          <div style={{ height: 2, width: 80, background: `linear-gradient(90deg, ${info.color}, rgba(${info.rgb},0.1))`, borderRadius: 2, marginTop: 24 }} />
         </div>
       </div>
 
-      {/* Posts Grid */}
-      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "40px 1.5rem" }}>
-        {posts && posts.length > 0 ? (
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-            gap: "16px",
-          }}>
-            {posts.map((post: any) => (
-              <PostCard key={post.slug.current} post={post} />
-            ))}
-          </div>
-        ) : (
-          <div style={{
-            textAlign: "center", padding: "80px 20px",
-            background: "#141414", borderRadius: "12px",
-            border: "1px solid #1e1e1e",
-          }}>
-            <div style={{ fontSize: "48px", marginBottom: "16px" }}>{info.icon}</div>
-            <p style={{ color: "#555", fontSize: "16px", margin: "0 0 8px" }}>
-              No articles in this category yet
-            </p>
-            <p style={{ color: "#444", fontSize: "13px", margin: "0 0 24px" }}>
-              Check back soon for new content!
-            </p>
-            <Link href="/" style={{
-              background: "#ff4d00", color: "#fff",
-              padding: "10px 24px", borderRadius: "8px",
-              textDecoration: "none", fontSize: "13px", fontWeight: "600",
+      {/* Posts grid */}
+      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "48px 1.5rem 80px", position: "relative", zIndex: 1 }}>
+        <ScrollReveal direction="up">
+          {posts && posts.length > 0 ? (
+            <div className="posts-grid">
+              {posts.map((post: any) => (
+                <PostCard key={post.slug.current} post={post} />
+              ))}
+            </div>
+          ) : (
+            <div style={{
+              textAlign: "center", padding: "80px 24px",
+              background: "linear-gradient(135deg, #0f0f0f, #141414)",
+              borderRadius: "20px",
+              border: `1px dashed rgba(${info.rgb},0.2)`,
             }}>
-              Back to Home
-            </Link>
-          </div>
-        )}
+              <div style={{ fontSize: "56px", marginBottom: "16px" }}>{info.icon}</div>
+              <p style={{ color: "#555", fontSize: "16px", margin: "0 0 8px" }}>No articles in this category yet</p>
+              <p style={{ color: "#444", fontSize: "13px", margin: "0 0 28px" }}>Check back soon for new content!</p>
+              <Link href="/" style={{
+                background: `linear-gradient(135deg, ${info.color}, #ff8800)`,
+                color: "#fff", padding: "12px 28px",
+                borderRadius: "50px", textDecoration: "none",
+                fontSize: "13px", fontWeight: "700",
+                boxShadow: `0 4px 20px rgba(${info.rgb},0.3)`,
+              }}>
+                ← Back to Home
+              </Link>
+            </div>
+          )}
+        </ScrollReveal>
       </div>
 
       <Footer />
