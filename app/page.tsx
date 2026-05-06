@@ -5,8 +5,9 @@ import { getPosts } from "@/lib/query";
 import Link from "next/link";
 import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
+import ScrollReveal from "@/components/ScrollReveal";
 
-export const revalidate = 0;
+export const revalidate = 60;
 
 export default async function Home() {
   const posts = await getPosts();
@@ -17,12 +18,10 @@ export default async function Home() {
       <Navbar />
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap');
-
         .home-root {
           background: #060606;
           min-height: 100vh;
-          font-family: 'DM Sans', sans-serif;
+          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
           overflow-x: hidden;
         }
 
@@ -48,17 +47,9 @@ export default async function Home() {
           z-index: 0;
         }
 
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(28px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
         @keyframes shimmerText {
           0%   { background-position: 0% center; }
           100% { background-position: 200% center; }
-        }
-        @keyframes lineExpand {
-          from { width: 0; }
-          to   { width: 60px; }
         }
         @keyframes badgePulse {
           0%,100% { box-shadow: 0 0 0 0 rgba(255,77,0,0.25); }
@@ -82,8 +73,6 @@ export default async function Home() {
           align-items: flex-end;
           justify-content: space-between;
           margin-bottom: 36px;
-          animation: fadeUp 0.7s ease both;
-          animation-delay: 0.1s;
           flex-wrap: wrap;
           gap: 16px;
         }
@@ -116,7 +105,7 @@ export default async function Home() {
           font-size: clamp(22px, 3.5vw, 32px);
           font-weight: 900;
           margin: 0 0 10px;
-          font-family: 'Playfair Display', Georgia, serif;
+          font-family: var(--font-playfair), 'Playfair Display', Georgia, serif;
           background: linear-gradient(90deg, #ffffff 0%, #ff4d00 40%, #ffaa55 60%, #ffffff 100%);
           background-size: 200% auto;
           -webkit-background-clip: text;
@@ -129,7 +118,6 @@ export default async function Home() {
           height: 2px;
           background: linear-gradient(90deg, #ff4d00, rgba(255,77,0,0.1));
           border-radius: 2px;
-          animation: lineExpand 0.8s ease 0.3s both;
         }
 
         .view-all-btn {
@@ -159,7 +147,6 @@ export default async function Home() {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
           gap: 22px;
-          animation: fadeUp 0.7s ease 0.25s both;
         }
 
         .empty-state {
@@ -170,17 +157,6 @@ export default async function Home() {
           border: 1px dashed rgba(255,77,0,0.15);
           color: #555;
           font-size: 14px;
-          animation: fadeUp 0.5s ease both;
-        }
-
-        .reveal {
-          opacity: 0;
-          transform: translateY(24px);
-          transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-        .reveal.visible {
-          opacity: 1;
-          transform: translateY(0);
         }
 
         .cta-banner {
@@ -216,7 +192,7 @@ export default async function Home() {
         }
         .cta-text h3 {
           font-size: clamp(18px, 3vw, 26px);
-          font-family: 'Playfair Display', serif;
+          font-family: var(--font-playfair), 'Playfair Display', serif;
           font-weight: 900;
           color: #fff;
           margin: 0 0 8px;
@@ -238,7 +214,7 @@ export default async function Home() {
           font-size: 20px;
           font-weight: 800;
           color: #ff4d00;
-          font-family: 'DM Sans', sans-serif;
+          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
           line-height: 1.1;
         }
         .cta-stat-label {
@@ -302,18 +278,9 @@ export default async function Home() {
         }
       `}</style>
 
-      <script dangerouslySetInnerHTML={{ __html: `
-        document.addEventListener('DOMContentLoaded', function() {
-          const els = document.querySelectorAll('.reveal');
-          const io = new IntersectionObserver((entries) => {
-            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
-          }, { threshold: 0.12 });
-          els.forEach(el => io.observe(el));
-        });
-      `}} />
-
       <div className="ambient-glow" />
 
+      {/* Hero — no ScrollReveal, shows immediately */}
       <HeroSection />
 
       <h1 style={{ position:"absolute", left:"-9999px", width:"1px", height:"1px", overflow:"hidden" }}>
@@ -322,71 +289,83 @@ export default async function Home() {
 
       <div className="section-wrapper">
 
-        {/* CategoryGrid — NO reveal wrapper */}
-        <CategoryGrid />
+        {/* CategoryGrid — slides up when scrolled to */}
+        <ScrollReveal direction="up" delay={0}>
+          <CategoryGrid />
+        </ScrollReveal>
 
         {/* Latest Articles */}
         <div style={{ padding: "40px 0 80px" }}>
-          <div className="section-header">
-            <div>
-              <div className="section-badge">
-                <span className="section-badge-dot" />
-                Fresh off the press
-              </div>
-              <h2 className="section-title">Latest Tech Articles & Reviews</h2>
-              <div className="section-underline" />
-            </div>
-            <Link href="/articles" className="view-all-btn">
-              View All Articles →
-            </Link>
-          </div>
 
-          {latestPosts && latestPosts.length > 0 ? (
-            <div className="posts-grid">
-              {latestPosts.filter((post: any) => post?.slug?.current).map((post: any) => (
-                <PostCard key={post.slug.current} post={post} />
-              ))}
-            </div>
-          ) : (
-            <div className="empty-state">
-              No articles yet. Start creating posts in the studio!
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* CTA Banner */}
-      <div style={{ padding: "0 1.5rem 72px", position: "relative", zIndex: 1 }}>
-        <div className="cta-banner reveal" style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <div className="cta-text">
-            <h3>Stay ahead of the tech curve 🚀</h3>
-            <p>Subscribe to our YouTube channel and never miss a review, unboxing or buying guide — all in Tamil.</p>
-
-            {/* YouTube Stats */}
-            <div className="cta-stats">
-              {[
-                { label: "Subscribers", value: "2.06M" },
-                { label: "Total Views",  value: "3.2M"  },
-                { label: "Likes",        value: "203K"  },
-              ].map((stat) => (
-                <div key={stat.label}>
-                  <div className="cta-stat-value">{stat.value}</div>
-                  <div className="cta-stat-label">{stat.label}</div>
+          {/* Header slides up first */}
+          <ScrollReveal direction="up" delay={0}>
+            <div className="section-header">
+              <div>
+                <div className="section-badge">
+                  <span className="section-badge-dot" />
+                  Fresh off the press
                 </div>
-              ))}
+                <h2 className="section-title">Latest Tech Articles & Reviews</h2>
+                <div className="section-underline" />
+              </div>
+              <Link href="/articles" className="view-all-btn">
+                View All Articles →
+              </Link>
             </div>
-          </div>
+          </ScrollReveal>
 
-          <div className="cta-actions">
-            <Link href="https://www.youtube.com/@TechSuperStarOfficial" target="_blank" className="cta-btn-primary">
-              ▶ Subscribe on YouTube
-            </Link>
-            <Link href="/contact" className="cta-btn-secondary">
-              Contact Us →
-            </Link>
-          </div>
+          {/* Posts grid fades up slightly after header */}
+          <ScrollReveal direction="up" delay={100}>
+            {latestPosts && latestPosts.length > 0 ? (
+              <div className="posts-grid">
+                {latestPosts.filter((post: any) => post?.slug?.current).map((post: any) => (
+                  <PostCard key={post.slug.current} post={post} />
+                ))}
+              </div>
+            ) : (
+              <div className="empty-state">
+                No articles yet. Start creating posts in the studio!
+              </div>
+            )}
+          </ScrollReveal>
+
         </div>
       </div>
+
+      {/* CTA Banner — slides up from bottom */}
+      <ScrollReveal direction="up" delay={0}>
+        <div style={{ padding: "0 1.5rem 72px", position: "relative", zIndex: 1 }}>
+          <div className="cta-banner" style={{ maxWidth: "1200px", margin: "0 auto" }}>
+            <div className="cta-text">
+              <h3>Stay ahead of the tech curve 🚀</h3>
+              <p>Subscribe to our YouTube channel and never miss a review, unboxing or buying guide — all in Tamil.</p>
+
+              {/* YouTube Stats */}
+              <div className="cta-stats">
+                {[
+                  { label: "Subscribers", value: "2.06M" },
+                  { label: "Total Views",  value: "3.2M"  },
+                  { label: "Likes",        value: "203K"  },
+                ].map((stat) => (
+                  <div key={stat.label}>
+                    <div className="cta-stat-value">{stat.value}</div>
+                    <div className="cta-stat-label">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="cta-actions">
+              <Link href="https://www.youtube.com/@TechSuperStarOfficial" target="_blank" className="cta-btn-primary">
+                ▶ Subscribe on YouTube
+              </Link>
+              <Link href="/contact" className="cta-btn-secondary">
+                Contact Us →
+              </Link>
+            </div>
+          </div>
+        </div>
+      </ScrollReveal>
 
       <Footer />
     </div>
