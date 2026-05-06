@@ -4,25 +4,25 @@ import { useEffect, useState } from "react";
 
 export default function HeroSection() {
   const [mounted, setMounted] = useState(false);
-  const [count, setCount] = useState({ subs: 0, views: 0, likes: 0 });
+  const [count, setCount] = useState({ subs: 206, views: 320, likes: 203 });
 
   useEffect(() => {
     setMounted(true);
 
-    // Animated counters
-    const targets = { subs: 206, views: 320, likes: 203 };
-    const duration = 1800;
-    const steps = 60;
-    const interval = duration / steps;
+    // Start counter from 0 and animate up
     let step = 0;
+    const steps = 60;
+    const duration = 1800;
+    const interval = duration / steps;
+
     const timer = setInterval(() => {
       step++;
       const progress = step / steps;
       const ease = 1 - Math.pow(1 - progress, 3);
       setCount({
-        subs: Math.floor(ease * targets.subs),
-        views: Math.floor(ease * targets.views),
-        likes: Math.floor(ease * targets.likes),
+        subs: Math.floor(ease * 206),
+        views: Math.floor(ease * 320),
+        likes: Math.floor(ease * 203),
       });
       if (step >= steps) clearInterval(timer);
     }, interval);
@@ -41,8 +41,6 @@ export default function HeroSection() {
     }}>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@400;500;600&display=swap');
-
         @keyframes orbFloat1 {
           0%,100% { transform: translateY(0) translateX(0) scale(1); }
           33%      { transform: translateY(-40px) translateX(20px) scale(1.05); }
@@ -97,10 +95,6 @@ export default function HeroSection() {
           from { top: -10%; }
           to   { top: 110%; }
         }
-        @keyframes borderTrace {
-          0%   { background-position: 0% 0%; }
-          100% { background-position: 300% 0%; }
-        }
         @keyframes tagFloat {
           0%,100% { transform: translateY(0); }
           50%      { transform: translateY(-8px); }
@@ -118,12 +112,13 @@ export default function HeroSection() {
           text-decoration: none;
           font-weight: 700;
           font-size: clamp(13px, 2vw, 15px);
-          font-family: 'DM Sans', sans-serif;
+          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
           letter-spacing: 0.3px;
           transition: transform 0.3s ease, box-shadow 0.3s ease;
           animation: btnShimmer 4s ease infinite, btnGlow 2.5s ease infinite;
           position: relative;
           overflow: hidden;
+          will-change: transform;
         }
         .hero-btn:hover {
           transform: scale(1.06) translateY(-2px) !important;
@@ -150,9 +145,10 @@ export default function HeroSection() {
           text-decoration: none;
           font-weight: 600;
           font-size: clamp(12px, 1.8vw, 14px);
-          font-family: 'DM Sans', sans-serif;
+          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
           border: 1px solid rgba(255,255,255,0.08);
           transition: all 0.3s ease;
+          will-change: transform;
         }
         .hero-secondary-btn:hover {
           background: rgba(255,255,255,0.07);
@@ -172,6 +168,7 @@ export default function HeroSection() {
           min-width: 120px;
           transition: all 0.3s ease;
           backdrop-filter: blur(10px);
+          will-change: transform;
         }
         .stat-card:hover {
           background: rgba(255,77,0,0.05);
@@ -187,13 +184,14 @@ export default function HeroSection() {
           border-radius: 8px;
           padding: 6px 12px;
           font-size: 11px;
-          font-family: 'DM Sans', sans-serif;
+          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
           font-weight: 600;
           color: rgba(255,77,0,0.7);
           letter-spacing: 0.5px;
           backdrop-filter: blur(8px);
           white-space: nowrap;
           pointer-events: none;
+          will-change: transform;
         }
 
         @media (max-width: 640px) {
@@ -210,6 +208,8 @@ export default function HeroSection() {
         backgroundImage: "linear-gradient(rgba(255,77,0,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,77,0,0.025) 1px, transparent 1px)",
         backgroundSize: "55px 55px",
         animation: "gridPan 20s linear infinite",
+        willChange: "background-position",
+        transform: "translateZ(0)",
         pointerEvents: "none",
       }} />
 
@@ -222,10 +222,10 @@ export default function HeroSection() {
 
       {/* ── Floating orbs ── */}
       {[
-        { w:380, h:380, top:"5%",  left:"-5%",  color:"rgba(255,60,0,0.07)",  anim:"orbFloat1 10s ease-in-out infinite",          blur:70 },
-        { w:260, h:260, top:"55%", right:"-3%", color:"rgba(255,100,0,0.05)", anim:"orbFloat2 13s ease-in-out infinite",          blur:60 },
-        { w:200, h:200, top:"20%", right:"15%", color:"rgba(255,140,0,0.04)", anim:"orbFloat3 8s ease-in-out infinite",           blur:50 },
-        { w:150, h:150, bottom:"10%", left:"15%", color:"rgba(255,40,0,0.05)", anim:"orbFloat2 11s ease-in-out infinite reverse", blur:40 },
+        { w:380, h:380, top:"5%",    left:"-5%",  color:"rgba(255,60,0,0.07)",  anim:"orbFloat1 10s ease-in-out infinite",          blur:40 },
+        { w:260, h:260, top:"55%",   right:"-3%", color:"rgba(255,100,0,0.05)", anim:"orbFloat2 13s ease-in-out infinite",          blur:35 },
+        { w:200, h:200, top:"20%",   right:"15%", color:"rgba(255,140,0,0.04)", anim:"orbFloat3 8s ease-in-out infinite",           blur:28 },
+        { w:150, h:150, bottom:"10%",left:"15%",  color:"rgba(255,40,0,0.05)",  anim:"orbFloat2 11s ease-in-out infinite reverse",  blur:22 },
       ].map((orb, i) => (
         <div key={i} style={{
           position: "absolute",
@@ -234,6 +234,7 @@ export default function HeroSection() {
           background: orb.color,
           filter: `blur(${orb.blur}px)`,
           animation: orb.anim,
+          willChange: "transform",
           top: (orb as any).top,
           bottom: (orb as any).bottom,
           left: (orb as any).left,
@@ -244,8 +245,8 @@ export default function HeroSection() {
 
       {/* ── Floating tags (desktop only) ── */}
       {mounted && [
-        { text: "📱 Smartphone Reviews", top: "18%", left: "4%",  delay: "0s" },
-        { text: "💻 Laptop Guides",      top: "28%", right: "4%", delay: "0.4s" },
+        { text: "📱 Smartphone Reviews", top: "18%", left: "4%",   delay: "0s" },
+        { text: "💻 Laptop Guides",      top: "28%", right: "4%",  delay: "0.4s" },
         { text: "🎮 Gaming Gear",        bottom: "28%", left: "3%",  delay: "0.8s" },
         { text: "⭐ Honest Opinions",    bottom: "22%", right: "3%", delay: "1.2s" },
       ].map((tag, i) => (
@@ -276,7 +277,7 @@ export default function HeroSection() {
           padding: "6px 18px", borderRadius: "50px",
           letterSpacing: "2.5px", textTransform: "uppercase",
           marginBottom: "32px",
-          fontFamily: "'DM Sans', sans-serif",
+          fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
           animation: mounted ? "badgePulse 2.5s ease infinite, subtitleFade 0.6s ease both" : "none",
         }}>
           <span style={{
@@ -295,7 +296,7 @@ export default function HeroSection() {
             color: "#999",
             lineHeight: "1.1",
             margin: 0,
-            fontFamily: "'Playfair Display', Georgia, serif",
+            fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif",
             fontStyle: "italic",
             letterSpacing: "-0.5px",
             animation: mounted ? "titleReveal 0.9s ease 0.1s both" : "none",
@@ -309,7 +310,7 @@ export default function HeroSection() {
           fontWeight: "900",
           lineHeight: "1.0",
           margin: "0 0 28px",
-          fontFamily: "'Playfair Display', Georgia, serif",
+          fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif",
           letterSpacing: "-3px",
           background: "linear-gradient(135deg, #ff6622 0%, #ffaa44 30%, #ff4d00 55%, #ffcc66 75%, #ff4d00 100%)",
           backgroundSize: "200% auto",
@@ -326,7 +327,7 @@ export default function HeroSection() {
           lineHeight: "1.75",
           margin: "0 auto 44px",
           maxWidth: "520px",
-          fontFamily: "'DM Sans', sans-serif",
+          fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
           fontWeight: "400",
           animation: mounted ? "subtitleFade 0.8s ease 0.5s both" : "none",
         }}>
@@ -372,7 +373,7 @@ export default function HeroSection() {
               <div style={{
                 fontSize: "clamp(22px, 3.5vw, 30px)",
                 fontWeight: "900",
-                fontFamily: "'Playfair Display', serif",
+                fontFamily: "var(--font-playfair), 'Playfair Display', serif",
                 color: "#ff4d00",
                 lineHeight: "1",
                 marginBottom: "6px",
@@ -384,7 +385,7 @@ export default function HeroSection() {
                 color: "#444",
                 letterSpacing: "1.5px",
                 textTransform: "uppercase",
-                fontFamily: "'DM Sans', sans-serif",
+                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
                 fontWeight: "600",
               }}>
                 {stat.label}
