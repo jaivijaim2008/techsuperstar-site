@@ -14,29 +14,44 @@ const categories = [
 
 const loop = [...categories, ...categories, ...categories, ...categories];
 
+type Particle = { id: number; x: number; y: number; angle: number; speed: number; size: number };
+
 function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number; paused: boolean }) {
   const [hovered, setHovered] = useState(false);
   const [clicked, setClicked] = useState(false);
+  const [particles, setParticles] = useState<Particle[]>([]);
+  const [shockwave, setShockwave] = useState(false);
   const [flash, setFlash] = useState(false);
-  const [ripples, setRipples] = useState<{ id: number }[]>([]);
-
-  const handleInteract = () => {
-    const id = Date.now();
-    setClicked(true);
-    setFlash(true);
-    setRipples(prev => [...prev, { id }]);
-    setTimeout(() => setClicked(false), 500);
-    setTimeout(() => setFlash(false), 500);
-    setTimeout(() => setRipples(prev => prev.filter(r => r.id !== id)), 800);
-  };
 
   const floatDuration = 2.4 + (idx % 6) * 0.35;
   const floatDelay = (idx % 6) * 0.3;
   const floatAnim = `float${idx % 6}`;
 
+  const handleInteract = () => {
+    // Generate burst particles
+    const newParticles: Particle[] = Array.from({ length: 12 }, (_, i) => ({
+      id: Date.now() + i,
+      x: 50,
+      y: 50,
+      angle: (i / 12) * 360,
+      speed: 35 + Math.random() * 40,
+      size: 3 + Math.random() * 5,
+    }));
+
+    setClicked(true);
+    setShockwave(true);
+    setFlash(true);
+    setParticles(newParticles);
+
+    setTimeout(() => setClicked(false), 450);
+    setTimeout(() => setShockwave(false), 600);
+    setTimeout(() => setFlash(false), 400);
+    setTimeout(() => setParticles([]), 700);
+  };
+
   return (
     <div
-      style={{ flexShrink: 0 }}
+      style={{ flexShrink: 0, perspective: "800px" }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -55,85 +70,121 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
           width: 130,
           padding: "28px 12px 22px",
           borderRadius: 24,
-          border: `1px solid ${hovered || clicked ? `rgba(${cat.rgb},0.6)` : "rgba(255,255,255,0.05)"}`,
+          border: `1px solid ${
+            clicked
+              ? `rgba(${cat.rgb},0.9)`
+              : hovered
+                ? `rgba(${cat.rgb},0.5)`
+                : "rgba(255,255,255,0.05)"
+          }`,
           background: hovered
-            ? `linear-gradient(160deg, rgba(${cat.rgb},0.12), rgba(${cat.rgb},0.04) 60%, #0a0a0a)`
-            : clicked
-              ? `linear-gradient(160deg, rgba(${cat.rgb},0.2), rgba(${cat.rgb},0.08) 60%, #0a0a0a)`
-              : "linear-gradient(160deg, #111, #0a0a0a)",
+            ? `linear-gradient(160deg, rgba(${cat.rgb},0.14), rgba(${cat.rgb},0.05) 60%, #0a0a0a)`
+            : "linear-gradient(160deg, #111, #0a0a0a)",
           boxShadow: clicked
-            ? `0 0 0 2px rgba(${cat.rgb},0.5), 0 20px 60px rgba(${cat.rgb},0.35), inset 0 1px 0 rgba(255,255,255,0.1)`
+            ? `0 0 0 3px rgba(${cat.rgb},0.6), 0 0 80px rgba(${cat.rgb},0.5), 0 30px 80px rgba(${cat.rgb},0.3), inset 0 0 30px rgba(${cat.rgb},0.1)`
             : hovered
               ? `0 0 0 1px rgba(${cat.rgb},0.2), 0 20px 50px rgba(${cat.rgb},0.2), inset 0 1px 0 rgba(255,255,255,0.05)`
               : "0 2px 16px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03)",
           position: "relative",
-          overflow: "hidden",
+          overflow: "visible",
           cursor: "pointer",
-          animation: (hovered || paused || clicked)
+          animation: clicked || hovered || paused
             ? "none"
             : `${floatAnim} ${floatDuration}s ease-in-out ${floatDelay}s infinite`,
           transform: clicked
-            ? "scale(0.88) rotate(2deg) skewX(-3deg)"
+            ? "scale(0.82) translateY(4px)"
             : hovered
-              ? "translateY(-10px) scale(1.05)"
-              : "scale(1)",
-          transition: "border 0.25s ease, background 0.25s ease, box-shadow 0.25s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1)",
+              ? "translateY(-12px) scale(1.06)"
+              : "scale(1) translateY(0px)",
+          transition: clicked
+            ? "transform 0.12s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.15s ease, border 0.15s ease"
+            : "transform 0.5s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease, border 0.3s ease, background 0.3s ease",
           willChange: "transform",
         }}>
 
-          {/* Flash overlay on click */}
-          {flash && (
-            <div style={{
-              position: "absolute", inset: 0,
-              background: `rgba(${cat.rgb}, 0.22)`,
-              borderRadius: 24,
-              animation: "flashFade 0.5s ease-out forwards",
-              pointerEvents: "none",
-              zIndex: 5,
-            }} />
-          )}
-
-          {/* Ripple from center */}
-          {ripples.map(r => (
-            <span key={r.id} style={{
-              position: "absolute",
-              top: "50%", left: "50%",
-              width: 10, height: 10,
-              borderRadius: "50%",
-              background: `rgba(${cat.rgb}, 0.35)`,
-              transform: "translate(-50%, -50%)",
-              animation: "rippleOut 0.8s ease-out forwards",
-              pointerEvents: "none",
-              zIndex: 10,
-            }} />
-          ))}
-
-          {/* Radial glow */}
+          {/* Inner clip container */}
           <div style={{
             position: "absolute", inset: 0,
-            background: `radial-gradient(ellipse at 50% 30%, rgba(${cat.rgb},${hovered ? 0.15 : clicked ? 0.25 : 0}), transparent 70%)`,
-            transition: "all 0.3s ease",
+            borderRadius: 24,
+            overflow: "hidden",
             pointerEvents: "none",
-          }} />
+          }}>
+            {/* Flash */}
+            {flash && (
+              <div style={{
+                position: "absolute", inset: 0,
+                background: `radial-gradient(circle at 50% 50%, rgba(${cat.rgb},0.6) 0%, rgba(${cat.rgb},0.1) 60%, transparent 100%)`,
+                animation: "flashBurst 0.4s ease-out forwards",
+                zIndex: 8,
+              }} />
+            )}
 
-          {/* Top shine line */}
-          <div style={{
-            position: "absolute", top: 0, left: "20%", right: "20%", height: 1,
-            background: `linear-gradient(90deg, transparent, rgba(${cat.rgb},0.8), transparent)`,
-            opacity: hovered || clicked ? 1 : 0,
-            transition: "opacity 0.3s ease",
-          }} />
+            {/* Shockwave ring */}
+            {shockwave && (
+              <div style={{
+                position: "absolute",
+                top: "50%", left: "50%",
+                width: 20, height: 20,
+                borderRadius: "50%",
+                border: `3px solid rgba(${cat.rgb},0.9)`,
+                transform: "translate(-50%, -50%)",
+                animation: "shockwaveExpand 0.6s ease-out forwards",
+                zIndex: 9,
+              }} />
+            )}
 
-          {/* Sweep shimmer */}
-          <div style={{
-            position: "absolute", top: 0,
-            left: hovered ? "120%" : clicked ? "120%" : "-80%",
-            width: "50%", height: "100%",
-            background: `linear-gradient(90deg, transparent, rgba(${cat.rgb},0.08), transparent)`,
-            transform: "skewX(-15deg)",
-            transition: "left 0.6s ease",
-            pointerEvents: "none",
-          }} />
+            {/* Radial glow */}
+            <div style={{
+              position: "absolute", inset: 0,
+              background: `radial-gradient(ellipse at 50% 30%, rgba(${cat.rgb},${hovered ? 0.15 : 0}), transparent 70%)`,
+              transition: "all 0.4s ease",
+            }} />
+
+            {/* Top shine */}
+            <div style={{
+              position: "absolute", top: 0, left: "15%", right: "15%", height: 1,
+              background: `linear-gradient(90deg, transparent, rgba(${cat.rgb},0.9), transparent)`,
+              opacity: hovered || clicked ? 1 : 0,
+              transition: "opacity 0.3s ease",
+            }} />
+
+            {/* Sweep */}
+            <div style={{
+              position: "absolute", top: 0,
+              left: hovered ? "120%" : "-80%",
+              width: "60%", height: "100%",
+              background: `linear-gradient(90deg, transparent, rgba(${cat.rgb},0.07), transparent)`,
+              transform: "skewX(-15deg)",
+              transition: "left 0.8s ease",
+            }} />
+          </div>
+
+          {/* Burst particles — outside clip */}
+          {particles.map(p => {
+            const rad = (p.angle * Math.PI) / 180;
+            const tx = Math.cos(rad) * p.speed;
+            const ty = Math.sin(rad) * p.speed;
+            return (
+              <span
+                key={p.id}
+                style={{
+                  position: "absolute",
+                  top: "50%", left: "50%",
+                  width: p.size, height: p.size,
+                  borderRadius: "50%",
+                  background: cat.color,
+                  boxShadow: `0 0 ${p.size * 2}px ${cat.color}`,
+                  transform: "translate(-50%, -50%)",
+                  animation: `particleFly 0.7s ease-out forwards`,
+                  // CSS custom props via inline style trick
+                  ["--tx" as string]: `${tx}px`,
+                  ["--ty" as string]: `${ty}px`,
+                  pointerEvents: "none",
+                  zIndex: 20,
+                }}
+              />
+            );
+          })}
 
           {/* Icon box */}
           <div style={{
@@ -141,43 +192,29 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
             borderRadius: 16,
             background: hovered
               ? `linear-gradient(135deg, rgba(${cat.rgb},0.25), rgba(${cat.rgb},0.08))`
-              : clicked
-                ? `linear-gradient(135deg, rgba(${cat.rgb},0.4), rgba(${cat.rgb},0.15))`
-                : `rgba(${cat.rgb},0.08)`,
-            border: `1px solid rgba(${cat.rgb},${hovered ? 0.4 : clicked ? 0.7 : 0.15})`,
+              : `rgba(${cat.rgb},0.08)`,
+            border: `1px solid rgba(${cat.rgb},${hovered ? 0.4 : 0.15})`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             color: cat.color,
-            transition: "all 0.35s cubic-bezier(0.34,1.56,0.64,1)",
+            transition: "all 0.4s cubic-bezier(0.34,1.56,0.64,1)",
             transform: clicked
-              ? "scale(0.8) rotate(-12deg)"
+              ? "scale(0.7) rotate(-20deg)"
               : hovered
-                ? "scale(1.15) rotate(-4deg)"
+                ? "scale(1.18) rotate(-5deg)"
                 : "scale(1) rotate(0deg)",
             boxShadow: clicked
-              ? `0 0 35px rgba(${cat.rgb},0.8), 0 0 70px rgba(${cat.rgb},0.4)`
+              ? `0 0 40px rgba(${cat.rgb},1), 0 0 80px rgba(${cat.rgb},0.5)`
               : hovered
                 ? `0 0 20px rgba(${cat.rgb},0.4), 0 0 40px rgba(${cat.rgb},0.15)`
                 : "none",
             position: "relative",
             zIndex: 1,
             flexShrink: 0,
-            animation: clicked ? "iconPop 0.45s cubic-bezier(0.34,1.56,0.64,1)" : "none",
+            animation: clicked ? "iconBounce 0.5s cubic-bezier(0.34,1.56,0.64,1)" : "none",
             overflow: "hidden",
           }}>
-            {ripples.map(r => (
-              <span key={r.id} style={{
-                position: "absolute",
-                top: "50%", left: "50%",
-                width: 8, height: 8,
-                borderRadius: "50%",
-                border: `2px solid rgba(${cat.rgb},0.9)`,
-                transform: "translate(-50%, -50%)",
-                animation: "iconRipple 0.6s ease-out forwards",
-                pointerEvents: "none",
-              }} />
-            ))}
             {cat.icon}
           </div>
 
@@ -192,6 +229,7 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
               fontFamily: "'DM Sans', sans-serif",
               transition: "color 0.3s ease",
               marginBottom: 4,
+              animation: clicked ? "textPop 0.4s ease-out" : "none",
             }}>
               {cat.name}
             </div>
@@ -212,11 +250,12 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
           <div style={{
             position: "absolute", bottom: 0, left: "50%",
             transform: `translateX(-50%) scaleX(${hovered || clicked ? 1 : 0})`,
-            width: "60%", height: 2,
+            width: "70%", height: 2,
             background: `linear-gradient(90deg, transparent, ${cat.color}, transparent)`,
-            borderRadius: 2,
-            boxShadow: `0 0 12px rgba(${cat.rgb},0.8)`,
+            
+            boxShadow: `0 0 16px rgba(${cat.rgb},0.9)`,
             transition: "transform 0.4s ease",
+            borderRadius: 2,
           }} />
         </div>
       </Link>
@@ -234,7 +273,6 @@ export default function CategoryGrid() {
   const dragOffset = useRef(0);
   const lastTouchX = useRef(0);
   const lastTouchTime = useRef(0);
-  const prevTouchX = useRef(0);
   const rafRef = useRef<number | null>(null);
 
   const getAnimatedX = useCallback(() => {
@@ -247,7 +285,6 @@ export default function CategoryGrid() {
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     const touch = e.touches[0];
     lastTouchX.current = touch.clientX;
-    prevTouchX.current = touch.clientX;
     lastTouchTime.current = performance.now();
     isDragging.current = true;
     velocityRef.current = 0;
@@ -268,19 +305,14 @@ export default function CategoryGrid() {
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     if (!isDragging.current) return;
-    e.stopPropagation();
 
     const touch = e.touches[0];
     const now = performance.now();
-    const dt = now - lastTouchTime.current;
+    const dt = Math.max(now - lastTouchTime.current, 1);
     const dx = touch.clientX - lastTouchX.current;
 
-    // Rolling velocity average for smoothness
-    if (dt > 0) {
-      velocityRef.current = velocityRef.current * 0.6 + (dx / dt) * 16 * 0.4;
-    }
+    velocityRef.current = velocityRef.current * 0.5 + (dx / dt) * 16 * 0.5;
 
-    prevTouchX.current = lastTouchX.current;
     lastTouchX.current = touch.clientX;
     lastTouchTime.current = now;
     dragOffset.current += dx;
@@ -300,12 +332,10 @@ export default function CategoryGrid() {
     if (!el) return;
 
     const glide = () => {
-      velocity *= 0.93; // smooth friction
+      velocity *= 0.93;
       currentX += velocity;
 
       const trackWidth = el.scrollWidth / 2;
-
-      // Seamless loop wrapping
       if (currentX <= -trackWidth) currentX += trackWidth;
       if (currentX > 0) currentX -= trackWidth;
 
@@ -314,7 +344,6 @@ export default function CategoryGrid() {
       if (Math.abs(velocity) > 0.3) {
         rafRef.current = requestAnimationFrame(glide);
       } else {
-        // Hand back to CSS animation seamlessly
         const trackTotalWidth = el.scrollWidth / 2;
         const normalizedX = ((currentX % trackTotalWidth) + trackTotalWidth) % trackTotalWidth;
         const progress = normalizedX / trackTotalWidth;
@@ -355,29 +384,37 @@ export default function CategoryGrid() {
           0%   { transform: translateX(0) translateZ(0); }
           100% { transform: translateX(-50%) translateZ(0); }
         }
-        @keyframes float0 { 0%,100% { transform: translateY(0px);   } 50% { transform: translateY(-9px);  } }
-        @keyframes float1 { 0%,100% { transform: translateY(-5px);  } 50% { transform: translateY(5px);   } }
-        @keyframes float2 { 0%,100% { transform: translateY(-2px);  } 50% { transform: translateY(-11px); } }
-        @keyframes float3 { 0%,100% { transform: translateY(3px);   } 50% { transform: translateY(-7px);  } }
-        @keyframes float4 { 0%,100% { transform: translateY(-7px);  } 50% { transform: translateY(3px);   } }
-        @keyframes float5 { 0%,100% { transform: translateY(1px);   } 50% { transform: translateY(-10px); } }
-        @keyframes rippleOut {
-          0%   { width: 10px; height: 10px; opacity: 0.7; }
-          100% { width: 200px; height: 200px; opacity: 0; }
+        @keyframes float0 { 0%,100%{transform:translateY(0px)}   50%{transform:translateY(-9px)}  }
+        @keyframes float1 { 0%,100%{transform:translateY(-5px)}  50%{transform:translateY(5px)}   }
+        @keyframes float2 { 0%,100%{transform:translateY(-2px)}  50%{transform:translateY(-11px)} }
+        @keyframes float3 { 0%,100%{transform:translateY(3px)}   50%{transform:translateY(-7px)}  }
+        @keyframes float4 { 0%,100%{transform:translateY(-7px)}  50%{transform:translateY(3px)}   }
+        @keyframes float5 { 0%,100%{transform:translateY(1px)}   50%{transform:translateY(-10px)} }
+
+        @keyframes flashBurst {
+          0%   { opacity: 1; transform: scale(1); }
+          50%  { opacity: 0.8; transform: scale(1.4); }
+          100% { opacity: 0; transform: scale(2); }
         }
-        @keyframes iconRipple {
-          0%   { width: 8px; height: 8px; opacity: 1; }
-          100% { width: 100px; height: 100px; opacity: 0; }
+        @keyframes shockwaveExpand {
+          0%   { width: 20px; height: 20px; opacity: 1; border-width: 3px; }
+          100% { width: 220px; height: 220px; opacity: 0; border-width: 1px; }
         }
-        @keyframes iconPop {
-          0%   { transform: scale(0.8) rotate(-12deg); }
-          35%  { transform: scale(1.4) rotate(9deg);   }
-          65%  { transform: scale(0.92) rotate(-5deg); }
-          100% { transform: scale(1.15) rotate(-4deg); }
+        @keyframes particleFly {
+          0%   { transform: translate(-50%, -50%) translate(0px, 0px) scale(1); opacity: 1; }
+          60%  { opacity: 0.8; transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(1.2); }
+          100% { transform: translate(-50%, -50%) translate(calc(var(--tx)*1.5), calc(var(--ty)*1.5)) scale(0); opacity: 0; }
         }
-        @keyframes flashFade {
-          0%   { opacity: 1; }
-          100% { opacity: 0; }
+        @keyframes iconBounce {
+          0%   { transform: scale(0.7) rotate(-20deg); }
+          40%  { transform: scale(1.45) rotate(12deg); }
+          70%  { transform: scale(0.9) rotate(-6deg); }
+          100% { transform: scale(1.18) rotate(-5deg); }
+        }
+        @keyframes textPop {
+          0%   { transform: scale(1); }
+          40%  { transform: scale(1.15); }
+          100% { transform: scale(1); }
         }
         .cat-track {
           display: flex;
@@ -398,16 +435,16 @@ export default function CategoryGrid() {
           -webkit-overflow-scrolling: touch;
         }
         .cat-fade-l {
-          position: absolute; left: 0; top: 0; bottom: 0; width: 160px;
-          background: linear-gradient(to right, #060606 0%, #060606 15%, rgba(6,6,6,0.85) 50%, transparent 100%);
+          position: absolute; left: 0; top: 0; bottom: 0; width: 120px;
+          background: linear-gradient(to right, #060606 0%, #060606 10%, rgba(6,6,6,0.85) 50%, transparent 100%);
           pointer-events: none; z-index: 3;
         }
         .cat-fade-r {
-          position: absolute; right: 0; top: 0; bottom: 0; width: 160px;
-          background: linear-gradient(to left, #060606 0%, #060606 15%, rgba(6,6,6,0.85) 50%, transparent 100%);
+          position: absolute; right: 0; top: 0; bottom: 0; width: 120px;
+          background: linear-gradient(to left, #060606 0%, #060606 10%, rgba(6,6,6,0.85) 50%, transparent 100%);
           pointer-events: none; z-index: 3;
         }
-        .cat-inner { padding: 0 160px; }
+        .cat-inner { padding: 0 120px; }
       `}</style>
 
       {/* Header */}
