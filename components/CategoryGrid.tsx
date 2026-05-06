@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
+import { FaMobileAlt, FaLaptop, FaTabletAlt, FaGamepad, FaStar, FaHeadphones } from "react-icons/fa";
 
 const categories = [
   {
@@ -9,12 +10,7 @@ const categories = [
     color: "#ff4d00",
     rgb: "255,77,0",
     label: "Smartphones & More",
-    icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="5" y="2" width="14" height="20" rx="2"/>
-        <line x1="12" y1="18" x2="12" y2="18.01"/>
-      </svg>
-    ),
+    icon: <FaMobileAlt size={30} />,
   },
   {
     name: "Laptops",
@@ -22,13 +18,7 @@ const categories = [
     color: "#3b82f6",
     rgb: "59,130,246",
     label: "Notebooks & PCs",
-    icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="4" width="20" height="14" rx="2"/>
-        <line x1="1" y1="20" x2="23" y2="20"/>
-        <line x1="9" y1="20" x2="15" y2="20"/>
-      </svg>
-    ),
+    icon: <FaLaptop size={30} />,
   },
   {
     name: "Tablets",
@@ -36,12 +26,7 @@ const categories = [
     color: "#10b981",
     rgb: "16,185,129",
     label: "Slates & iPads",
-    icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="4" y="2" width="16" height="20" rx="2"/>
-        <line x1="12" y1="18" x2="12" y2="18.01"/>
-      </svg>
-    ),
+    icon: <FaTabletAlt size={30} />,
   },
   {
     name: "Gaming",
@@ -49,17 +34,7 @@ const categories = [
     color: "#a855f7",
     rgb: "168,85,247",
     label: "Console & PC",
-    icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="6" y1="12" x2="10" y2="12"/>
-        <line x1="8" y1="10" x2="8" y2="14"/>
-        <circle cx="15" cy="11" r="1" fill="currentColor" stroke="none"/>
-        <circle cx="17" cy="13" r="1" fill="currentColor" stroke="none"/>
-        <path d="M6 8h12a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2z"/>
-        <path d="M6 8l-2 8"/>
-        <path d="M18 8l2 8"/>
-      </svg>
-    ),
+    icon: <FaGamepad size={30} />,
   },
   {
     name: "Reviews",
@@ -67,11 +42,7 @@ const categories = [
     color: "#f59e0b",
     rgb: "245,158,11",
     label: "Honest Takes",
-    icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-      </svg>
-    ),
+    icon: <FaStar size={30} />,
   },
   {
     name: "Accessories",
@@ -79,13 +50,7 @@ const categories = [
     color: "#06b6d4",
     rgb: "6,182,212",
     label: "Gear & Gadgets",
-    icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
-        <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"/>
-        <path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
-      </svg>
-    ),
+    icon: <FaHeadphones size={30} />,
   },
 ];
 
@@ -188,6 +153,7 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
             pointerEvents: "none",
           }} />
 
+          {/* Icon box */}
           <div style={{
             width: 60, height: 60,
             borderRadius: 16,
@@ -276,7 +242,6 @@ export default function CategoryGrid() {
   const [paused, setPaused] = useState(false);
   const trackRef = useRef<HTMLDivElement>(null);
 
-  // Touch drag logic
   const touchStartX = useRef(0);
   const touchStartTime = useRef(0);
   const animOffsetRef = useRef(0);
@@ -286,7 +251,6 @@ export default function CategoryGrid() {
   const lastTouchX = useRef(0);
   const rafRef = useRef<number | null>(null);
 
-  // Get current CSS animation translateX value
   const getAnimatedX = () => {
     const el = trackRef.current;
     if (!el) return 0;
@@ -303,7 +267,6 @@ export default function CategoryGrid() {
     isDragging.current = true;
     velocityRef.current = 0;
 
-    // Freeze animation and capture current position
     const currentX = getAnimatedX();
     animOffsetRef.current = currentX;
     dragOffset.current = 0;
@@ -334,36 +297,28 @@ export default function CategoryGrid() {
 
   const handleTouchEnd = () => {
     isDragging.current = false;
-    let velocity = velocityRef.current * 8; // momentum multiplier
+    let velocity = velocityRef.current * 8;
     let currentX = animOffsetRef.current + dragOffset.current;
 
     const el = trackRef.current;
     if (!el) return;
 
-    // Momentum glide
     const glide = () => {
-      velocity *= 0.92; // friction
+      velocity *= 0.92;
       currentX += velocity;
 
-      // Seamless loop: get track total width for 50% reset
       const trackWidth = el.scrollWidth / 2;
-      if (Math.abs(currentX) >= trackWidth) {
-        currentX += trackWidth;
-      }
-      if (currentX > 0) {
-        currentX -= trackWidth;
-      }
+      if (Math.abs(currentX) >= trackWidth) currentX += trackWidth;
+      if (currentX > 0) currentX -= trackWidth;
 
       el.style.transform = `translateX(${currentX}px)`;
 
       if (Math.abs(velocity) > 0.5) {
         rafRef.current = requestAnimationFrame(glide);
       } else {
-        // Hand back to CSS animation from current position
-        // Calculate equivalent animation progress
         const trackTotalWidth = el.scrollWidth / 2;
         const progress = Math.abs(currentX) / trackTotalWidth;
-        const duration = 30; // same as CSS animation
+        const duration = 30;
         const elapsed = progress * duration;
 
         el.style.transform = "";
