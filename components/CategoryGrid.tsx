@@ -93,124 +93,190 @@ const loop = [...categories, ...categories, ...categories, ...categories];
 
 function PillCard({ cat, idx }: { cat: typeof categories[0]; idx: number }) {
   const [hovered, setHovered] = useState(false);
+  const [clicked, setClicked] = useState(false);
+  const [ripples, setRipples] = useState<{ id: number }[]>([]);
+
+  const handleClick = () => {
+    const id = Date.now();
+    setClicked(true);
+    setRipples(prev => [...prev, { id }]);
+    setTimeout(() => setClicked(false), 400);
+    setTimeout(() => setRipples(prev => prev.filter(r => r.id !== id)), 700);
+  };
+
+  const floatDuration = 2.4 + (idx % 6) * 0.35;
+  const floatDelay = (idx % 6) * 0.3;
+  const floatAnim = `float${idx % 6}`;
 
   return (
-    <Link
-      href={`/category/${cat.slug}`}
-      style={{ textDecoration: "none", flexShrink: 0 }}
+    <div
+      style={{ flexShrink: 0 }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <div style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 14,
-        width: 130,
-        padding: "28px 12px 22px",
-        borderRadius: 24,
-        border: `1px solid ${hovered ? `rgba(${cat.rgb},0.5)` : "rgba(255,255,255,0.05)"}`,
-        background: hovered
-          ? `linear-gradient(160deg, rgba(${cat.rgb},0.12), rgba(${cat.rgb},0.04) 60%, #0a0a0a)`
-          : "linear-gradient(160deg, #111, #0a0a0a)",
-        boxShadow: hovered
-          ? `0 0 0 1px rgba(${cat.rgb},0.2), 0 20px 50px rgba(${cat.rgb},0.2), inset 0 1px 0 rgba(255,255,255,0.05)`
-          : "0 2px 16px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03)",
-        transform: hovered ? "translateY(-10px) scale(1.05)" : "translateY(0) scale(1)",
-        transition: "all 0.4s cubic-bezier(0.34,1.56,0.64,1)",
-        position: "relative",
-        overflow: "hidden",
-        cursor: "pointer",
-      }}>
-        {/* Animated glow bg */}
+      <Link
+        href={`/category/${cat.slug}`}
+        style={{ textDecoration: "none", display: "block" }}
+        onMouseDown={handleClick}
+        onTouchStart={handleClick}
+      >
         <div style={{
-          position: "absolute", inset: 0,
-          background: `radial-gradient(ellipse at 50% 30%, rgba(${cat.rgb},${hovered ? 0.15 : 0}), transparent 70%)`,
-          transition: "all 0.4s ease",
-          pointerEvents: "none",
-        }} />
-
-        {/* Top highlight line */}
-        <div style={{
-          position: "absolute", top: 0, left: "20%", right: "20%", height: 1,
-          background: `linear-gradient(90deg, transparent, rgba(${cat.rgb},0.8), transparent)`,
-          opacity: hovered ? 1 : 0,
-          transition: "opacity 0.3s ease",
-        }} />
-
-        {/* Scan shimmer */}
-        <div style={{
-          position: "absolute", top: 0,
-          left: hovered ? "120%" : "-80%",
-          width: "50%", height: "100%",
-          background: `linear-gradient(90deg, transparent, rgba(${cat.rgb},0.06), transparent)`,
-          transform: "skewX(-15deg)",
-          transition: "left 0.7s ease",
-          pointerEvents: "none",
-        }} />
-
-        {/* Icon container */}
-        <div style={{
-          width: 60, height: 60,
-          borderRadius: 16,
-          background: hovered
-            ? `linear-gradient(135deg, rgba(${cat.rgb},0.25), rgba(${cat.rgb},0.08))`
-            : `rgba(${cat.rgb},0.08)`,
-          border: `1px solid rgba(${cat.rgb},${hovered ? 0.4 : 0.15})`,
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          color: cat.color,
-          transition: "all 0.4s cubic-bezier(0.34,1.56,0.64,1)",
-          transform: hovered ? "scale(1.15) rotate(-4deg)" : "scale(1) rotate(0deg)",
-          boxShadow: hovered ? `0 0 20px rgba(${cat.rgb},0.4), 0 0 40px rgba(${cat.rgb},0.15)` : "none",
+          gap: 14,
+          width: 130,
+          padding: "28px 12px 22px",
+          borderRadius: 24,
+          border: `1px solid ${hovered ? `rgba(${cat.rgb},0.5)` : "rgba(255,255,255,0.05)"}`,
+          background: hovered
+            ? `linear-gradient(160deg, rgba(${cat.rgb},0.12), rgba(${cat.rgb},0.04) 60%, #0a0a0a)`
+            : "linear-gradient(160deg, #111, #0a0a0a)",
+          boxShadow: hovered
+            ? `0 0 0 1px rgba(${cat.rgb},0.2), 0 20px 50px rgba(${cat.rgb},0.2), inset 0 1px 0 rgba(255,255,255,0.05)`
+            : "0 2px 16px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03)",
           position: "relative",
-          zIndex: 1,
-          flexShrink: 0,
+          overflow: "hidden",
+          cursor: "pointer",
+          animation: hovered
+            ? "none"
+            : `${floatAnim} ${floatDuration}s ease-in-out ${floatDelay}s infinite`,
+          transform: hovered
+            ? "translateY(-10px) scale(1.05)"
+            : clicked
+              ? "scale(0.94)"
+              : "scale(1)",
+          transition: "border 0.3s ease, background 0.3s ease, box-shadow 0.3s ease, transform 0.25s cubic-bezier(0.34,1.56,0.64,1)",
         }}>
-          {cat.icon}
-        </div>
 
-        {/* Text */}
-        <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
-          <div style={{
-            color: hovered ? "#fff" : "#888",
-            fontSize: 12,
-            fontWeight: 700,
-            letterSpacing: "1.5px",
-            textTransform: "uppercase",
-            fontFamily: "'DM Sans', sans-serif",
-            transition: "color 0.3s ease",
-            marginBottom: 4,
-          }}>
-            {cat.name}
-          </div>
-          <div style={{
-            color: hovered ? cat.color : "transparent",
-            fontSize: 9,
-            fontWeight: 600,
-            letterSpacing: "0.5px",
-            fontFamily: "'DM Sans', sans-serif",
-            transition: "color 0.3s ease",
-            textShadow: hovered ? `0 0 10px rgba(${cat.rgb},0.5)` : "none",
-          }}>
-            {cat.label}
-          </div>
-        </div>
+          {/* Ripple effects on click */}
+          {ripples.map(r => (
+            <span key={r.id} style={{
+              position: "absolute",
+              top: "50%", left: "50%",
+              width: 10, height: 10,
+              borderRadius: "50%",
+              background: `rgba(${cat.rgb}, 0.35)`,
+              transform: "translate(-50%, -50%)",
+              animation: "rippleOut 0.7s ease-out forwards",
+              pointerEvents: "none",
+              zIndex: 10,
+            }} />
+          ))}
 
-        {/* Bottom glow bar */}
-        <div style={{
-          position: "absolute", bottom: 0, left: "50%",
-          transform: `translateX(-50%) scaleX(${hovered ? 1 : 0})`,
-          width: "60%", height: 2,
-          background: `linear-gradient(90deg, transparent, ${cat.color}, transparent)`,
-          borderRadius: 2,
-          boxShadow: `0 0 12px rgba(${cat.rgb},0.8)`,
-          transition: "transform 0.4s ease",
-        }} />
-      </div>
-    </Link>
+          {/* Ambient glow bg */}
+          <div style={{
+            position: "absolute", inset: 0,
+            background: `radial-gradient(ellipse at 50% 30%, rgba(${cat.rgb},${hovered ? 0.15 : 0}), transparent 70%)`,
+            transition: "all 0.4s ease",
+            pointerEvents: "none",
+          }} />
+
+          {/* Top highlight line */}
+          <div style={{
+            position: "absolute", top: 0, left: "20%", right: "20%", height: 1,
+            background: `linear-gradient(90deg, transparent, rgba(${cat.rgb},0.8), transparent)`,
+            opacity: hovered ? 1 : 0,
+            transition: "opacity 0.3s ease",
+          }} />
+
+          {/* Scan shimmer */}
+          <div style={{
+            position: "absolute", top: 0,
+            left: hovered ? "120%" : "-80%",
+            width: "50%", height: "100%",
+            background: `linear-gradient(90deg, transparent, rgba(${cat.rgb},0.06), transparent)`,
+            transform: "skewX(-15deg)",
+            transition: "left 0.7s ease",
+            pointerEvents: "none",
+          }} />
+
+          {/* Icon box */}
+          <div style={{
+            width: 60, height: 60,
+            borderRadius: 16,
+            background: hovered
+              ? `linear-gradient(135deg, rgba(${cat.rgb},0.25), rgba(${cat.rgb},0.08))`
+              : `rgba(${cat.rgb},0.08)`,
+            border: `1px solid rgba(${cat.rgb},${hovered ? 0.4 : 0.15})`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: cat.color,
+            transition: "all 0.4s cubic-bezier(0.34,1.56,0.64,1)",
+            transform: clicked
+              ? "scale(0.85) rotate(-8deg)"
+              : hovered
+                ? "scale(1.15) rotate(-4deg)"
+                : "scale(1) rotate(0deg)",
+            boxShadow: clicked
+              ? `0 0 30px rgba(${cat.rgb},0.7), 0 0 60px rgba(${cat.rgb},0.3)`
+              : hovered
+                ? `0 0 20px rgba(${cat.rgb},0.4), 0 0 40px rgba(${cat.rgb},0.15)`
+                : "none",
+            position: "relative",
+            zIndex: 1,
+            flexShrink: 0,
+            animation: clicked ? "iconPop 0.35s cubic-bezier(0.34,1.56,0.64,1)" : "none",
+            overflow: "hidden",
+          }}>
+            {/* Icon ripple rings on click */}
+            {ripples.map(r => (
+              <span key={r.id} style={{
+                position: "absolute",
+                top: "50%", left: "50%",
+                width: 8, height: 8,
+                borderRadius: "50%",
+                border: `2px solid rgba(${cat.rgb},0.8)`,
+                transform: "translate(-50%, -50%)",
+                animation: "iconRipple 0.6s ease-out forwards",
+                pointerEvents: "none",
+              }} />
+            ))}
+            {cat.icon}
+          </div>
+
+          {/* Name */}
+          <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
+            <div style={{
+              color: hovered ? "#fff" : "#888",
+              fontSize: 12,
+              fontWeight: 700,
+              letterSpacing: "1.5px",
+              textTransform: "uppercase",
+              fontFamily: "'DM Sans', sans-serif",
+              transition: "color 0.3s ease",
+              marginBottom: 4,
+            }}>
+              {cat.name}
+            </div>
+            <div style={{
+              color: hovered ? cat.color : "transparent",
+              fontSize: 9,
+              fontWeight: 600,
+              letterSpacing: "0.5px",
+              fontFamily: "'DM Sans', sans-serif",
+              transition: "color 0.3s ease",
+              textShadow: hovered ? `0 0 10px rgba(${cat.rgb},0.5)` : "none",
+            }}>
+              {cat.label}
+            </div>
+          </div>
+
+          {/* Bottom glow bar */}
+          <div style={{
+            position: "absolute", bottom: 0, left: "50%",
+            transform: `translateX(-50%) scaleX(${hovered ? 1 : 0})`,
+            width: "60%", height: 2,
+            background: `linear-gradient(90deg, transparent, ${cat.color}, transparent)`,
+            borderRadius: 2,
+            boxShadow: `0 0 12px rgba(${cat.rgb},0.8)`,
+            transition: "transform 0.4s ease",
+          }} />
+        </div>
+      </Link>
+    </div>
   );
 }
 
@@ -236,20 +302,38 @@ export default function CategoryGrid() {
           0%   { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
+        @keyframes float0 { 0%,100% { transform: translateY(0px);   } 50% { transform: translateY(-9px);  } }
+        @keyframes float1 { 0%,100% { transform: translateY(-5px);  } 50% { transform: translateY(5px);   } }
+        @keyframes float2 { 0%,100% { transform: translateY(-2px);  } 50% { transform: translateY(-11px); } }
+        @keyframes float3 { 0%,100% { transform: translateY(3px);   } 50% { transform: translateY(-7px);  } }
+        @keyframes float4 { 0%,100% { transform: translateY(-7px);  } 50% { transform: translateY(3px);   } }
+        @keyframes float5 { 0%,100% { transform: translateY(1px);   } 50% { transform: translateY(-10px); } }
+        @keyframes rippleOut {
+          0%   { width: 10px; height: 10px; opacity: 0.6; }
+          100% { width: 180px; height: 180px; opacity: 0; }
+        }
+        @keyframes iconRipple {
+          0%   { width: 8px; height: 8px; opacity: 1; }
+          100% { width: 90px; height: 90px; opacity: 0; }
+        }
+        @keyframes iconPop {
+          0%   { transform: scale(0.85) rotate(-8deg); }
+          60%  { transform: scale(1.25) rotate(6deg);  }
+          100% { transform: scale(1.15) rotate(-4deg); }
+        }
         .cat-track {
           display: flex;
           gap: 14px;
           width: max-content;
           animation: scrollLeft 30s linear infinite;
           will-change: transform;
-          padding: 8px 0 8px;
+          padding: 20px 0;
         }
         .cat-track.paused { animation-play-state: paused; }
         .cat-outer {
           position: relative;
           overflow: hidden;
           margin: 0 -1.5rem;
-          padding: 4px 0 4px;
         }
         .cat-fade-l {
           position: absolute; left: 0; top: 0; bottom: 0; width: 160px;
