@@ -40,7 +40,7 @@ export function YoutubeAutofill(props: StringInputProps) {
     setLoading(true);
     setStatus("Fetching from YouTube...");
     try {
-      const res = await fetch(`/api/youtube-meta?url=${encodeURIComponent(value)}`);
+      const res = await fetch(`https://techsuperstar-site.vercel.app/api/youtube-meta?url=${encodeURIComponent(value)}`);
       const data = await res.json();
       if (data.error) { setStatus("Error: " + data.error); setLoading(false); return; }
       const blocks = descriptionToBlocks(data.description);
