@@ -43,17 +43,41 @@ export function YoutubeAutofill(props: StringInputProps) {
       const res = await fetch(`https://techsuperstar-site.vercel.app/api/youtube-meta?url=${encodeURIComponent(value)}`);
       const data = await res.json();
       if (data.error) { setStatus("Error: " + data.error); setLoading(false); return; }
+
+      setStatus("Uploading thumbnail...");
+
+      let mainImage = undefined;
+      if (data.thumbnailBase64) {
+        try {
+          const byteArray = Uint8Array.from(atob(data.thumbnailBase64), (c) => c.charCodeAt(0));
+          const blob = new Blob([byteArray], { type: data.thumbnailMimeType || "image/jpeg" });
+          const file = new File([blob], "thumbnail.jpg", { type: data.thumbnailMimeType || "image/jpeg" });
+          const asset = await client.assets.upload("image", file, { filename: "thumbnail.jpg" });
+          mainImage = {
+            _type: "image",
+            asset: { _type: "reference", _ref: asset._id },
+          };
+        } catch (imgErr) {
+          console.error("Image upload failed:", imgErr);
+        }
+      }
+
+      setStatus("Saving...");
       const blocks = descriptionToBlocks(data.description);
       const slug = slugify(data.title);
+
       await client.patch(documentId).set({
         title: data.title,
         slug: { _type: "slug", current: slug },
         publishedAt: data.publishedAt,
         body: blocks,
+        ...(mainImage && { mainImage }),
       }).commit();
-      setStatus("Done! Title, slug, body and date filled. Add category and image manually.");
+
+      setStatus("Done! Title, slug, body, image and date filled. Add category manually.");
     } catch (err) {
-      setStatus("Failed. Check your API key and try again.");
+      console.error("Autofill error:", err);
+      setStatus("Failed: " + (err instanceof Error ? err.message : String(err)));
     }
     setLoading(false);
   };
