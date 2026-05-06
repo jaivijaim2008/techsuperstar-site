@@ -26,7 +26,14 @@ function NewsletterForm() {
 
   if (status === "success") {
     return (
-      <div style={{ background: "linear-gradient(135deg, #0f2e1a, #0a1f10)", border: "1px solid #1a5c2e", borderRadius: "10px", padding: "14px 16px", color: "#4ade80", fontSize: "13px", display: "flex", alignItems: "center", gap: "8px" }}>
+      <div style={{
+        background: "linear-gradient(135deg, #0f2e1a, #0a1f10)",
+        border: "1px solid rgba(74,222,128,0.3)",
+        borderRadius: "12px", padding: "14px 16px",
+        color: "#4ade80", fontSize: "13px",
+        display: "flex", alignItems: "center", gap: "8px",
+        boxShadow: "0 0 20px rgba(74,222,128,0.1)",
+      }}>
         ✅ Subscribed! You'll get notified on new posts.
       </div>
     );
@@ -35,158 +42,448 @@ function NewsletterForm() {
   return (
     <div>
       <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        <input
-          type="email" placeholder="your@email.com" value={email}
-          onChange={e => setEmail(e.target.value)}
-          onKeyDown={e => e.key === "Enter" && handleSubmit()}
-          disabled={status === "loading"}
-          style={{ width: "100%", background: "#0d0d0d", border: "1px solid #222", borderRadius: "8px", padding: "12px 14px", color: "#fff", fontSize: "13px", outline: "none", boxSizing: "border-box" }}
-          onFocus={e => (e.currentTarget.style.borderColor = "#ff4d00")}
-          onBlur={e => (e.currentTarget.style.borderColor = "#222")}
-        />
+        <div style={{ position: "relative" }}>
+          <input
+            type="email" placeholder="your@email.com" value={email}
+            onChange={e => setEmail(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && handleSubmit()}
+            disabled={status === "loading"}
+            style={{
+              width: "100%", background: "rgba(255,255,255,0.02)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: "10px", padding: "12px 14px",
+              color: "#fff", fontSize: "13px", outline: "none",
+              boxSizing: "border-box",
+              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+              transition: "all 0.25s ease",
+            }}
+            onFocus={e => {
+              e.currentTarget.style.borderColor = "rgba(255,77,0,0.5)";
+              e.currentTarget.style.boxShadow = "0 0 16px rgba(255,77,0,0.1)";
+              e.currentTarget.style.background = "rgba(255,77,0,0.04)";
+            }}
+            onBlur={e => {
+              e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
+              e.currentTarget.style.boxShadow = "none";
+              e.currentTarget.style.background = "rgba(255,255,255,0.02)";
+            }}
+          />
+        </div>
         <button
           onClick={handleSubmit} disabled={status === "loading"}
-          style={{ width: "100%", background: "linear-gradient(135deg, #ff4d00, #ff7300)", border: "none", borderRadius: "8px", padding: "12px", color: "#fff", fontWeight: "700", fontSize: "14px", cursor: "pointer", opacity: status === "loading" ? 0.7 : 1, boxShadow: "0 4px 15px rgba(255,77,0,0.3)" }}>
+          style={{
+            width: "100%",
+            background: "linear-gradient(135deg, #ff4d00, #ff7300, #ff9500, #ff7300, #ff4d00)",
+            backgroundSize: "200% auto",
+            border: "none", borderRadius: "10px",
+            padding: "12px", color: "#fff",
+            fontWeight: "700", fontSize: "13px",
+            cursor: status === "loading" ? "not-allowed" : "pointer",
+            opacity: status === "loading" ? 0.7 : 1,
+            boxShadow: "0 4px 20px rgba(255,77,0,0.3)",
+            transition: "all 0.3s ease",
+            fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+            letterSpacing: "0.5px",
+          }}
+          onMouseEnter={e => {
+            if (status !== "loading") {
+              (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)";
+              (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 30px rgba(255,77,0,0.5)";
+            }
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
+            (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 20px rgba(255,77,0,0.3)";
+          }}
+        >
           {status === "loading" ? "Subscribing..." : "🔔 Subscribe for Free"}
         </button>
       </div>
-      {status === "error" && <p style={{ color: "#f87171", fontSize: "12px", marginTop: "8px" }}>Something went wrong. Try again.</p>}
+      {status === "error" && (
+        <p style={{ color: "#f87171", fontSize: "12px", marginTop: "8px", fontFamily: "var(--font-dm-sans), sans-serif" }}>
+          Something went wrong. Try again.
+        </p>
+      )}
     </div>
   );
 }
 
 export default function Footer() {
   const categories = [
-    { name: "Phones", slug: "phones" },
-    { name: "Laptops", slug: "laptops" },
-    { name: "Tablets", slug: "tablets" },
-    { name: "Gaming", slug: "gaming" },
-    { name: "Reviews", slug: "reviews" },
-    { name: "Accessories", slug: "accessories" },
+    { name: "Phones",      slug: "phones",      icon: "📱" },
+    { name: "Laptops",     slug: "laptops",     icon: "💻" },
+    { name: "Tablets",     slug: "tablets",     icon: "📟" },
+    { name: "Gaming",      slug: "gaming",      icon: "🎮" },
+    { name: "Reviews",     slug: "reviews",     icon: "⭐" },
+    { name: "Accessories", slug: "accessories", icon: "🎧" },
   ];
 
   const quickLinks = [
-    { name: "Home", href: "/" },
+    { name: "Home",         href: "/" },
     { name: "All Articles", href: "/articles" },
-    { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
+    { name: "About",        href: "/about" },
+    { name: "Contact",      href: "/contact" },
+  ];
+
+  const socials = [
+    { href: "https://www.youtube.com/@TechSuperStarOfficial", icon: <FaYoutube size={18} />,  color: "#FF0000", rgb: "255,0,0" },
+    { href: "https://www.instagram.com/techsuperstarofficial/", icon: <FaInstagram size={18} />, color: "#e1306c", rgb: "225,48,108" },
+    { href: "https://x.com/Tech_SuperStar", icon: <FaXTwitter size={18} />,  color: "#ffffff", rgb: "255,255,255" },
   ];
 
   return (
-    <footer style={{ background: "#080808", borderTop: "1px solid #1a1a1a", marginTop: "80px", fontFamily: "Arial, sans-serif" }}>
+    <>
+      <style>{`
+        @keyframes footerShimmer {
+          0%   { background-position: 0% center; }
+          100% { background-position: 200% center; }
+        }
+        @keyframes footerScan {
+          from { left: -60%; }
+          to   { left: 110%; }
+        }
+        @keyframes greenPulse {
+          0%,100% { box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
+          50%      { box-shadow: 0 0 0 5px rgba(74,222,128,0); }
+        }
+        @keyframes dotBlink {
+          0%,100% { opacity: 1; }
+          50%      { opacity: 0.3; }
+        }
 
-      {/* Orange top glow */}
-      <div style={{ height: "2px", background: "linear-gradient(90deg, transparent, #ff4d00, #ff8800, #ff4d00, transparent)" }} />
+        .footer-cat-link {
+          color: #444;
+          text-decoration: none;
+          font-size: 13px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 6px 10px;
+          border-radius: 8px;
+          border: 1px solid transparent;
+          transition: all 0.25s ease;
+          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+        }
+        .footer-cat-link:hover {
+          color: #ff4d00;
+          background: rgba(255,77,0,0.07);
+          border-color: rgba(255,77,0,0.18);
+          transform: translateX(4px);
+        }
 
-      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "50px 1.5rem 30px" }}>
+        .footer-quick-link {
+          color: #444;
+          text-decoration: none;
+          font-size: 13px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 6px 10px;
+          border-radius: 8px;
+          border: 1px solid transparent;
+          transition: all 0.25s ease;
+          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+        }
+        .footer-quick-link:hover {
+          color: #ff4d00;
+          background: rgba(255,77,0,0.07);
+          border-color: rgba(255,77,0,0.18);
+          transform: translateX(4px);
+        }
 
-        {/* Brand + Social */}
-        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "20px", paddingBottom: "36px", borderBottom: "1px solid #161616", marginBottom: "36px" }}>
-          
-          <Link href="/" style={{ textDecoration: "none" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <div style={{ width: "44px", height: "44px", borderRadius: "50%", overflow: "hidden", border: "2px solid #ff4d00", boxShadow: "0 0 16px rgba(255,77,0,0.3)" }}>
-                <img src="/favicon.jpg" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              </div>
-              <div>
-                <div style={{ fontSize: "20px", fontWeight: "800", color: "#fff", fontFamily: "Georgia, serif" }}>
-                  Tech<span style={{ color: "#ff4d00" }}>SuperStar</span>
+        .footer-bottom-link {
+          color: #333;
+          font-size: 12px;
+          text-decoration: none;
+          transition: color 0.2s ease;
+          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+        }
+        .footer-bottom-link:hover { color: #ff4d00; }
+
+        .social-btn {
+          width: 44px; height: 44px;
+          border-radius: 12px;
+          display: flex; align-items: center; justify-content: center;
+          text-decoration: none;
+          transition: all 0.3s ease;
+          position: relative;
+          overflow: hidden;
+        }
+        .social-btn::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(135deg, rgba(255,255,255,0.06), transparent);
+          border-radius: 12px;
+        }
+        .social-btn:hover {
+          transform: translateY(-4px) scale(1.08);
+        }
+      `}</style>
+
+      <footer style={{
+        background: "linear-gradient(180deg, #070707 0%, #060606 100%)",
+        borderTop: "1px solid rgba(255,77,0,0.08)",
+        marginTop: "80px",
+        position: "relative",
+        overflow: "hidden",
+      }}>
+
+        {/* Hologram grid bg */}
+        <div style={{
+          position: "absolute", inset: 0,
+          backgroundImage: "linear-gradient(rgba(255,77,0,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,77,0,0.018) 1px, transparent 1px)",
+          backgroundSize: "48px 48px",
+          pointerEvents: "none",
+          zIndex: 0,
+        }} />
+
+        {/* Top ambient glow */}
+        <div style={{
+          position: "absolute", top: 0, left: "50%",
+          transform: "translateX(-50%)",
+          width: "600px", height: "200px",
+          background: "radial-gradient(ellipse, rgba(255,77,0,0.05) 0%, transparent 70%)",
+          pointerEvents: "none",
+          zIndex: 0,
+        }} />
+
+        {/* Animated top bar */}
+        <div style={{
+          height: "2px",
+          background: "linear-gradient(90deg, transparent 0%, #ff4d00 30%, #ffaa44 50%, #ff4d00 70%, transparent 100%)",
+          backgroundSize: "200% auto",
+          animation: "footerShimmer 3s linear infinite",
+          position: "relative", overflow: "hidden",
+        }}>
+          <div style={{
+            position: "absolute", top: 0,
+            width: "60px", height: "100%",
+            background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)",
+            animation: "footerScan 2.5s ease-in-out infinite",
+          }} />
+        </div>
+
+        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "52px 1.5rem 32px", position: "relative", zIndex: 1 }}>
+
+          {/* Brand row */}
+          <div style={{
+            display: "flex", flexWrap: "wrap",
+            alignItems: "center", justifyContent: "space-between",
+            gap: "20px", paddingBottom: "36px",
+            borderBottom: "1px solid rgba(255,77,0,0.08)",
+            marginBottom: "40px",
+          }}>
+
+            {/* Logo + tagline */}
+            <Link href="/" style={{ textDecoration: "none" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                <div style={{
+                  width: "48px", height: "48px", borderRadius: "50%",
+                  overflow: "hidden",
+                  border: "2px solid #ff4d00",
+                  boxShadow: "0 0 20px rgba(255,77,0,0.35), 0 0 40px rgba(255,77,0,0.1)",
+                }}>
+                  <img src="/favicon.jpg" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </div>
-                <div style={{ color: "#444", fontSize: "10px", letterSpacing: "2px", textTransform: "uppercase" }}>Tech Reviews & News</div>
+                <div>
+                  <div style={{
+                    fontSize: "22px", fontWeight: "900", color: "#fff",
+                    fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif",
+                    letterSpacing: "-0.5px", lineHeight: 1.1,
+                  }}>
+                    Tech<span style={{
+                      color: "#ff4d00",
+                      filter: "drop-shadow(0 0 10px rgba(255,77,0,0.6))",
+                    }}>SuperStar</span>
+                  </div>
+                  <div style={{
+                    color: "#444", fontSize: "9px",
+                    letterSpacing: "2.5px", textTransform: "uppercase",
+                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                    fontWeight: 600, marginTop: "2px",
+                  }}>
+                    Tech Reviews & News
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* Socials */}
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              {socials.map((s, i) => (
+                <a key={i} href={s.href} target="_blank" rel="noopener noreferrer"
+                  className="social-btn"
+                  style={{
+                    background: `rgba(${s.rgb}, 0.08)`,
+                    border: `1px solid rgba(${s.rgb}, 0.22)`,
+                    color: s.color,
+                    boxShadow: `0 0 0 0 rgba(${s.rgb}, 0)`,
+                  }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLElement).style.boxShadow = `0 8px 24px rgba(${s.rgb},0.3)`;
+                    (e.currentTarget as HTMLElement).style.borderColor = `rgba(${s.rgb},0.5)`;
+                    (e.currentTarget as HTMLElement).style.background = `rgba(${s.rgb},0.15)`;
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLElement).style.boxShadow = "none";
+                    (e.currentTarget as HTMLElement).style.borderColor = `rgba(${s.rgb},0.22)`;
+                    (e.currentTarget as HTMLElement).style.background = `rgba(${s.rgb},0.08)`;
+                  }}
+                >
+                  {s.icon}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Main grid */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+            gap: "40px", marginBottom: "44px",
+          }}>
+
+            {/* About */}
+            <div>
+              <h4 style={{
+                color: "#ff4d00", fontSize: "10px", fontWeight: "700",
+                textTransform: "uppercase", letterSpacing: "2.5px",
+                margin: "0 0 16px",
+                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                display: "flex", alignItems: "center", gap: "7px",
+              }}>
+                <span style={{ width: 4, height: 14, background: "#ff4d00", borderRadius: 2, display: "inline-block" }} />
+                About
+              </h4>
+              <p style={{
+                color: "#444", fontSize: "13px", lineHeight: "1.85",
+                margin: "0 0 18px",
+                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+              }}>
+                Your ultimate source for honest tech reviews, buying guides, and the latest news in technology.
+              </p>
+              <div style={{
+                display: "inline-flex", alignItems: "center", gap: "8px",
+                background: "rgba(74,222,128,0.06)",
+                border: "1px solid rgba(74,222,128,0.2)",
+                borderRadius: "50px", padding: "6px 14px",
+                animation: "greenPulse 2.5s ease-in-out infinite",
+              }}>
+                <span style={{
+                  width: "6px", height: "6px", borderRadius: "50%",
+                  background: "#4ade80", display: "inline-block",
+                  boxShadow: "0 0 8px #4ade80",
+                  animation: "dotBlink 1.5s ease-in-out infinite",
+                }} />
+                <span style={{
+                  color: "#4ade80", fontSize: "10px",
+                  letterSpacing: "1.5px", textTransform: "uppercase",
+                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                  fontWeight: 600,
+                }}>
+                  Publishing Weekly
+                </span>
               </div>
             </div>
-          </Link>
 
-          <div style={{ display: "flex", gap: "10px" }}>
-            {[
-              { href: "https://www.youtube.com/@TechSuperStarOfficial", icon: <FaYoutube size={18} />, color: "#FF0000", bg: "rgba(255,0,0,0.1)", border: "rgba(255,0,0,0.25)" },
-              { href: "https://www.instagram.com/techsuperstarofficial/", icon: <FaInstagram size={18} />, color: "#e1306c", bg: "rgba(225,48,108,0.1)", border: "rgba(225,48,108,0.25)" },
-              { href: "https://x.com/Tech_SuperStar", icon: <FaXTwitter size={18} />, color: "#fff", bg: "rgba(255,255,255,0.05)", border: "rgba(255,255,255,0.15)" },
-            ].map((s, i) => (
-              <a key={i} href={s.href} target="_blank" rel="noopener noreferrer"
-                style={{ width: "42px", height: "42px", borderRadius: "10px", background: s.bg, border: `1px solid ${s.border}`, display: "flex", alignItems: "center", justifyContent: "center", color: s.color, textDecoration: "none", transition: "all 0.2s" }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = "translateY(-3px)"; (e.currentTarget as HTMLElement).style.boxShadow = `0 8px 20px ${s.border}`; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLElement).style.boxShadow = "none"; }}>
-                {s.icon}
-              </a>
-            ))}
-          </div>
-        </div>
-
-        {/* Main grid - responsive */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "36px", marginBottom: "40px" }}>
-
-          {/* About */}
-          <div style={{ gridColumn: "span 1" }}>
-            <h4 style={{ color: "#fff", fontSize: "11px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "2px", margin: "0 0 14px" }}>About</h4>
-            <p style={{ color: "#444", fontSize: "13px", lineHeight: "1.8", margin: "0 0 16px" }}>
-              Your ultimate source for honest tech reviews, buying guides, and the latest news in technology.
-            </p>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(255,77,0,0.08)", border: "1px solid rgba(255,77,0,0.2)", borderRadius: "50px", padding: "5px 12px" }}>
-              <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#4ade80", display: "inline-block", boxShadow: "0 0 6px #4ade80" }} />
-              <span style={{ color: "#666", fontSize: "10px", letterSpacing: "1px", textTransform: "uppercase" }}>Publishing Weekly</span>
+            {/* Categories */}
+            <div>
+              <h4 style={{
+                color: "#ff4d00", fontSize: "10px", fontWeight: "700",
+                textTransform: "uppercase", letterSpacing: "2.5px",
+                margin: "0 0 16px",
+                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                display: "flex", alignItems: "center", gap: "7px",
+              }}>
+                <span style={{ width: 4, height: 14, background: "#ff4d00", borderRadius: 2, display: "inline-block" }} />
+                Categories
+              </h4>
+              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                {categories.map(cat => (
+                  <Link key={cat.slug} href={`/category/${cat.slug}`} className="footer-cat-link">
+                    <span style={{ fontSize: 14 }}>{cat.icon}</span>
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
             </div>
+
+            {/* Quick Links */}
+            <div>
+              <h4 style={{
+                color: "#ff4d00", fontSize: "10px", fontWeight: "700",
+                textTransform: "uppercase", letterSpacing: "2.5px",
+                margin: "0 0 16px",
+                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                display: "flex", alignItems: "center", gap: "7px",
+              }}>
+                <span style={{ width: 4, height: 14, background: "#ff4d00", borderRadius: 2, display: "inline-block" }} />
+                Quick Links
+              </h4>
+              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                {quickLinks.map(link => (
+                  <Link key={link.name} href={link.href} className="footer-quick-link">
+                    <span style={{ color: "#ff4d00", fontSize: 10 }}>▸</span>
+                    {link.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Newsletter */}
+            <div>
+              <h4 style={{
+                color: "#ff4d00", fontSize: "10px", fontWeight: "700",
+                textTransform: "uppercase", letterSpacing: "2.5px",
+                margin: "0 0 16px",
+                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                display: "flex", alignItems: "center", gap: "7px",
+              }}>
+                <span style={{ width: 4, height: 14, background: "#ff4d00", borderRadius: 2, display: "inline-block" }} />
+                Newsletter
+              </h4>
+              <p style={{
+                color: "#444", fontSize: "13px", lineHeight: "1.7",
+                margin: "0 0 16px",
+                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+              }}>
+                Get the latest tech news in your inbox. No spam, ever.
+              </p>
+              <NewsletterForm />
+            </div>
+
           </div>
 
-          {/* Categories */}
-          <div>
-            <h4 style={{ color: "#fff", fontSize: "11px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "2px", margin: "0 0 14px" }}>Categories</h4>
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              {categories.map(cat => (
-                <Link key={cat.slug} href={`/category/${cat.slug}`}
-                  style={{ color: "#444", textDecoration: "none", fontSize: "13px", display: "flex", alignItems: "center", gap: "6px", transition: "color 0.2s" }}
-                  onMouseEnter={e => (e.currentTarget.style.color = "#ff4d00")}
-                  onMouseLeave={e => (e.currentTarget.style.color = "#444")}>
-                  <span style={{ color: "#ff4d00", fontSize: "10px" }}>▸</span> {cat.name}
+          {/* Bottom bar */}
+          <div style={{
+            borderTop: "1px solid rgba(255,77,0,0.08)",
+            paddingTop: "22px",
+            display: "flex", flexWrap: "wrap",
+            alignItems: "center", justifyContent: "space-between",
+            gap: "12px",
+          }}>
+            <p style={{
+              color: "#333", fontSize: "12px", margin: 0,
+              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+            }}>
+              © {new Date().getFullYear()}{" "}
+              <span style={{
+                color: "#ff4d00",
+                filter: "drop-shadow(0 0 6px rgba(255,77,0,0.4))",
+              }}>TechSuperStar</span>. All rights reserved.
+            </p>
+            <div style={{ display: "flex", gap: "20px" }}>
+              {["Privacy Policy", "Terms of Use"].map(item => (
+                <Link key={item} href="#" className="footer-bottom-link">
+                  {item}
                 </Link>
               ))}
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4 style={{ color: "#fff", fontSize: "11px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "2px", margin: "0 0 14px" }}>Quick Links</h4>
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              {quickLinks.map(link => (
-                <Link key={link.name} href={link.href}
-                  style={{ color: "#444", textDecoration: "none", fontSize: "13px", display: "flex", alignItems: "center", gap: "6px", transition: "color 0.2s" }}
-                  onMouseEnter={e => (e.currentTarget.style.color = "#ff4d00")}
-                  onMouseLeave={e => (e.currentTarget.style.color = "#444")}>
-                  <span style={{ color: "#ff4d00", fontSize: "10px" }}>▸</span> {link.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Newsletter */}
-          <div>
-            <h4 style={{ color: "#fff", fontSize: "11px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "2px", margin: "0 0 8px" }}>Newsletter</h4>
-            <p style={{ color: "#444", fontSize: "13px", lineHeight: "1.6", margin: "0 0 16px" }}>
-              Get the latest tech news in your inbox. No spam, ever.
-            </p>
-            <NewsletterForm />
-          </div>
-
         </div>
-
-        {/* Bottom bar */}
-        <div style={{ borderTop: "1px solid #111", paddingTop: "20px", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
-          <p style={{ color: "#333", fontSize: "12px", margin: 0 }}>
-            © {new Date().getFullYear()} <span style={{ color: "#ff4d00" }}>TechSuperStar</span>. All rights reserved.
-          </p>
-          <div style={{ display: "flex", gap: "20px" }}>
-            {["Privacy Policy", "Terms of Use"].map(item => (
-              <Link key={item} href="#"
-                style={{ color: "#333", fontSize: "12px", textDecoration: "none", transition: "color 0.2s" }}
-                onMouseEnter={e => (e.currentTarget.style.color = "#ff4d00")}
-                onMouseLeave={e => (e.currentTarget.style.color = "#333")}>
-                {item}
-              </Link>
-            ))}
-          </div>
-        </div>
-
-      </div>
-    </footer>
+      </footer>
+    </>
   );
 }

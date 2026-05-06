@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [activeLink, setActiveLink] = useState("");
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -14,70 +15,115 @@ export default function Navbar() {
   }, []);
 
   const categories = [
-    { name: "All Articles", slug: "all" },
-    { name: "Phones", slug: "phones" },
-    { name: "Laptops", slug: "laptops" },
-    { name: "Tablets", slug: "tablets" },
-    { name: "Gaming", slug: "gaming" },
-    { name: "Reviews", slug: "reviews" },
-    { name: "Accessories", slug: "accessories" },
+    { name: "All Articles", slug: "all", icon: "📰" },
+    { name: "Phones",       slug: "phones",      icon: "📱" },
+    { name: "Laptops",      slug: "laptops",     icon: "💻" },
+    { name: "Tablets",      slug: "tablets",     icon: "📟" },
+    { name: "Gaming",       slug: "gaming",      icon: "🎮" },
+    { name: "Reviews",      slug: "reviews",     icon: "⭐" },
+    { name: "Accessories",  slug: "accessories", icon: "🎧" },
   ];
 
   return (
     <>
       <style>{`
         @keyframes logoPulse {
-          0%,100%{box-shadow:0 0 8px rgba(255,77,0,0.4),0 0 16px rgba(255,77,0,0.2)}
-          50%{box-shadow:0 0 16px rgba(255,77,0,0.8),0 0 32px rgba(255,77,0,0.4)}
+          0%,100% { box-shadow: 0 0 8px rgba(255,77,0,0.4), 0 0 16px rgba(255,77,0,0.2); }
+          50%      { box-shadow: 0 0 20px rgba(255,77,0,0.9), 0 0 40px rgba(255,77,0,0.4); }
         }
-        @keyframes navGlow {
-          0%,100%{border-color:rgba(255,77,0,0.1)}
-          50%{border-color:rgba(255,77,0,0.3)}
+        @keyframes topBarShimmer {
+          0%   { background-position: 0% center; }
+          100% { background-position: 200% center; }
         }
         @keyframes slideDown {
-          from{opacity:0;transform:translateY(-10px)}
-          to{opacity:1;transform:translateY(0)}
+          from { opacity: 0; transform: translateY(-12px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
+        @keyframes navScan {
+          from { left: -60%; }
+          to   { left: 110%; }
+        }
+        @keyframes dotPulse {
+          0%,100% { opacity: 1; transform: scale(1); }
+          50%      { opacity: 0.4; transform: scale(0.6); }
+        }
+
         .nav-link {
-          padding: 7px 14px;
-          color: #888;
+          padding: 7px 13px;
+          color: #666;
           text-decoration: none;
-          font-size: 13px;
-          font-family: 'Arial', sans-serif;
-          font-weight: 500;
+          font-size: 12px;
+          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+          font-weight: 600;
           border-radius: 8px;
           transition: all 0.25s ease;
           position: relative;
-          letter-spacing: 0.3px;
+          letter-spacing: 0.5px;
           border: 1px solid transparent;
+          white-space: nowrap;
+          text-transform: uppercase;
         }
         .nav-link:hover {
-          color: #ff4d00 !important;
-          background: rgba(255,77,0,0.08) !important;
-          border-color: rgba(255,77,0,0.2) !important;
-          box-shadow: 0 0 12px rgba(255,77,0,0.15);
+          color: #ff4d00;
+          background: rgba(255,77,0,0.08);
+          border-color: rgba(255,77,0,0.25);
+          box-shadow: 0 0 16px rgba(255,77,0,0.12), inset 0 1px 0 rgba(255,255,255,0.04);
+          transform: translateY(-1px);
         }
+        .nav-link.active {
+          color: #ff4d00;
+          background: rgba(255,77,0,0.1);
+          border-color: rgba(255,77,0,0.3);
+        }
+
         .mobile-nav-link {
-          padding: 12px 16px;
-          color: #aaa;
+          padding: 13px 16px;
+          color: #666;
           text-decoration: none;
-          font-size: 14px;
+          font-size: 13px;
           border-radius: 10px;
-          font-family: 'Arial', sans-serif;
+          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+          font-weight: 600;
           transition: all 0.2s ease;
           border: 1px solid transparent;
-          display: block;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          letter-spacing: 0.5px;
         }
         .mobile-nav-link:hover {
           color: #ff4d00;
           background: rgba(255,77,0,0.08);
           border-color: rgba(255,77,0,0.2);
+          transform: translateX(4px);
         }
-        @media (max-width: 768px) {
+
+        .hamburger-btn {
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.08);
+          color: #888;
+          padding: 9px 13px;
+          border-radius: 10px;
+          cursor: pointer;
+          font-size: 16px;
+          transition: all 0.25s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .hamburger-btn:hover,
+        .hamburger-btn.open {
+          background: rgba(255,77,0,0.1);
+          border-color: rgba(255,77,0,0.35);
+          color: #ff4d00;
+          box-shadow: 0 0 16px rgba(255,77,0,0.15);
+        }
+
+        @media (max-width: 900px) {
           .desktop-nav { display: none !important; }
-          .mobile-btn { display: flex !important; }
+          .mobile-btn  { display: flex !important; }
         }
-        @media (min-width: 769px) {
+        @media (min-width: 901px) {
           .mobile-btn { display: none !important; }
         }
       `}</style>
@@ -87,20 +133,34 @@ export default function Navbar() {
         top: 0,
         zIndex: 100,
         background: scrolled
-          ? "rgba(10,10,10,0.85)"
-          : "#0a0a0a",
-        backdropFilter: scrolled ? "blur(20px)" : "none",
-        WebkitBackdropFilter: scrolled ? "blur(20px)" : "none",
-        borderBottom: "1px solid rgba(255,77,0,0.15)",
-        transition: "all 0.3s ease",
-        animation: "navGlow 3s ease-in-out infinite",
+          ? "rgba(6,6,6,0.92)"
+          : "rgba(6,6,6,0.98)",
+        backdropFilter: "blur(24px)",
+        WebkitBackdropFilter: "blur(24px)",
+        borderBottom: `1px solid ${scrolled ? "rgba(255,77,0,0.2)" : "rgba(255,77,0,0.1)"}`,
+        transition: "all 0.4s ease",
+        boxShadow: scrolled ? "0 4px 32px rgba(0,0,0,0.6)" : "none",
       }}>
-        {/* Top accent line */}
+
+        {/* Animated top accent line */}
         <div style={{
           height: "2px",
-          background: "linear-gradient(90deg, transparent, #ff4d00, #ff8800, #ff4d00, transparent)",
+          background: "linear-gradient(90deg, transparent 0%, #ff4d00 30%, #ffaa44 50%, #ff4d00 70%, transparent 100%)",
           backgroundSize: "200% auto",
-        }} />
+          animation: "topBarShimmer 3s linear infinite",
+          position: "relative",
+          overflow: "hidden",
+        }}>
+          {/* Scan shimmer */}
+          <div style={{
+            position: "absolute",
+            top: 0,
+            width: "60px",
+            height: "100%",
+            background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)",
+            animation: "navScan 2.5s ease-in-out infinite",
+          }} />
+        </div>
 
         <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem" }}>
           <div style={{
@@ -116,15 +176,37 @@ export default function Navbar() {
                 border: "2px solid #ff4d00",
                 animation: "logoPulse 2.5s ease-in-out infinite",
                 flexShrink: 0,
+                position: "relative",
               }}>
                 <img src="/favicon.jpg" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
-              <span style={{ fontSize: "20px", fontWeight: "800", color: "#ffffff", letterSpacing: "-0.5px", fontFamily: "'Georgia', serif" }}>
-                Tech<span style={{
-                  color: "#ff4d00",
-                  filter: "drop-shadow(0 0 8px rgba(255,77,0,0.5))",
-                }}>SuperStar</span>
-              </span>
+              <div>
+                <div style={{
+                  fontSize: "19px", fontWeight: "900", color: "#ffffff",
+                  letterSpacing: "-0.5px",
+                  fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif",
+                  lineHeight: 1.1,
+                }}>
+                  Tech<span style={{
+                    color: "#ff4d00",
+                    filter: "drop-shadow(0 0 10px rgba(255,77,0,0.6))",
+                  }}>SuperStar</span>
+                </div>
+                <div style={{
+                  fontSize: "8px", color: "#444",
+                  letterSpacing: "2.5px", textTransform: "uppercase",
+                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                  fontWeight: 600,
+                }}>
+                  <span style={{
+                    display: "inline-block", width: 5, height: 5,
+                    borderRadius: "50%", background: "#ff4d00",
+                    marginRight: 5, verticalAlign: "middle",
+                    animation: "dotPulse 2s ease-in-out infinite",
+                  }} />
+                  Tamil Tech Reviews
+                </div>
+              </div>
             </Link>
 
             {/* Desktop Nav */}
@@ -133,12 +215,13 @@ export default function Navbar() {
                 <Link
                   key={cat.slug}
                   href={cat.slug === "all" ? "/articles" : `/category/${cat.slug}`}
-                  className="nav-link"
+                  className={`nav-link${activeLink === cat.slug ? " active" : ""}`}
+                  onClick={() => setActiveLink(cat.slug)}
                 >
                   {cat.name}
                 </Link>
               ))}
-              <div style={{ marginLeft: "8px" }}>
+              <div style={{ marginLeft: "10px" }}>
                 <SearchBar />
               </div>
             </div>
@@ -148,14 +231,7 @@ export default function Navbar() {
               <SearchBar />
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                style={{
-                  background: menuOpen ? "rgba(255,77,0,0.15)" : "rgba(255,255,255,0.05)",
-                  border: `1px solid ${menuOpen ? "rgba(255,77,0,0.4)" : "rgba(255,255,255,0.1)"}`,
-                  color: menuOpen ? "#ff4d00" : "#fff",
-                  padding: "8px 12px", borderRadius: "8px",
-                  cursor: "pointer", fontSize: "16px",
-                  transition: "all 0.2s ease",
-                }}
+                className={`hamburger-btn${menuOpen ? " open" : ""}`}
               >
                 {menuOpen ? "✕" : "☰"}
               </button>
@@ -167,19 +243,30 @@ export default function Navbar() {
           {menuOpen && (
             <div style={{
               paddingBottom: "16px",
-              display: "flex", flexDirection: "column", gap: "4px",
-              animation: "slideDown 0.2s ease forwards",
+              display: "flex", flexDirection: "column", gap: "3px",
+              animation: "slideDown 0.25s ease forwards",
               borderTop: "1px solid rgba(255,77,0,0.1)",
               paddingTop: "12px",
             }}>
-              {categories.map((cat) => (
+              {/* Hologram grid bg on mobile menu */}
+              <div style={{
+                position: "absolute", left: 0, right: 0,
+                backgroundImage: "linear-gradient(rgba(255,77,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,77,0,0.03) 1px, transparent 1px)",
+                backgroundSize: "24px 24px",
+                pointerEvents: "none",
+                zIndex: 0,
+              }} />
+              {categories.map((cat, i) => (
                 <Link
                   key={cat.slug}
                   href={cat.slug === "all" ? "/articles" : `/category/${cat.slug}`}
                   onClick={() => setMenuOpen(false)}
                   className="mobile-nav-link"
+                  style={{ animationDelay: `${i * 0.04}s` }}
                 >
+                  <span style={{ fontSize: 16 }}>{cat.icon}</span>
                   {cat.name}
+                  <span style={{ marginLeft: "auto", color: "#333", fontSize: 12 }}>→</span>
                 </Link>
               ))}
             </div>
