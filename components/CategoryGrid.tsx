@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 const categories = [
   {
@@ -91,7 +91,7 @@ const categories = [
 
 const loop = [...categories, ...categories, ...categories, ...categories];
 
-function PillCard({ cat, idx }: { cat: typeof categories[0]; idx: number }) {
+function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number; paused: boolean }) {
   const [hovered, setHovered] = useState(false);
   const [clicked, setClicked] = useState(false);
   const [ripples, setRipples] = useState<{ id: number }[]>([]);
@@ -139,7 +139,7 @@ function PillCard({ cat, idx }: { cat: typeof categories[0]; idx: number }) {
           position: "relative",
           overflow: "hidden",
           cursor: "pointer",
-          animation: hovered
+          animation: (hovered || paused)
             ? "none"
             : `${floatAnim} ${floatDuration}s ease-in-out ${floatDelay}s infinite`,
           transform: hovered
@@ -150,7 +150,6 @@ function PillCard({ cat, idx }: { cat: typeof categories[0]; idx: number }) {
           transition: "border 0.3s ease, background 0.3s ease, box-shadow 0.3s ease, transform 0.25s cubic-bezier(0.34,1.56,0.64,1)",
         }}>
 
-          {/* Ripple effects on click */}
           {ripples.map(r => (
             <span key={r.id} style={{
               position: "absolute",
@@ -165,7 +164,6 @@ function PillCard({ cat, idx }: { cat: typeof categories[0]; idx: number }) {
             }} />
           ))}
 
-          {/* Ambient glow bg */}
           <div style={{
             position: "absolute", inset: 0,
             background: `radial-gradient(ellipse at 50% 30%, rgba(${cat.rgb},${hovered ? 0.15 : 0}), transparent 70%)`,
@@ -173,7 +171,6 @@ function PillCard({ cat, idx }: { cat: typeof categories[0]; idx: number }) {
             pointerEvents: "none",
           }} />
 
-          {/* Top highlight line */}
           <div style={{
             position: "absolute", top: 0, left: "20%", right: "20%", height: 1,
             background: `linear-gradient(90deg, transparent, rgba(${cat.rgb},0.8), transparent)`,
@@ -181,7 +178,6 @@ function PillCard({ cat, idx }: { cat: typeof categories[0]; idx: number }) {
             transition: "opacity 0.3s ease",
           }} />
 
-          {/* Scan shimmer */}
           <div style={{
             position: "absolute", top: 0,
             left: hovered ? "120%" : "-80%",
@@ -192,7 +188,6 @@ function PillCard({ cat, idx }: { cat: typeof categories[0]; idx: number }) {
             pointerEvents: "none",
           }} />
 
-          {/* Icon box */}
           <div style={{
             width: 60, height: 60,
             borderRadius: 16,
@@ -221,7 +216,6 @@ function PillCard({ cat, idx }: { cat: typeof categories[0]; idx: number }) {
             animation: clicked ? "iconPop 0.35s cubic-bezier(0.34,1.56,0.64,1)" : "none",
             overflow: "hidden",
           }}>
-            {/* Icon ripple rings on click */}
             {ripples.map(r => (
               <span key={r.id} style={{
                 position: "absolute",
@@ -237,7 +231,6 @@ function PillCard({ cat, idx }: { cat: typeof categories[0]; idx: number }) {
             {cat.icon}
           </div>
 
-          {/* Name */}
           <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
             <div style={{
               color: hovered ? "#fff" : "#888",
@@ -264,7 +257,6 @@ function PillCard({ cat, idx }: { cat: typeof categories[0]; idx: number }) {
             </div>
           </div>
 
-          {/* Bottom glow bar */}
           <div style={{
             position: "absolute", bottom: 0, left: "50%",
             transform: `translateX(-50%) scaleX(${hovered ? 1 : 0})`,
@@ -282,6 +274,113 @@ function PillCard({ cat, idx }: { cat: typeof categories[0]; idx: number }) {
 
 export default function CategoryGrid() {
   const [paused, setPaused] = useState(false);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  // Touch drag logic
+  const touchStartX = useRef(0);
+  const touchStartTime = useRef(0);
+  const animOffsetRef = useRef(0);
+  const velocityRef = useRef(0);
+  const isDragging = useRef(false);
+  const dragOffset = useRef(0);
+  const lastTouchX = useRef(0);
+  const rafRef = useRef<number | null>(null);
+
+  // Get current CSS animation translateX value
+  const getAnimatedX = () => {
+    const el = trackRef.current;
+    if (!el) return 0;
+    const style = window.getComputedStyle(el);
+    const matrix = new DOMMatrix(style.transform);
+    return matrix.m41;
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartX.current = touch.clientX;
+    lastTouchX.current = touch.clientX;
+    touchStartTime.current = Date.now();
+    isDragging.current = true;
+    velocityRef.current = 0;
+
+    // Freeze animation and capture current position
+    const currentX = getAnimatedX();
+    animOffsetRef.current = currentX;
+    dragOffset.current = 0;
+
+    const el = trackRef.current;
+    if (el) {
+      el.style.animation = "none";
+      el.style.transform = `translateX(${currentX}px)`;
+    }
+
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    setPaused(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging.current) return;
+    const touch = e.touches[0];
+    const dx = touch.clientX - lastTouchX.current;
+    velocityRef.current = dx;
+    lastTouchX.current = touch.clientX;
+    dragOffset.current += dx;
+
+    const el = trackRef.current;
+    if (el) {
+      el.style.transform = `translateX(${animOffsetRef.current + dragOffset.current}px)`;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    isDragging.current = false;
+    let velocity = velocityRef.current * 8; // momentum multiplier
+    let currentX = animOffsetRef.current + dragOffset.current;
+
+    const el = trackRef.current;
+    if (!el) return;
+
+    // Momentum glide
+    const glide = () => {
+      velocity *= 0.92; // friction
+      currentX += velocity;
+
+      // Seamless loop: get track total width for 50% reset
+      const trackWidth = el.scrollWidth / 2;
+      if (Math.abs(currentX) >= trackWidth) {
+        currentX += trackWidth;
+      }
+      if (currentX > 0) {
+        currentX -= trackWidth;
+      }
+
+      el.style.transform = `translateX(${currentX}px)`;
+
+      if (Math.abs(velocity) > 0.5) {
+        rafRef.current = requestAnimationFrame(glide);
+      } else {
+        // Hand back to CSS animation from current position
+        // Calculate equivalent animation progress
+        const trackTotalWidth = el.scrollWidth / 2;
+        const progress = Math.abs(currentX) / trackTotalWidth;
+        const duration = 30; // same as CSS animation
+        const elapsed = progress * duration;
+
+        el.style.transform = "";
+        el.style.animation = `scrollLeft ${duration}s linear infinite`;
+        el.style.animationDelay = `-${elapsed}s`;
+        setPaused(false);
+      }
+    };
+
+    rafRef.current = requestAnimationFrame(glide);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
 
   return (
     <div style={{ padding: "32px 0 0", position: "relative", zIndex: 1 }}>
@@ -334,6 +433,7 @@ export default function CategoryGrid() {
           position: relative;
           overflow: hidden;
           margin: 0 -1.5rem;
+          touch-action: pan-y;
         }
         .cat-fade-l {
           position: absolute; left: 0; top: 0; bottom: 0; width: 160px;
@@ -396,13 +496,19 @@ export default function CategoryGrid() {
         className="cat-outer"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         <div className="cat-fade-l" />
         <div className="cat-fade-r" />
         <div className="cat-inner">
-          <div className={`cat-track${paused ? " paused" : ""}`}>
+          <div
+            ref={trackRef}
+            className={`cat-track${paused ? " paused" : ""}`}
+          >
             {loop.map((cat, i) => (
-              <PillCard key={`${cat.slug}-${i}`} cat={cat} idx={i} />
+              <PillCard key={`${cat.slug}-${i}`} cat={cat} idx={i} paused={paused} />
             ))}
           </div>
         </div>
