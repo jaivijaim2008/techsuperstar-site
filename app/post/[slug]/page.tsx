@@ -21,6 +21,40 @@ function getYouTubeId(url: string) {
   return null;
 }
 
+export async function generateMetadata({ params }: { params: { slug: string } }) {
+  const post = await getPost(params.slug);
+  if (!post) return { title: "Post Not Found" };
+
+  const description = post.body
+    ? post.body
+        .filter((b: any) => b._type === "block")
+        .slice(0, 2)
+        .map((b: any) => b.children?.map((c: any) => c.text).join(""))
+        .join(" ")
+        .slice(0, 160)
+    : "";
+
+  return {
+    title: post.title,
+    description,
+    openGraph: {
+      title: post.title,
+      description,
+      type: "article",
+      publishedTime: post.publishedAt,
+      images: post.image
+        ? [{ url: post.image, width: 1200, height: 630, alt: post.title }]
+        : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description,
+      images: post.image ? [post.image] : [],
+    },
+  };
+}
+
 export default async function PostPage({
   params,
 }: {
@@ -60,8 +94,32 @@ export default async function PostPage({
 
   const youtubeId = getYouTubeId(post.youtubeUrl);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    image: post.image || "",
+    datePublished: post.publishedAt,
+    author: {
+      "@type": "Organization",
+      name: post.author || "TechSuperStar",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "TechSuperStar",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://techsuperstar-site.vercel.app/favicon.jpg",
+      },
+    },
+  };
+
   return (
     <div style={{ background: "#060606", minHeight: "100vh", fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", overflowX: "hidden" }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar />
 
       <style>{`
