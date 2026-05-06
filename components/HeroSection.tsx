@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 
 export default function HeroSection() {
   const [mounted, setMounted] = useState(false);
-  const [count, setCount] = useState({ subs: 206, views: 320, likes: 203 });
+  // ✅ FIX 1: Start from 0 so server and client both render 0.00M+ on first load
+  const [count, setCount] = useState({ subs: 0, views: 0, likes: 0 });
 
   useEffect(() => {
     setMounted(true);
@@ -244,7 +245,8 @@ export default function HeroSection() {
       ))}
 
       {/* ── Floating tags (desktop only) ── */}
-      {mounted && [
+      {/* ✅ FIX 2: Removed {mounted && ...} wrapper — opacity handles visibility safely */}
+      {[
         { text: "📱 Smartphone Reviews", top: "18%", left: "4%",   delay: "0s" },
         { text: "💻 Laptop Guides",      top: "28%", right: "4%",  delay: "0.4s" },
         { text: "🎮 Gaming Gear",        bottom: "28%", left: "3%",  delay: "0.8s" },
