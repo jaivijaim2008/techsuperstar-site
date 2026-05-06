@@ -10,10 +10,9 @@ export const dynamic = "force-dynamic";
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: { q?: string };
 }) {
-  const { q } = await searchParams;
-  const query = q || "";
+  const query = searchParams.q || "";
   const allPosts = await getPosts();
 
   const results = allPosts?.filter((post: any) =>
