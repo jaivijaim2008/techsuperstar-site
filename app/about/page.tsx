@@ -105,11 +105,8 @@ export default function AboutPage() {
           display: flex;
           align-items: center;
           gap: 10px;
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.06);
           border-radius: 12px;
           padding: 14px 20px;
-          color: #ccc;
           text-decoration: none;
           font-size: 13px;
           font-weight: 600;
@@ -120,6 +117,8 @@ export default function AboutPage() {
         }
         .social-row-btn:hover {
           transform: translateY(-3px);
+          filter: brightness(1.3);
+          box-shadow: 0 8px 24px rgba(0,0,0,0.3);
         }
 
         .yt-btn {
@@ -142,6 +141,28 @@ export default function AboutPage() {
         .yt-btn:hover {
           transform: translateY(-3px) scale(1.04);
           box-shadow: 0 10px 40px rgba(255,77,0,0.6);
+        }
+
+        .contact-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(255,77,0,0.08);
+          border: 1px solid rgba(255,77,0,0.25);
+          color: #ff4d00;
+          padding: 12px 28px;
+          border-radius: 50px;
+          text-decoration: none;
+          font-size: 13px;
+          font-weight: 700;
+          font-family: var(--font-dm-sans), sans-serif;
+          transition: all 0.25s ease;
+        }
+        .contact-btn:hover {
+          background: rgba(255,77,0,0.15);
+          border-color: rgba(255,77,0,0.5);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(255,77,0,0.2);
         }
 
         .stat-pill {
@@ -173,7 +194,6 @@ export default function AboutPage() {
         <div style={{ position: "absolute", width: 220, height: 220, bottom: "-40px", right: "8%", borderRadius: "50%", background: "rgba(255,100,0,0.04)", filter: "blur(55px)", animation: "orbFloat2 11s ease-in-out infinite", pointerEvents: "none" }} />
 
         <div style={{ position: "relative", zIndex: 1, maxWidth: "680px", margin: "0 auto" }}>
-          {/* Logo */}
           <div style={{
             width: "80px", height: "80px", borderRadius: "50%",
             overflow: "hidden", border: "2px solid #ff4d00",
@@ -183,7 +203,6 @@ export default function AboutPage() {
             <img src="/favicon.jpg" alt="TechSuperStar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           </div>
 
-          {/* Badge */}
           <div style={{
             display: "inline-flex", alignItems: "center", gap: "8px",
             background: "rgba(255,77,0,0.08)", border: "1px solid rgba(255,77,0,0.28)",
@@ -215,7 +234,6 @@ export default function AboutPage() {
             Your ultimate source for <span style={{ color: "#ff6622", fontWeight: 600 }}>honest tech reviews</span>, buying guides, and the latest news — all in Tamil.
           </p>
 
-          {/* Stats row */}
           <div className="stats-row" style={{ display: "flex", justifyContent: "center", gap: "14px", flexWrap: "wrap" }}>
             {[
               { value: "2.06M+", label: "Subscribers" },
@@ -234,7 +252,6 @@ export default function AboutPage() {
       {/* Content */}
       <div style={{ maxWidth: "860px", margin: "0 auto", padding: "52px 1.5rem 80px" }}>
 
-        {/* Who We Are */}
         <ScrollReveal direction="up">
           <div className="about-card">
             <div className="section-heading">Who We Are</div>
@@ -250,18 +267,13 @@ export default function AboutPage() {
           </div>
         </ScrollReveal>
 
-        {/* What We Cover */}
         <ScrollReveal direction="up" delay={50}>
           <div className="about-card">
             <div className="section-heading">What We Cover</div>
             <h2 style={{ color: "#fff", fontSize: "clamp(18px, 3vw, 24px)", fontWeight: "900", fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif", margin: "0 0 24px" }}>
               Every Category. Every Budget.
             </h2>
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-              gap: "14px",
-            }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "14px" }}>
               {[
                 { icon: "📱", title: "Phones",      desc: "Budget to flagship smartphone reviews" },
                 { icon: "💻", title: "Laptops",     desc: "Gaming and work laptop buying guides" },
@@ -280,7 +292,6 @@ export default function AboutPage() {
           </div>
         </ScrollReveal>
 
-        {/* YouTube CTA */}
         <ScrollReveal direction="up" delay={50}>
           <div className="about-card" style={{
             background: "linear-gradient(135deg, #1a0800 0%, #0e0500 50%, #1a0800 100%)",
@@ -316,7 +327,6 @@ export default function AboutPage() {
           </div>
         </ScrollReveal>
 
-        {/* Get In Touch */}
         <ScrollReveal direction="up" delay={50}>
           <div className="about-card" style={{ textAlign: "center" }}>
             <div className="section-heading" style={{ justifyContent: "center" }}>Connect With Us</div>
@@ -333,26 +343,16 @@ export default function AboutPage() {
 
             <div className="social-row" style={{ display: "flex", justifyContent: "center", gap: "12px", flexWrap: "wrap", marginBottom: "20px" }}>
               {[
-                { label: "YouTube",    icon: <FaYoutube size={18} />,   url: "https://www.youtube.com/@TechSuperStarOfficial",      color: "#ff0000", rgb: "255,0,0" },
-                { label: "Instagram",  icon: <FaInstagram size={18} />, url: "https://www.instagram.com/techsuperstarofficial/",    color: "#e1306c", rgb: "225,48,108" },
-                { label: "Twitter / X",icon: <FaXTwitter size={18} />,  url: "https://x.com/Tech_SuperStar",                       color: "#ffffff", rgb: "255,255,255" },
+                { label: "YouTube",     icon: <FaYoutube size={18} />,   url: "https://www.youtube.com/@TechSuperStarOfficial",   color: "#ff4444", bg: "rgba(255,0,0,0.08)",     border: "rgba(255,0,0,0.25)" },
+                { label: "Instagram",   icon: <FaInstagram size={18} />, url: "https://www.instagram.com/techsuperstarofficial/", color: "#e1306c", bg: "rgba(225,48,108,0.08)",  border: "rgba(225,48,108,0.25)" },
+                { label: "Twitter / X", icon: <FaXTwitter size={18} />,  url: "https://x.com/Tech_SuperStar",                    color: "#aaa",    bg: "rgba(255,255,255,0.04)", border: "rgba(255,255,255,0.12)" },
               ].map((s) => (
                 <Link key={s.label} href={s.url} target="_blank"
                   className="social-row-btn"
                   style={{
-                    background: `rgba(${s.rgb},0.07)`,
-                    border: `1px solid rgba(${s.rgb},0.2)`,
+                    background: s.bg,
+                    border: `1px solid ${s.border}`,
                     color: s.color,
-                  }}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLElement).style.background = `rgba(${s.rgb},0.15)`;
-                    (e.currentTarget as HTMLElement).style.borderColor = `rgba(${s.rgb},0.4)`;
-                    (e.currentTarget as HTMLElement).style.boxShadow = `0 8px 24px rgba(${s.rgb},0.2)`;
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLElement).style.background = `rgba(${s.rgb},0.07)`;
-                    (e.currentTarget as HTMLElement).style.borderColor = `rgba(${s.rgb},0.2)`;
-                    (e.currentTarget as HTMLElement).style.boxShadow = "none";
                   }}
                 >
                   {s.icon}
@@ -362,17 +362,7 @@ export default function AboutPage() {
               ))}
             </div>
 
-            <Link href="/contact" style={{
-              display: "inline-flex", alignItems: "center", gap: "8px",
-              background: "rgba(255,77,0,0.08)", border: "1px solid rgba(255,77,0,0.25)",
-              color: "#ff4d00", padding: "12px 28px", borderRadius: "50px",
-              textDecoration: "none", fontSize: "13px", fontWeight: "700",
-              fontFamily: "var(--font-dm-sans), sans-serif",
-              transition: "all 0.25s ease",
-            }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,77,0,0.15)"; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,77,0,0.08)"; }}
-            >
+            <Link href="/contact" className="contact-btn">
               Send a Message →
             </Link>
           </div>
