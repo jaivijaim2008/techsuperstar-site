@@ -4,26 +4,25 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { FaMobileAlt, FaLaptop, FaTabletAlt, FaGamepad, FaStar, FaHeadphones } from "react-icons/fa";
 
 const categories = [
-  { name: "Phones", slug: "phones", color: "#ff4d00", rgb: "255,77,0", label: "Smartphones & More", icon: <FaMobileAlt size={30} /> },
-  { name: "Laptops", slug: "laptops", color: "#3b82f6", rgb: "59,130,246", label: "Notebooks & PCs", icon: <FaLaptop size={30} /> },
-  { name: "Tablets", slug: "tablets", color: "#10b981", rgb: "16,185,129", label: "Slates & iPads", icon: <FaTabletAlt size={30} /> },
-  { name: "Gaming", slug: "gaming", color: "#a855f7", rgb: "168,85,247", label: "Console & PC", icon: <FaGamepad size={30} /> },
-  { name: "Reviews", slug: "reviews", color: "#f59e0b", rgb: "245,158,11", label: "Honest Takes", icon: <FaStar size={30} /> },
-  { name: "Accessories", slug: "accessories", color: "#06b6d4", rgb: "6,182,212", label: "Gear & Gadgets", icon: <FaHeadphones size={30} /> },
+  { name: "Phones", slug: "phones", color: "#ff4d00", rgb: "255,77,0", label: "Smartphones & More", icon: <FaMobileAlt size={28} /> },
+  { name: "Laptops", slug: "laptops", color: "#3b82f6", rgb: "59,130,246", label: "Notebooks & PCs", icon: <FaLaptop size={28} /> },
+  { name: "Tablets", slug: "tablets", color: "#10b981", rgb: "16,185,129", label: "Slates & iPads", icon: <FaTabletAlt size={28} /> },
+  { name: "Gaming", slug: "gaming", color: "#a855f7", rgb: "168,85,247", label: "Console & PC", icon: <FaGamepad size={28} /> },
+  { name: "Reviews", slug: "reviews", color: "#f59e0b", rgb: "245,158,11", label: "Honest Takes", icon: <FaStar size={28} /> },
+  { name: "Accessories", slug: "accessories", color: "#06b6d4", rgb: "6,182,212", label: "Gear & Gadgets", icon: <FaHeadphones size={28} /> },
 ];
 
 const loop = [...categories, ...categories, ...categories, ...categories];
 
-type Particle = { id: number; x: number; y: number; angle: number; speed: number; size: number };
+type Particle = { id: number; angle: number; speed: number; size: number };
 
-function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number; paused: boolean }) {
+function PillCard({ cat, idx, paused, isMobile }: { cat: typeof categories[0]; idx: number; paused: boolean; isMobile: boolean }) {
   const [hovered, setHovered] = useState(false);
   const [clicked, setClicked] = useState(false);
   const [particles, setParticles] = useState<Particle[]>([]);
   const [shockwave, setShockwave] = useState(false);
   const [flash, setFlash] = useState(false);
 
-  // Track touch start position to distinguish tap from swipe
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
 
@@ -34,8 +33,6 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
   const handleInteract = () => {
     const newParticles: Particle[] = Array.from({ length: 12 }, (_, i) => ({
       id: Date.now() + i,
-      x: 50,
-      y: 50,
       angle: (i / 12) * 360,
       speed: 35 + Math.random() * 40,
       size: 3 + Math.random() * 5,
@@ -60,11 +57,14 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
   const handleTouchEnd = (e: React.TouchEvent) => {
     const dx = Math.abs(e.changedTouches[0].clientX - touchStartX.current);
     const dy = Math.abs(e.changedTouches[0].clientY - touchStartY.current);
-    // Only trigger animation if finger barely moved = real tap, not a swipe
     if (dx < 8 && dy < 8) {
       handleInteract();
     }
   };
+
+  const cardWidth = isMobile ? 100 : 130;
+  const cardPadding = isMobile ? "20px 8px 16px" : "28px 12px 22px";
+  const iconSize = isMobile ? 50 : 60;
 
   return (
     <div
@@ -84,9 +84,9 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          gap: 14,
-          width: 130,
-          padding: "28px 12px 22px",
+          gap: isMobile ? 10 : 14,
+          width: cardWidth,
+          padding: cardPadding,
           borderRadius: 24,
           border: `1px solid ${
             clicked
@@ -127,7 +127,6 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
             overflow: "hidden",
             pointerEvents: "none",
           }}>
-            {/* Flash */}
             {flash && (
               <div style={{
                 position: "absolute", inset: 0,
@@ -137,7 +136,6 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
               }} />
             )}
 
-            {/* Shockwave ring */}
             {shockwave && (
               <div style={{
                 position: "absolute",
@@ -151,14 +149,12 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
               }} />
             )}
 
-            {/* Radial glow */}
             <div style={{
               position: "absolute", inset: 0,
               background: `radial-gradient(ellipse at 50% 30%, rgba(${cat.rgb},${hovered ? 0.15 : 0}), transparent 70%)`,
               transition: "all 0.4s ease",
             }} />
 
-            {/* Top shine */}
             <div style={{
               position: "absolute", top: 0, left: "15%", right: "15%", height: 1,
               background: `linear-gradient(90deg, transparent, rgba(${cat.rgb},0.9), transparent)`,
@@ -166,7 +162,6 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
               transition: "opacity 0.3s ease",
             }} />
 
-            {/* Sweep */}
             <div style={{
               position: "absolute", top: 0,
               left: hovered ? "120%" : "-80%",
@@ -177,7 +172,7 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
             }} />
           </div>
 
-          {/* Burst particles — outside clip */}
+          {/* Burst particles */}
           {particles.map(p => {
             const rad = (p.angle * Math.PI) / 180;
             const tx = Math.cos(rad) * p.speed;
@@ -193,7 +188,7 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
                   background: cat.color,
                   boxShadow: `0 0 ${p.size * 2}px ${cat.color}`,
                   transform: "translate(-50%, -50%)",
-                  animation: `particleFly 0.7s ease-out forwards`,
+                  animation: "particleFly 0.7s ease-out forwards",
                   ["--tx" as string]: `${tx}px`,
                   ["--ty" as string]: `${ty}px`,
                   pointerEvents: "none",
@@ -205,7 +200,7 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
 
           {/* Icon box */}
           <div style={{
-            width: 60, height: 60,
+            width: iconSize, height: iconSize,
             borderRadius: 16,
             background: hovered
               ? `linear-gradient(135deg, rgba(${cat.rgb},0.25), rgba(${cat.rgb},0.08))`
@@ -239,7 +234,7 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
           <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
             <div style={{
               color: hovered || clicked ? "#fff" : "#888",
-              fontSize: 12,
+              fontSize: isMobile ? 10 : 12,
               fontWeight: 700,
               letterSpacing: "1.5px",
               textTransform: "uppercase",
@@ -252,7 +247,7 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
             </div>
             <div style={{
               color: hovered || clicked ? cat.color : "transparent",
-              fontSize: 9,
+              fontSize: isMobile ? 8 : 9,
               fontWeight: 600,
               letterSpacing: "0.5px",
               fontFamily: "'DM Sans', sans-serif",
@@ -281,6 +276,7 @@ function PillCard({ cat, idx, paused }: { cat: typeof categories[0]; idx: number
 
 export default function CategoryGrid() {
   const [paused, setPaused] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const trackRef = useRef<HTMLDivElement>(null);
 
   const animOffsetRef = useRef(0);
@@ -290,6 +286,14 @@ export default function CategoryGrid() {
   const lastTouchX = useRef(0);
   const lastTouchTime = useRef(0);
   const rafRef = useRef<number | null>(null);
+  const autoScrollRef = useRef<{ velocity: number; currentX: number } | null>(null);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 480);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   const getAnimatedX = useCallback(() => {
     const el = trackRef.current;
@@ -298,12 +302,41 @@ export default function CategoryGrid() {
     return matrix.m41;
   }, []);
 
+  const stopCurrentAnimation = useCallback(() => {
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    autoScrollRef.current = null;
+  }, []);
+
+  const startAutoScroll = useCallback((fromX: number) => {
+    const el = trackRef.current;
+    if (!el) return;
+
+    const trackWidth = el.scrollWidth / 4; // 4 copies
+    // Normalize to a valid negative offset in the first copy
+    let x = fromX;
+    while (x > 0) x -= trackWidth;
+    while (x < -trackWidth) x += trackWidth;
+
+    const duration = 30; // seconds for one full loop
+    const progress = Math.abs(x) / trackWidth; // 0..1
+    const elapsed = progress * duration; // seconds already elapsed
+
+    el.style.transform = "";
+    el.style.animation = `scrollLeft ${duration}s linear -${elapsed}s infinite`;
+    setPaused(false);
+  }, []);
+
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     const touch = e.touches[0];
     lastTouchX.current = touch.clientX;
     lastTouchTime.current = performance.now();
     isDragging.current = true;
     velocityRef.current = 0;
+
+    stopCurrentAnimation();
 
     const currentX = getAnimatedX();
     animOffsetRef.current = currentX;
@@ -315,9 +348,8 @@ export default function CategoryGrid() {
       el.style.transform = `translateX(${currentX}px) translateZ(0)`;
     }
 
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
     setPaused(true);
-  }, [getAnimatedX]);
+  }, [getAnimatedX, stopCurrentAnimation]);
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     if (!isDragging.current) return;
@@ -327,7 +359,8 @@ export default function CategoryGrid() {
     const dt = Math.max(now - lastTouchTime.current, 1);
     const dx = touch.clientX - lastTouchX.current;
 
-    velocityRef.current = velocityRef.current * 0.5 + (dx / dt) * 16 * 0.5;
+    // Weighted rolling average — smooth but responsive
+    velocityRef.current = velocityRef.current * 0.45 + (dx / dt) * 16 * 0.55;
 
     lastTouchX.current = touch.clientX;
     lastTouchTime.current = now;
@@ -335,45 +368,43 @@ export default function CategoryGrid() {
 
     const el = trackRef.current;
     if (el) {
-      el.style.transform = `translateX(${animOffsetRef.current + dragOffset.current}px) translateZ(0)`;
+      const newX = animOffsetRef.current + dragOffset.current;
+      el.style.transform = `translateX(${newX}px) translateZ(0)`;
     }
   }, []);
 
   const handleTouchEnd = useCallback(() => {
+    if (!isDragging.current) return;
     isDragging.current = false;
+
     let velocity = velocityRef.current;
     let currentX = animOffsetRef.current + dragOffset.current;
 
     const el = trackRef.current;
     if (!el) return;
 
+    const trackWidth = el.scrollWidth / 4;
+
     const glide = () => {
-      velocity *= 0.93;
+      velocity *= 0.92; // friction
       currentX += velocity;
 
-      const trackWidth = el.scrollWidth / 2;
+      // Seamless infinite loop wrapping
       if (currentX <= -trackWidth) currentX += trackWidth;
       if (currentX > 0) currentX -= trackWidth;
 
       el.style.transform = `translateX(${currentX}px) translateZ(0)`;
 
-      if (Math.abs(velocity) > 0.3) {
+      if (Math.abs(velocity) > 0.25) {
         rafRef.current = requestAnimationFrame(glide);
       } else {
-        const trackTotalWidth = el.scrollWidth / 2;
-        const normalizedX = ((currentX % trackTotalWidth) + trackTotalWidth) % trackTotalWidth;
-        const progress = normalizedX / trackTotalWidth;
-        const duration = 30;
-        const elapsed = progress * duration;
-
-        el.style.transform = "";
-        el.style.animation = `scrollLeft ${duration}s linear ${-elapsed}s infinite`;
-        setPaused(false);
+        // Hand off cleanly to CSS animation from current position
+        startAutoScroll(currentX);
       }
     };
 
     rafRef.current = requestAnimationFrame(glide);
-  }, []);
+  }, [startAutoScroll]);
 
   useEffect(() => {
     return () => {
@@ -417,9 +448,9 @@ export default function CategoryGrid() {
           100% { width: 220px; height: 220px; opacity: 0; border-width: 1px; }
         }
         @keyframes particleFly {
-          0%   { transform: translate(-50%, -50%) translate(0px, 0px) scale(1); opacity: 1; }
-          60%  { opacity: 0.8; transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(1.2); }
-          100% { transform: translate(-50%, -50%) translate(calc(var(--tx)*1.5), calc(var(--ty)*1.5)) scale(0); opacity: 0; }
+          0%   { transform: translate(-50%,-50%) translate(0px,0px) scale(1); opacity: 1; }
+          60%  { opacity: 0.8; transform: translate(-50%,-50%) translate(var(--tx),var(--ty)) scale(1.2); }
+          100% { transform: translate(-50%,-50%) translate(calc(var(--tx)*1.5),calc(var(--ty)*1.5)) scale(0); opacity: 0; }
         }
         @keyframes iconBounce {
           0%   { transform: scale(0.7) rotate(-20deg); }
@@ -432,6 +463,7 @@ export default function CategoryGrid() {
           40%  { transform: scale(1.15); }
           100% { transform: scale(1); }
         }
+
         .cat-track {
           display: flex;
           gap: 14px;
@@ -447,9 +479,11 @@ export default function CategoryGrid() {
           position: relative;
           overflow: hidden;
           margin: 0 -1.5rem;
-          touch-action: pan-y;
+          touch-action: pan-x;
           -webkit-overflow-scrolling: touch;
+          cursor: grab;
         }
+        .cat-outer:active { cursor: grabbing; }
         .cat-fade-l {
           position: absolute; left: 0; top: 0; bottom: 0; width: 120px;
           background: linear-gradient(to right, #060606 0%, #060606 10%, rgba(6,6,6,0.85) 50%, transparent 100%);
@@ -461,6 +495,23 @@ export default function CategoryGrid() {
           pointer-events: none; z-index: 3;
         }
         .cat-inner { padding: 0 120px; }
+
+        @media (max-width: 480px) {
+          .cat-outer {
+            margin: 0 -1rem;
+          }
+          .cat-inner {
+            padding: 0 60px;
+          }
+          .cat-fade-l,
+          .cat-fade-r {
+            width: 60px;
+          }
+          .cat-track {
+            gap: 10px;
+            padding: 16px 0;
+          }
+        }
       `}</style>
 
       {/* Header */}
@@ -523,7 +574,7 @@ export default function CategoryGrid() {
             className={`cat-track${paused ? " paused" : ""}`}
           >
             {loop.map((cat, i) => (
-              <PillCard key={`${cat.slug}-${i}`} cat={cat} idx={i} paused={paused} />
+              <PillCard key={`${cat.slug}-${i}`} cat={cat} idx={i} paused={paused} isMobile={isMobile} />
             ))}
           </div>
         </div>
