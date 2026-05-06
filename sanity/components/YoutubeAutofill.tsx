@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
-import { StringInputProps, set, useFormValue, useClient } from "sanity";
-import { useDocumentOperation } from "sanity";
+import { StringInputProps, useFormValue, useClient } from "sanity";
 
 function slugify(text: string) {
   return text
@@ -17,19 +16,17 @@ function descriptionToBlocks(description: string) {
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed) continue;
+    if (/^\d+:\d+/.test(trimmed)) continue;
+    if (trimmed.startsWith("#")) continue;
+    if (/^https?:\/\//.test(trimmed)) continue;
 
-    // Detect section headings (short lines, no punctuation at end, or ALL CAPS words)
+    const isBullet = trimmed.startsWith("- ") || trimmed.startsWith("* ");
     const isHeading =
       trimmed.length < 60 &&
       !trimmed.endsWith(".") &&
       !trimmed.endsWith("!") &&
-      !trimmed.startsWith("-") &&
-      !trimmed.startsWith("http") &&
-      !trimmed.startsWith("#") &&
-      /^[A-Z]/.test(trimmed);
-
-    // Detect bullet points
-    const isBullet = trimmed.startsWith("- ") || trimmed.startsWith("• ");
+      !isBullet &&
+      blocks.length > 0;
 
     if (isBullet) {
       blocks.push({
@@ -38,10 +35,10 @@ function descriptionToBlocks(description: string) {
         style: "normal",
         listItem: "bullet",
         level: 1,
-        children: [{ _type: "span", _key: "a", text: trimmed.replace(/^[-•]\s/, ""), marks: [] }],
+        children: [{ _type: "span", _key: "a", text: trimmed.replace(/^[-*]\s/, ""), marks: [] }],
         markDefs: [],
       });
-    } else if (isHeading && blocks.length > 0) {
+    } else if (isHeading) {
       blocks.push({
         _type: "block",
         _key: Math.random().toString(36).slice(2),
@@ -50,11 +47,6 @@ function descriptionToBlocks(description: string) {
         markDefs: [],
       });
     } else {
-      // Skip timestamp lines and hashtag lines
-      if (/^\d+:\d+/.test(trimmed) || trimmed.startsWith("#")) continue;
-      // Skip bare URLs
-      if (/^https?:\/\//.test(trimmed)) continue;
-
       blocks.push({
         _type: "block",
         _key: Math.random().toString(36).slice(2),
@@ -78,14 +70,14 @@ export function YoutubeAutofill(props: StringInputProps) {
   const handleAutofill = async () => {
     if (!value) return;
     setLoading(true);
-    setStatus("⏳ Fetching from YouTube...");
+    setStatus("Fetching from YouTube...");
 
     try {
       const res = await fetch(`/api/youtube-meta?url=${encodeURIComponent(value)}`);
       const data = await res.json();
 
       if (data.error) {
-        setStatus("❌ " + data.error);
+        setStatus("Error: " + data.error);
         setLoading(false);
         return;
       }
@@ -103,9 +95,9 @@ export function YoutubeAutofill(props: StringInputProps) {
         })
         .commit();
 
-      setStatus("✅ Auto-filled! Title, slug, body and date are set. Add category and image manually.");
+      setStatus("Done! Title, slug, body and date filled. Add category and image manually.");
     } catch (err) {
-      setStatus("❌ Failed. Check your API key and try again.");
+      setStatus("Failed. Check your API key and try again.");
     }
 
     setLoading(false);
@@ -144,7 +136,7 @@ export function YoutubeAutofill(props: StringInputProps) {
           marginBottom: "8px",
         }}
       >
-        {loading ? "⏳ Fetching..." : "⚡ Auto-fill from YouTube"}
+        {loading ? "Fetching..." : "Auto-fill from YouTube"}
       </button>
       {status && (
         <p style={{ color: "#aaa", fontSize: "12px", marginTop: "6px", lineHeight: 1.5 }}>
