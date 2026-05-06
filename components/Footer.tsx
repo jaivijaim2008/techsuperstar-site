@@ -463,9 +463,9 @@ export default function Footer() {
               <Link href="/privacy-policy" className="footer-bottom-link">
                 Privacy Policy
               </Link>
-              <Link href="#" className="footer-bottom-link">
-                Terms of Use
-              </Link>
+                    <Link href="/terms" className="footer-bottom-link">
+                    Terms of Use
+                    </Link>
             </div>
           </div>
 
