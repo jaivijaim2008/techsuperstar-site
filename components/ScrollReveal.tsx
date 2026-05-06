@@ -36,7 +36,7 @@ export default function ScrollReveal({ children, delay = 0, direction = "up" }: 
           el.style.transform = getTransform();
         }
       },
-      { threshold: 0.01 }
+      { threshold: 0.06 }
     );
 
     observer.observe(el);
