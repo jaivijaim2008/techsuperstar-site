@@ -3,7 +3,7 @@ import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";
 import Link from "next/link";
 import { FaYoutube, FaInstagram, FaXTwitter } from "react-icons/fa6";
-
+export const dynamic = "force-dynamic";
 export default function AboutPage() {
   return (
     <div style={{ background: "#060606", minHeight: "100vh", fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", overflowX: "hidden" }}>

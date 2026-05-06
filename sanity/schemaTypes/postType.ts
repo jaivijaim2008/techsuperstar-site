@@ -1,74 +1,72 @@
-import {DocumentTextIcon} from '@sanity/icons'
-import {defineArrayMember, defineField, defineType} from 'sanity'
+import { DocumentTextIcon } from "@sanity/icons";
+import { defineArrayMember, defineField, defineType } from "sanity";
+import { YoutubeAutofill } from "../components/YoutubeAutofill";
 
 export const postType = defineType({
-  name: 'post',
-  title: 'Post',
-  type: 'document',
+  name: "post",
+  title: "Post",
+  type: "document",
   icon: DocumentTextIcon,
   fields: [
     defineField({
-      name: 'title',
-      type: 'string',
+      name: "title",
+      type: "string",
     }),
     defineField({
-      name: 'slug',
-      type: 'slug',
-      options: {
-        source: 'title',
-      },
+      name: "slug",
+      type: "slug",
+      options: { source: "title" },
     }),
     defineField({
-      name: 'author',
-      type: 'reference',
-      to: {type: 'author'},
+      name: "author",
+      type: "reference",
+      to: { type: "author" },
     }),
     defineField({
-      name: 'mainImage',
-      type: 'image',
-      options: {
-        hotspot: true,
-      },
+      name: "mainImage",
+      type: "image",
+      options: { hotspot: true },
       fields: [
         defineField({
-          name: 'alt',
-          type: 'string',
-          title: 'Alternative text',
-        })
-      ]
+          name: "alt",
+          type: "string",
+          title: "Alternative text",
+        }),
+      ],
     }),
     defineField({
-      name: 'categories',
-      type: 'array',
-      of: [defineArrayMember({type: 'reference', to: {type: 'category'}})],
+      name: "categories",
+      type: "array",
+      of: [defineArrayMember({ type: "reference", to: { type: "category" } })],
     }),
     defineField({
-      name: 'publishedAt',
-      type: 'datetime',
+      name: "publishedAt",
+      type: "datetime",
     }),
     defineField({
-      name: 'youtubeUrl',
-      title: 'YouTube Video URL',
-      type: 'url',
-      description: 'Paste the full YouTube video URL (e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ or https://youtu.be/dQw4w9WgXcQ). This video will appear at the top of your article.',
-      validation: (Rule) => Rule.uri({
-        scheme: ['http', 'https']
-      })
+      name: "youtubeUrl",
+      title: "YouTube Video URL",
+      type: "string",
+      description:
+        "Paste the full YouTube URL then click ⚡ Auto-fill to extract title, slug, body and date automatically.",
+      components: {
+        input: YoutubeAutofill,
+      },
     }),
     defineField({
-      name: 'body',
-      type: 'blockContent',
+      name: "body",
+      type: "blockContent",
     }),
   ],
   preview: {
     select: {
-      title: 'title',
-      author: 'author.name',
-      media: 'mainImage',
+      title: "title",
+      author: "author.name",
+      media: "mainImage",
     },
     prepare(selection) {
-      const {author} = selection
-      return {...selection, subtitle: author && `by ${author}`}
+      const { author } = selection;
+      return { ...selection, subtitle: author && `by ${author}` };
     },
   },
-})
+});
