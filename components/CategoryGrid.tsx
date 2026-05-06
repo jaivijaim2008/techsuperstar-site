@@ -4,67 +4,76 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { FaMobileAlt, FaLaptop, FaTabletAlt, FaGamepad, FaStar, FaHeadphones } from "react-icons/fa";
 
 const categories = [
-  { name: "Phones", slug: "phones", color: "#ff4d00", rgb: "255,77,0", label: "Smartphones & More", icon: <FaMobileAlt size={28} /> },
-  { name: "Laptops", slug: "laptops", color: "#3b82f6", rgb: "59,130,246", label: "Notebooks & PCs", icon: <FaLaptop size={28} /> },
-  { name: "Tablets", slug: "tablets", color: "#10b981", rgb: "16,185,129", label: "Slates & iPads", icon: <FaTabletAlt size={28} /> },
-  { name: "Gaming", slug: "gaming", color: "#a855f7", rgb: "168,85,247", label: "Console & PC", icon: <FaGamepad size={28} /> },
-  { name: "Reviews", slug: "reviews", color: "#f59e0b", rgb: "245,158,11", label: "Honest Takes", icon: <FaStar size={28} /> },
-  { name: "Accessories", slug: "accessories", color: "#06b6d4", rgb: "6,182,212", label: "Gear & Gadgets", icon: <FaHeadphones size={28} /> },
+  { name: "Phones",      slug: "phones",      color: "#ff4d00", rgb: "255,77,0",    label: "Smartphones & More", icon: <FaMobileAlt size={28} /> },
+  { name: "Laptops",     slug: "laptops",     color: "#3b82f6", rgb: "59,130,246",  label: "Notebooks & PCs",    icon: <FaLaptop size={28} /> },
+  { name: "Tablets",     slug: "tablets",     color: "#10b981", rgb: "16,185,129",  label: "Slates & iPads",     icon: <FaTabletAlt size={28} /> },
+  { name: "Gaming",      slug: "gaming",      color: "#a855f7", rgb: "168,85,247",  label: "Console & PC",       icon: <FaGamepad size={28} /> },
+  { name: "Reviews",     slug: "reviews",     color: "#f59e0b", rgb: "245,158,11",  label: "Honest Takes",       icon: <FaStar size={28} /> },
+  { name: "Accessories", slug: "accessories", color: "#06b6d4", rgb: "6,182,212",   label: "Gear & Gadgets",     icon: <FaHeadphones size={28} /> },
 ];
 
+// 4 copies for seamless infinite loop
 const loop = [...categories, ...categories, ...categories, ...categories];
 
 type Particle = { id: number; angle: number; speed: number; size: number };
 
-function PillCard({ cat, idx, paused, isMobile }: { cat: typeof categories[0]; idx: number; paused: boolean; isMobile: boolean }) {
-  const [hovered, setHovered] = useState(false);
-  const [clicked, setClicked] = useState(false);
+// ─── PillCard ────────────────────────────────────────────────────────────────
+function PillCard({
+  cat, idx, isMobile, isDragging,
+}: {
+  cat: typeof categories[0];
+  idx: number;
+  isMobile: boolean;
+  isDragging: React.MutableRefObject<boolean>;
+}) {
+  const [hovered,   setHovered]   = useState(false);
+  const [clicked,   setClicked]   = useState(false);
   const [particles, setParticles] = useState<Particle[]>([]);
   const [shockwave, setShockwave] = useState(false);
-  const [flash, setFlash] = useState(false);
+  const [flash,     setFlash]     = useState(false);
 
+  // Track touch start position for tap-vs-drag detection
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
 
   const floatDuration = 2.4 + (idx % 6) * 0.35;
-  const floatDelay = (idx % 6) * 0.3;
-  const floatAnim = `float${idx % 6}`;
+  const floatDelay    = (idx % 6) * 0.3;
+  const floatAnim     = `float${idx % 6}`;
 
-  const handleInteract = () => {
+  const triggerEffects = useCallback(() => {
     const newParticles: Particle[] = Array.from({ length: 12 }, (_, i) => ({
-      id: Date.now() + i,
+      id:    Date.now() + i,
       angle: (i / 12) * 360,
       speed: 35 + Math.random() * 40,
-      size: 3 + Math.random() * 5,
+      size:  3 + Math.random() * 5,
     }));
-
     setClicked(true);
     setShockwave(true);
     setFlash(true);
     setParticles(newParticles);
-
-    setTimeout(() => setClicked(false), 450);
+    setTimeout(() => setClicked(false),   450);
     setTimeout(() => setShockwave(false), 600);
-    setTimeout(() => setFlash(false), 400);
-    setTimeout(() => setParticles([]), 700);
-  };
+    setTimeout(() => setFlash(false),     400);
+    setTimeout(() => setParticles([]),    700);
+  }, []);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
+  // ── Touch on the card: only fire effects if it's a real tap (not a drag) ──
+  const handleCardTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
-  };
+  }, []);
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
+  const handleCardTouchEnd = useCallback((e: React.TouchEvent) => {
+    // If the parent says we were dragging the carousel, skip the tap effect
+    if (isDragging.current) return;
     const dx = Math.abs(e.changedTouches[0].clientX - touchStartX.current);
     const dy = Math.abs(e.changedTouches[0].clientY - touchStartY.current);
-    if (dx < 8 && dy < 8) {
-      handleInteract();
-    }
-  };
+    if (dx < 8 && dy < 8) triggerEffects();
+  }, [isDragging, triggerEffects]);
 
-  const cardWidth = isMobile ? 100 : 130;
+  const cardWidth   = isMobile ? 100 : 130;
   const cardPadding = isMobile ? "20px 8px 16px" : "28px 12px 22px";
-  const iconSize = isMobile ? 50 : 60;
+  const iconSize    = isMobile ? 50 : 60;
 
   return (
     <div
@@ -75,25 +84,26 @@ function PillCard({ cat, idx, paused, isMobile }: { cat: typeof categories[0]; i
       <Link
         href={`/category/${cat.slug}`}
         style={{ textDecoration: "none", display: "block" }}
-        onMouseDown={handleInteract}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
+        onMouseDown={triggerEffects}
+        onTouchStart={handleCardTouchStart}
+        onTouchEnd={handleCardTouchEnd}
+        // Prevent navigation if the user was dragging the carousel
+        onClick={(e) => { if (isDragging.current) e.preventDefault(); }}
+        draggable={false}
       >
         <div style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          display:        "flex",
+          flexDirection:  "column",
+          alignItems:     "center",
           justifyContent: "center",
-          gap: isMobile ? 10 : 14,
-          width: cardWidth,
-          padding: cardPadding,
-          borderRadius: 24,
+          gap:            isMobile ? 10 : 14,
+          width:          cardWidth,
+          padding:        cardPadding,
+          borderRadius:   24,
           border: `1px solid ${
-            clicked
-              ? `rgba(${cat.rgb},0.9)`
-              : hovered
-                ? `rgba(${cat.rgb},0.5)`
-                : "rgba(255,255,255,0.05)"
+            clicked  ? `rgba(${cat.rgb},0.9)` :
+            hovered  ? `rgba(${cat.rgb},0.5)` :
+                       "rgba(255,255,255,0.05)"
           }`,
           background: hovered
             ? `linear-gradient(160deg, rgba(${cat.rgb},0.14), rgba(${cat.rgb},0.05) 60%, #0a0a0a)`
@@ -103,10 +113,11 @@ function PillCard({ cat, idx, paused, isMobile }: { cat: typeof categories[0]; i
             : hovered
               ? `0 0 0 1px rgba(${cat.rgb},0.2), 0 20px 50px rgba(${cat.rgb},0.2), inset 0 1px 0 rgba(255,255,255,0.05)`
               : "0 2px 16px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03)",
-          position: "relative",
-          overflow: "visible",
-          cursor: "pointer",
-          animation: clicked || hovered || paused
+          position:  "relative",
+          overflow:  "visible",
+          cursor:    "pointer",
+          // Float animation only when idle
+          animation: clicked || hovered
             ? "none"
             : `${floatAnim} ${floatDuration}s ease-in-out ${floatDelay}s infinite`,
           transform: clicked
@@ -117,10 +128,11 @@ function PillCard({ cat, idx, paused, isMobile }: { cat: typeof categories[0]; i
           transition: clicked
             ? "transform 0.12s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.15s ease, border 0.15s ease"
             : "transform 0.5s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease, border 0.3s ease, background 0.3s ease",
-          willChange: "transform",
+          // GPU compositing hint — only transform & opacity, no layout props
+          willChange: "transform, opacity",
         }}>
 
-          {/* Inner clip container */}
+          {/* ── Clipped inner effects ── */}
           <div style={{
             position: "absolute", inset: 0,
             borderRadius: 24,
@@ -129,87 +141,80 @@ function PillCard({ cat, idx, paused, isMobile }: { cat: typeof categories[0]; i
           }}>
             {flash && (
               <div style={{
-                position: "absolute", inset: 0,
+                position:   "absolute", inset: 0,
                 background: `radial-gradient(circle at 50% 50%, rgba(${cat.rgb},0.6) 0%, rgba(${cat.rgb},0.1) 60%, transparent 100%)`,
-                animation: "flashBurst 0.4s ease-out forwards",
-                zIndex: 8,
+                animation:  "flashBurst 0.4s ease-out forwards",
+                zIndex:     8,
               }} />
             )}
-
             {shockwave && (
               <div style={{
-                position: "absolute",
+                position:     "absolute",
                 top: "50%", left: "50%",
                 width: 20, height: 20,
                 borderRadius: "50%",
-                border: `3px solid rgba(${cat.rgb},0.9)`,
-                transform: "translate(-50%, -50%)",
-                animation: "shockwaveExpand 0.6s ease-out forwards",
-                zIndex: 9,
+                border:       `3px solid rgba(${cat.rgb},0.9)`,
+                transform:    "translate(-50%, -50%)",
+                animation:    "shockwaveExpand 0.6s ease-out forwards",
+                zIndex:       9,
               }} />
             )}
-
             <div style={{
-              position: "absolute", inset: 0,
+              position:   "absolute", inset: 0,
               background: `radial-gradient(ellipse at 50% 30%, rgba(${cat.rgb},${hovered ? 0.15 : 0}), transparent 70%)`,
               transition: "all 0.4s ease",
             }} />
-
             <div style={{
-              position: "absolute", top: 0, left: "15%", right: "15%", height: 1,
+              position:   "absolute", top: 0, left: "15%", right: "15%", height: 1,
               background: `linear-gradient(90deg, transparent, rgba(${cat.rgb},0.9), transparent)`,
-              opacity: hovered || clicked ? 1 : 0,
+              opacity:    hovered || clicked ? 1 : 0,
               transition: "opacity 0.3s ease",
             }} />
-
             <div style={{
-              position: "absolute", top: 0,
-              left: hovered ? "120%" : "-80%",
-              width: "60%", height: "100%",
+              position:   "absolute", top: 0,
+              left:       hovered ? "120%" : "-80%",
+              width:      "60%", height: "100%",
               background: `linear-gradient(90deg, transparent, rgba(${cat.rgb},0.07), transparent)`,
-              transform: "skewX(-15deg)",
+              transform:  "skewX(-15deg)",
               transition: "left 0.8s ease",
             }} />
           </div>
 
-          {/* Burst particles */}
+          {/* ── Burst particles ── */}
           {particles.map(p => {
             const rad = (p.angle * Math.PI) / 180;
-            const tx = Math.cos(rad) * p.speed;
-            const ty = Math.sin(rad) * p.speed;
+            const tx  = Math.cos(rad) * p.speed;
+            const ty  = Math.sin(rad) * p.speed;
             return (
-              <span
-                key={p.id}
-                style={{
-                  position: "absolute",
-                  top: "50%", left: "50%",
-                  width: p.size, height: p.size,
-                  borderRadius: "50%",
-                  background: cat.color,
-                  boxShadow: `0 0 ${p.size * 2}px ${cat.color}`,
-                  transform: "translate(-50%, -50%)",
-                  animation: "particleFly 0.7s ease-out forwards",
-                  ["--tx" as string]: `${tx}px`,
-                  ["--ty" as string]: `${ty}px`,
-                  pointerEvents: "none",
-                  zIndex: 20,
-                }}
-              />
+              <span key={p.id} style={{
+                position:     "absolute",
+                top: "50%", left: "50%",
+                width:        p.size, height: p.size,
+                borderRadius: "50%",
+                background:   cat.color,
+                boxShadow:    `0 0 ${p.size * 2}px ${cat.color}`,
+                transform:    "translate(-50%, -50%)",
+                animation:    "particleFly 0.7s ease-out forwards",
+                ["--tx" as string]: `${tx}px`,
+                ["--ty" as string]: `${ty}px`,
+                pointerEvents: "none",
+                zIndex:        20,
+              }} />
             );
           })}
 
-          {/* Icon box */}
+          {/* ── Icon ── */}
           <div style={{
             width: iconSize, height: iconSize,
             borderRadius: 16,
             background: hovered
               ? `linear-gradient(135deg, rgba(${cat.rgb},0.25), rgba(${cat.rgb},0.08))`
               : `rgba(${cat.rgb},0.08)`,
-            border: `1px solid rgba(${cat.rgb},${hovered ? 0.4 : 0.15})`,
-            display: "flex",
-            alignItems: "center",
+            border:   `1px solid rgba(${cat.rgb},${hovered ? 0.4 : 0.15})`,
+            display:  "flex",
+            alignItems:     "center",
             justifyContent: "center",
-            color: cat.color,
+            color:     cat.color,
             transition: "all 0.4s cubic-bezier(0.34,1.56,0.64,1)",
             transform: clicked
               ? "scale(0.7) rotate(-20deg)"
@@ -221,52 +226,52 @@ function PillCard({ cat, idx, paused, isMobile }: { cat: typeof categories[0]; i
               : hovered
                 ? `0 0 20px rgba(${cat.rgb},0.4), 0 0 40px rgba(${cat.rgb},0.15)`
                 : "none",
-            position: "relative",
-            zIndex: 1,
+            position:  "relative",
+            zIndex:    1,
             flexShrink: 0,
             animation: clicked ? "iconBounce 0.5s cubic-bezier(0.34,1.56,0.64,1)" : "none",
-            overflow: "hidden",
+            overflow:  "hidden",
           }}>
             {cat.icon}
           </div>
 
-          {/* Text */}
+          {/* ── Text ── */}
           <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
             <div style={{
-              color: hovered || clicked ? "#fff" : "#888",
-              fontSize: isMobile ? 10 : 12,
-              fontWeight: 700,
+              color:         hovered || clicked ? "#fff" : "#888",
+              fontSize:      isMobile ? 10 : 12,
+              fontWeight:    700,
               letterSpacing: "1.5px",
               textTransform: "uppercase",
-              fontFamily: "'DM Sans', sans-serif",
-              transition: "color 0.3s ease",
-              marginBottom: 4,
-              animation: clicked ? "textPop 0.4s ease-out" : "none",
+              fontFamily:    "'DM Sans', sans-serif",
+              transition:    "color 0.3s ease",
+              marginBottom:  4,
+              animation:     clicked ? "textPop 0.4s ease-out" : "none",
             }}>
               {cat.name}
             </div>
             <div style={{
-              color: hovered || clicked ? cat.color : "transparent",
-              fontSize: isMobile ? 8 : 9,
-              fontWeight: 600,
+              color:         hovered || clicked ? cat.color : "transparent",
+              fontSize:      isMobile ? 8 : 9,
+              fontWeight:    600,
               letterSpacing: "0.5px",
-              fontFamily: "'DM Sans', sans-serif",
-              transition: "color 0.3s ease",
-              textShadow: hovered || clicked ? `0 0 10px rgba(${cat.rgb},0.5)` : "none",
+              fontFamily:    "'DM Sans', sans-serif",
+              transition:    "color 0.3s ease",
+              textShadow:    hovered || clicked ? `0 0 10px rgba(${cat.rgb},0.5)` : "none",
             }}>
               {cat.label}
             </div>
           </div>
 
-          {/* Bottom glow bar */}
+          {/* ── Bottom glow bar ── */}
           <div style={{
-            position: "absolute", bottom: 0, left: "50%",
+            position:  "absolute", bottom: 0, left: "50%",
             transform: `translateX(-50%) scaleX(${hovered || clicked ? 1 : 0})`,
             width: "70%", height: 2,
-            background: `linear-gradient(90deg, transparent, ${cat.color}, transparent)`,
+            background:   `linear-gradient(90deg, transparent, ${cat.color}, transparent)`,
             borderRadius: 2,
-            boxShadow: `0 0 16px rgba(${cat.rgb},0.9)`,
-            transition: "transform 0.4s ease",
+            boxShadow:    `0 0 16px rgba(${cat.rgb},0.9)`,
+            transition:   "transform 0.4s ease",
           }} />
         </div>
       </Link>
@@ -274,142 +279,197 @@ function PillCard({ cat, idx, paused, isMobile }: { cat: typeof categories[0]; i
   );
 }
 
+// ─── CategoryGrid ─────────────────────────────────────────────────────────────
 export default function CategoryGrid() {
-  const [paused, setPaused] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const trackRef = useRef<HTMLDivElement>(null);
 
-  const animOffsetRef = useRef(0);
-  const velocityRef = useRef(0);
-  const isDragging = useRef(false);
-  const dragOffset = useRef(0);
-  const lastTouchX = useRef(0);
-  const lastTouchTime = useRef(0);
-  const rafRef = useRef<number | null>(null);
-  const autoScrollRef = useRef<{ velocity: number; currentX: number } | null>(null);
+  const trackRef       = useRef<HTMLDivElement>(null);
+  // Single source of truth: current X position, tracked in JS (not read from DOM)
+  const currentXRef    = useRef(0);
+  const trackWidthRef  = useRef(0);
 
+  const isDragging      = useRef(false);
+  const dragStartX      = useRef(0);
+  const lastTouchX      = useRef(0);
+  const lastTouchTime   = useRef(0);
+  const velocityRef     = useRef(0);
+  const rafRef          = useRef<number | null>(null);
+  // True once the user has moved enough to be considered a horizontal drag
+  const isHorizDrag     = useRef(false);
+  const touchStartY     = useRef(0);
+
+  // ── Responsive ──────────────────────────────────────────────────────────────
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 480);
     check();
-    window.addEventListener("resize", check);
+    window.addEventListener("resize", check, { passive: true });
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  const getAnimatedX = useCallback(() => {
-    const el = trackRef.current;
-    if (!el) return 0;
-    const matrix = new DOMMatrix(window.getComputedStyle(el).transform);
-    return matrix.m41;
-  }, []);
-
-  const stopCurrentAnimation = useCallback(() => {
-    if (rafRef.current) {
+  // ── Helpers ─────────────────────────────────────────────────────────────────
+  const cancelRaf = useCallback(() => {
+    if (rafRef.current !== null) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
     }
-    autoScrollRef.current = null;
   }, []);
 
-  const startAutoScroll = useCallback((fromX: number) => {
+  /** Normalize x so it always sits within [-trackWidth, 0) */
+  const wrap = useCallback((x: number) => {
+    const w = trackWidthRef.current;
+    if (w === 0) return x;
+    // fast modulo that handles both positive and large negative values
+    return ((x % w) - w) % w;
+  }, []);
+
+  /** Apply transform directly — no style recalc, no layout */
+  const setX = useCallback((x: number) => {
+    if (trackRef.current) {
+      trackRef.current.style.transform = `translateX(${x}px) translateZ(0)`;
+    }
+    currentXRef.current = x;
+  }, []);
+
+  /** Stop JS animation and hand off to the CSS keyframe from current position */
+  const handOffToCSS = useCallback(() => {
+    cancelRaf();
     const el = trackRef.current;
     if (!el) return;
 
-    const trackWidth = el.scrollWidth / 4; // 4 copies
-    // Normalize to a valid negative offset in the first copy
-    let x = fromX;
-    while (x > 0) x -= trackWidth;
-    while (x < -trackWidth) x += trackWidth;
+    const w = trackWidthRef.current;
+    if (w === 0) { el.style.animation = ""; return; }
 
-    const duration = 30; // seconds for one full loop
-    const progress = Math.abs(x) / trackWidth; // 0..1
-    const elapsed = progress * duration; // seconds already elapsed
+    // progress = how far through one loop we are (0..1)
+    const x        = wrap(currentXRef.current);
+    const progress = Math.abs(x) / w;           // 0 = start, 1 = end
+    const duration = 30;                          // seconds for one full loop
+    const delay    = -(progress * duration);      // negative = start mid-animation
 
     el.style.transform = "";
-    el.style.animation = `scrollLeft ${duration}s linear -${elapsed}s infinite`;
-    setPaused(false);
-  }, []);
+    el.style.animation = `scrollLeft ${duration}s linear ${delay}s infinite`;
+  }, [cancelRaf, wrap]);
 
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    lastTouchX.current = touch.clientX;
-    lastTouchTime.current = performance.now();
-    isDragging.current = true;
-    velocityRef.current = 0;
-
-    stopCurrentAnimation();
-
-    const currentX = getAnimatedX();
-    animOffsetRef.current = currentX;
-    dragOffset.current = 0;
-
-    const el = trackRef.current;
-    if (el) {
-      el.style.animation = "none";
-      el.style.transform = `translateX(${currentX}px) translateZ(0)`;
-    }
-
-    setPaused(true);
-  }, [getAnimatedX, stopCurrentAnimation]);
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (!isDragging.current) return;
-
-    const touch = e.touches[0];
-    const now = performance.now();
-    const dt = Math.max(now - lastTouchTime.current, 1);
-    const dx = touch.clientX - lastTouchX.current;
-
-    // Weighted rolling average — smooth but responsive
-    velocityRef.current = velocityRef.current * 0.45 + (dx / dt) * 16 * 0.55;
-
-    lastTouchX.current = touch.clientX;
-    lastTouchTime.current = now;
-    dragOffset.current += dx;
-
-    const el = trackRef.current;
-    if (el) {
-      const newX = animOffsetRef.current + dragOffset.current;
-      el.style.transform = `translateX(${newX}px) translateZ(0)`;
-    }
-  }, []);
-
-  const handleTouchEnd = useCallback(() => {
-    if (!isDragging.current) return;
-    isDragging.current = false;
-
-    let velocity = velocityRef.current;
-    let currentX = animOffsetRef.current + dragOffset.current;
-
+  /** Stop CSS animation and switch to JS-controlled transform */
+  const handOffToJS = useCallback(() => {
     const el = trackRef.current;
     if (!el) return;
 
-    const trackWidth = el.scrollWidth / 4;
+    cancelRaf();
+
+    // Read trackWidth lazily (available once mounted)
+    if (trackWidthRef.current === 0 && el.scrollWidth > 0) {
+      // 4 copies → one copy width = scrollWidth / 4
+      trackWidthRef.current = el.scrollWidth / 4;
+    }
+
+    // Snapshot current visual position from the CSS animation
+    const matrix = new DOMMatrix(window.getComputedStyle(el).transform);
+    const x      = wrap(matrix.m41);
+
+    // Freeze the animation, then set transform
+    el.style.animation = "none";
+    setX(x);
+  }, [cancelRaf, setX, wrap]);
+
+  // ── Auto-scroll on mount ──────────────────────────────────────────────────
+  useEffect(() => {
+    // Wait one frame so scrollWidth is settled
+    const id = requestAnimationFrame(() => {
+      const el = trackRef.current;
+      if (!el) return;
+      trackWidthRef.current = el.scrollWidth / 4;
+      el.style.animation = "scrollLeft 30s linear 0s infinite";
+    });
+    return () => { cancelAnimationFrame(id); cancelRaf(); };
+  }, [cancelRaf]);
+
+  // ── Touch handlers ───────────────────────────────────────────────────────────
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    lastTouchX.current    = touch.clientX;
+    touchStartY.current   = touch.clientY;
+    lastTouchTime.current = performance.now();
+    velocityRef.current   = 0;
+    isDragging.current    = false;   // not confirmed yet
+    isHorizDrag.current   = false;
+    dragStartX.current    = touch.clientX;
+
+    handOffToJS();
+  }, [handOffToJS]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    const dx    = touch.clientX - lastTouchX.current;
+    const dy    = touch.clientY - touchStartY.current;
+
+    // Determine drag axis on first significant movement
+    if (!isHorizDrag.current && !isDragging.current) {
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(touch.clientX - dragStartX.current) > 5) {
+        isHorizDrag.current = true;
+        isDragging.current  = true;
+      } else if (Math.abs(dy) > 10) {
+        // Vertical scroll — let the browser handle it, restart CSS scroll
+        handOffToCSS();
+        return;
+      } else {
+        return; // not enough movement to decide yet
+      }
+    }
+
+    if (!isHorizDrag.current) return;
+
+    // Prevent page scroll only when we've confirmed horizontal drag
+    e.preventDefault();
+
+    const now = performance.now();
+    const dt  = Math.max(now - lastTouchTime.current, 1);
+
+    // Smooth velocity with weighted average
+    velocityRef.current = velocityRef.current * 0.45 + (dx / dt) * 16 * 0.55;
+
+    lastTouchX.current    = touch.clientX;
+    lastTouchTime.current = now;
+
+    setX(wrap(currentXRef.current + dx));
+  }, [handOffToCSS, setX, wrap]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!isHorizDrag.current) {
+      isDragging.current = false;
+      return;
+    }
+
+    let velocity  = velocityRef.current;
+    let x         = currentXRef.current;
+    const w       = trackWidthRef.current;
 
     const glide = () => {
-      velocity *= 0.92; // friction
-      currentX += velocity;
+      velocity *= 0.92;   // friction coefficient
+      x = wrap(x + velocity);
+      setX(x);
 
-      // Seamless infinite loop wrapping
-      if (currentX <= -trackWidth) currentX += trackWidth;
-      if (currentX > 0) currentX -= trackWidth;
-
-      el.style.transform = `translateX(${currentX}px) translateZ(0)`;
-
-      if (Math.abs(velocity) > 0.25) {
+      if (Math.abs(velocity) > 0.3) {
         rafRef.current = requestAnimationFrame(glide);
       } else {
-        // Hand off cleanly to CSS animation from current position
-        startAutoScroll(currentX);
+        // Hand off cleanly to CSS — no jump
+        handOffToCSS();
+        // Reset drag flag after a short delay so onClick isn't suppressed on a tap
+        setTimeout(() => { isDragging.current = false; }, 50);
       }
     };
 
     rafRef.current = requestAnimationFrame(glide);
-  }, [startAutoScroll]);
+  }, [handOffToCSS, setX, wrap]);
 
-  useEffect(() => {
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
+  // ── Mouse hover pause ────────────────────────────────────────────────────────
+  const handleMouseEnter = useCallback(() => {
+    const el = trackRef.current;
+    if (el) el.style.animationPlayState = "paused";
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    const el = trackRef.current;
+    if (el) el.style.animationPlayState = "running";
   }, []);
 
   return (
@@ -428,8 +488,8 @@ export default function CategoryGrid() {
           50%     { transform: translateY(-4px); }
         }
         @keyframes scrollLeft {
-          0%   { transform: translateX(0) translateZ(0); }
-          100% { transform: translateX(-50%) translateZ(0); }
+          from { transform: translateX(0) translateZ(0); }
+          to   { transform: translateX(-25%) translateZ(0); }
         }
         @keyframes float0 { 0%,100%{transform:translateY(0px)}   50%{transform:translateY(-9px)}  }
         @keyframes float1 { 0%,100%{transform:translateY(-5px)}  50%{transform:translateY(5px)}   }
@@ -448,7 +508,7 @@ export default function CategoryGrid() {
           100% { width: 220px; height: 220px; opacity: 0; border-width: 1px; }
         }
         @keyframes particleFly {
-          0%   { transform: translate(-50%,-50%) translate(0px,0px) scale(1); opacity: 1; }
+          0%   { transform: translate(-50%,-50%) translate(0,0) scale(1); opacity: 1; }
           60%  { opacity: 0.8; transform: translate(-50%,-50%) translate(var(--tx),var(--ty)) scale(1.2); }
           100% { transform: translate(-50%,-50%) translate(calc(var(--tx)*1.5),calc(var(--ty)*1.5)) scale(0); opacity: 0; }
         }
@@ -468,20 +528,23 @@ export default function CategoryGrid() {
           display: flex;
           gap: 14px;
           width: max-content;
-          animation: scrollLeft 30s linear infinite;
           will-change: transform;
           padding: 20px 0;
           transform: translateZ(0);
           backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+          /* animation set via JS after mount */
         }
-        .cat-track.paused { animation-play-state: paused; }
         .cat-outer {
           position: relative;
           overflow: hidden;
           margin: 0 -1.5rem;
-          touch-action: pan-x;
-          -webkit-overflow-scrolling: touch;
+          /* IMPORTANT: "pan-y" lets vertical page scroll work normally.
+             Horizontal drags are captured by our JS handlers. */
+          touch-action: pan-y;
           cursor: grab;
+          -webkit-user-select: none;
+          user-select: none;
         }
         .cat-outer:active { cursor: grabbing; }
         .cat-fade-l {
@@ -497,36 +560,26 @@ export default function CategoryGrid() {
         .cat-inner { padding: 0 120px; }
 
         @media (max-width: 480px) {
-          .cat-outer {
-            margin: 0 -1rem;
-          }
-          .cat-inner {
-            padding: 0 60px;
-          }
-          .cat-fade-l,
-          .cat-fade-r {
-            width: 60px;
-          }
-          .cat-track {
-            gap: 10px;
-            padding: 16px 0;
-          }
+          .cat-outer  { margin: 0 -1rem; }
+          .cat-inner  { padding: 0 60px; }
+          .cat-fade-l, .cat-fade-r { width: 60px; }
+          .cat-track  { gap: 10px; padding: 16px 0; }
         }
       `}</style>
 
-      {/* Header */}
+      {/* ── Header ── */}
       <div style={{ marginBottom: 36 }}>
         <div style={{
-          display: "inline-flex", alignItems: "center", gap: 7,
-          background: "rgba(255,77,0,0.07)",
-          border: "1px solid rgba(255,77,0,0.22)",
-          color: "#ff6622",
-          fontSize: 10, fontWeight: 700,
-          padding: "5px 14px", borderRadius: 50,
-          letterSpacing: "2px", textTransform: "uppercase",
-          marginBottom: 14,
-          fontFamily: "'DM Sans', sans-serif",
-          animation: "badgePulse 2.5s ease infinite",
+          display:        "inline-flex", alignItems: "center", gap: 7,
+          background:     "rgba(255,77,0,0.07)",
+          border:         "1px solid rgba(255,77,0,0.22)",
+          color:          "#ff6622",
+          fontSize:       10, fontWeight: 700,
+          padding:        "5px 14px", borderRadius: 50,
+          letterSpacing:  "2px", textTransform: "uppercase",
+          marginBottom:   14,
+          fontFamily:     "'DM Sans', sans-serif",
+          animation:      "badgePulse 2.5s ease infinite",
         }}>
           <span style={{
             width: 5, height: 5, borderRadius: "50%",
@@ -537,31 +590,31 @@ export default function CategoryGrid() {
         </div>
 
         <h2 style={{
-          fontSize: "clamp(22px, 3.5vw, 30px)",
-          fontWeight: 900, margin: "0 0 12px",
-          fontFamily: "'Playfair Display', Georgia, serif",
+          fontSize:      "clamp(22px, 3.5vw, 30px)",
+          fontWeight:    900, margin: "0 0 12px",
+          fontFamily:    "'Playfair Display', Georgia, serif",
           letterSpacing: "-0.5px", lineHeight: 1.15,
-          background: "linear-gradient(90deg, #ffffff 0%, #ff4d00 40%, #ffaa55 60%, #ffffff 100%)",
-          backgroundSize: "200% auto",
+          background:    "linear-gradient(90deg, #ffffff 0%, #ff4d00 40%, #ffaa55 60%, #ffffff 100%)",
+          backgroundSize:"200% auto",
           WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          animation: "catShimmer 4s linear infinite",
+          WebkitTextFillColor:  "transparent",
+          animation:     "catShimmer 4s linear infinite",
         }}>
           Browse by Category
         </h2>
 
         <div style={{
-          height: 2,
+          height:     2,
           background: "linear-gradient(90deg, #ff4d00, rgba(255,77,0,0.1))",
           borderRadius: 2,
         }} />
       </div>
 
-      {/* Ticker */}
+      {/* ── Carousel ── */}
       <div
         className="cat-outer"
-        onMouseEnter={() => setPaused(true)}
-        onMouseLeave={() => setPaused(false)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -569,12 +622,15 @@ export default function CategoryGrid() {
         <div className="cat-fade-l" />
         <div className="cat-fade-r" />
         <div className="cat-inner">
-          <div
-            ref={trackRef}
-            className={`cat-track${paused ? " paused" : ""}`}
-          >
+          <div ref={trackRef} className="cat-track">
             {loop.map((cat, i) => (
-              <PillCard key={`${cat.slug}-${i}`} cat={cat} idx={i} paused={paused} isMobile={isMobile} />
+              <PillCard
+                key={`${cat.slug}-${i}`}
+                cat={cat}
+                idx={i}
+                isMobile={isMobile}
+                isDragging={isDragging}
+              />
             ))}
           </div>
         </div>
