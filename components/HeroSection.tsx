@@ -1,16 +1,266 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function HeroSection() {
   const [mounted, setMounted] = useState(false);
-  // ✅ FIX 1: Start from 0 so server and client both render 0.00M+ on first load
   const [count, setCount] = useState({ subs: 0, views: 0, likes: 0 });
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animFrameRef = useRef<number>(0);
 
+  // ── 3D Canvas Effect (pure canvas, no Three.js dependency needed) ──
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let W = canvas.offsetWidth;
+    let H = canvas.offsetHeight;
+    canvas.width = W;
+    canvas.height = H;
+
+    const isMobile = W < 640;
+
+    // Floating 3D-style tech icons as wireframe shapes
+    const SHAPE_COUNT = isMobile ? 6 : 12;
+    const PARTICLE_COUNT = isMobile ? 40 : 100;
+
+    type Shape = {
+      x: number; y: number; z: number;
+      vx: number; vy: number; vz: number;
+      rotX: number; rotY: number; rotZ: number;
+      rotSpeedX: number; rotSpeedY: number; rotSpeedZ: number;
+      size: number;
+      type: "cube" | "tetra" | "ring";
+      alpha: number;
+      pulseOffset: number;
+    };
+
+    type Particle = {
+      x: number; y: number; z: number;
+      vx: number; vy: number; vz: number;
+      size: number;
+      alpha: number;
+      color: string;
+    };
+
+    const shapes: Shape[] = Array.from({ length: SHAPE_COUNT }, () => ({
+      x: (Math.random() - 0.5) * W * 1.4,
+      y: (Math.random() - 0.5) * H * 1.4,
+      z: Math.random() * 300 + 100,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.2,
+      vz: (Math.random() - 0.5) * 0.15,
+      rotX: Math.random() * Math.PI * 2,
+      rotY: Math.random() * Math.PI * 2,
+      rotZ: Math.random() * Math.PI * 2,
+      rotSpeedX: (Math.random() - 0.5) * 0.01,
+      rotSpeedY: (Math.random() - 0.5) * 0.012,
+      rotSpeedZ: (Math.random() - 0.5) * 0.008,
+      size: isMobile ? Math.random() * 20 + 14 : Math.random() * 32 + 18,
+      type: (["cube", "tetra", "ring"] as const)[Math.floor(Math.random() * 3)],
+      alpha: Math.random() * 0.25 + 0.08,
+      pulseOffset: Math.random() * Math.PI * 2,
+    }));
+
+    const colors = ["#ff4d00", "#ff6622", "#ff9933", "#ffaa44", "#ff3300"];
+    const particles: Particle[] = Array.from({ length: PARTICLE_COUNT }, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      z: Math.random() * 500 + 50,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: -(Math.random() * 0.3 + 0.1),
+      vz: (Math.random() - 0.5) * 0.3,
+      size: Math.random() * 2.5 + 0.5,
+      alpha: Math.random() * 0.5 + 0.1,
+      color: colors[Math.floor(Math.random() * colors.length)],
+    }));
+
+    // Project 3D → 2D
+    const project = (x: number, y: number, z: number, cx: number, cy: number) => {
+      const fov = 500;
+      const scale = fov / (fov + z);
+      return {
+        sx: cx + x * scale,
+        sy: cy + y * scale,
+        scale,
+      };
+    };
+
+    // Rotate point around axes
+    const rotatePoint = (px: number, py: number, pz: number, rx: number, ry: number, rz: number) => {
+      // X rotation
+      let y1 = py * Math.cos(rx) - pz * Math.sin(rx);
+      let z1 = py * Math.sin(rx) + pz * Math.cos(rx);
+      // Y rotation
+      let x2 = px * Math.cos(ry) + z1 * Math.sin(ry);
+      let z2 = -px * Math.sin(ry) + z1 * Math.cos(ry);
+      // Z rotation
+      let x3 = x2 * Math.cos(rz) - y1 * Math.sin(rz);
+      let y3 = x2 * Math.sin(rz) + y1 * Math.cos(rz);
+      return { x: x3, y: y3, z: z2 };
+    };
+
+    const drawCube = (ctx: CanvasRenderingContext2D, shape: Shape, cx: number, cy: number, t: number) => {
+      const s = shape.size;
+      const verts: [number,number,number][] = [
+        [-s,-s,-s],[s,-s,-s],[s,s,-s],[-s,s,-s],
+        [-s,-s,s],[s,-s,s],[s,s,s],[-s,s,s],
+      ];
+      const edges: [number,number][] = [
+        [0,1],[1,2],[2,3],[3,0],
+        [4,5],[5,6],[6,7],[7,4],
+        [0,4],[1,5],[2,6],[3,7],
+      ];
+      const pulse = 1 + Math.sin(t * 0.002 + shape.pulseOffset) * 0.08;
+      const projected = verts.map(([px, py, pz]) => {
+        const r = rotatePoint(px * pulse, py * pulse, pz * pulse, shape.rotX, shape.rotY, shape.rotZ);
+        return project(r.x + shape.x, r.y + shape.y, r.z + shape.z, cx, cy);
+      });
+      const alpha = shape.alpha * (0.85 + Math.sin(t * 0.001 + shape.pulseOffset) * 0.15);
+      ctx.strokeStyle = `rgba(255,100,30,${alpha})`;
+      ctx.lineWidth = 0.8;
+      ctx.shadowColor = "rgba(255,77,0,0.6)";
+      ctx.shadowBlur = 6;
+      edges.forEach(([a, b]) => {
+        ctx.beginPath();
+        ctx.moveTo(projected[a].sx, projected[a].sy);
+        ctx.lineTo(projected[b].sx, projected[b].sy);
+        ctx.stroke();
+      });
+      ctx.shadowBlur = 0;
+    };
+
+    const drawTetra = (ctx: CanvasRenderingContext2D, shape: Shape, cx: number, cy: number, t: number) => {
+      const s = shape.size * 1.3;
+      const verts: [number,number,number][] = [
+        [0, -s, 0],
+        [-s * 0.866, s * 0.5, s * 0.5],
+        [s * 0.866, s * 0.5, s * 0.5],
+        [0, s * 0.5, -s],
+      ];
+      const edges: [number,number][] = [[0,1],[0,2],[0,3],[1,2],[2,3],[3,1]];
+      const pulse = 1 + Math.sin(t * 0.0015 + shape.pulseOffset) * 0.1;
+      const projected = verts.map(([px, py, pz]) => {
+        const r = rotatePoint(px * pulse, py * pulse, pz * pulse, shape.rotX, shape.rotY, shape.rotZ);
+        return project(r.x + shape.x, r.y + shape.y, r.z + shape.z, cx, cy);
+      });
+      const alpha = shape.alpha * (0.85 + Math.sin(t * 0.0013 + shape.pulseOffset) * 0.15);
+      ctx.strokeStyle = `rgba(255,140,40,${alpha})`;
+      ctx.lineWidth = 0.8;
+      ctx.shadowColor = "rgba(255,120,0,0.5)";
+      ctx.shadowBlur = 5;
+      edges.forEach(([a, b]) => {
+        ctx.beginPath();
+        ctx.moveTo(projected[a].sx, projected[a].sy);
+        ctx.lineTo(projected[b].sx, projected[b].sy);
+        ctx.stroke();
+      });
+      ctx.shadowBlur = 0;
+    };
+
+    const drawRing = (ctx: CanvasRenderingContext2D, shape: Shape, cx: number, cy: number, t: number) => {
+      const segments = 16;
+      const r = shape.size;
+      const verts: [number,number,number][] = Array.from({ length: segments }, (_, i) => {
+        const angle = (i / segments) * Math.PI * 2;
+        return [Math.cos(angle) * r, Math.sin(angle) * r, 0];
+      });
+      const pulse = 1 + Math.sin(t * 0.002 + shape.pulseOffset) * 0.06;
+      const projected = verts.map(([px, py, pz]) => {
+        const r2 = rotatePoint(px * pulse, py * pulse, pz * pulse, shape.rotX, shape.rotY, shape.rotZ);
+        return project(r2.x + shape.x, r2.y + shape.y, r2.z + shape.z, cx, cy);
+      });
+      const alpha = shape.alpha * (0.9 + Math.sin(t * 0.0018 + shape.pulseOffset) * 0.1);
+      ctx.strokeStyle = `rgba(255,70,0,${alpha})`;
+      ctx.lineWidth = 1;
+      ctx.shadowColor = "rgba(255,50,0,0.7)";
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      projected.forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p.sx, p.sy);
+        else ctx.lineTo(p.sx, p.sy);
+      });
+      ctx.closePath();
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    };
+
+    let t = 0;
+    const render = () => {
+      t++;
+      ctx.clearRect(0, 0, W, H);
+      const cx = W / 2;
+      const cy = H / 2;
+
+      // Update and draw particles
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.z += p.vz;
+        if (p.y < -10) { p.y = H + 10; p.x = Math.random() * W; }
+        if (p.x < -10) p.x = W + 10;
+        if (p.x > W + 10) p.x = -10;
+        if (p.z < 0) p.z = 500;
+        if (p.z > 500) p.z = 0;
+
+        const proj = project(p.x - cx, p.y - cy, p.z, cx, cy);
+        const sz = p.size * proj.scale;
+        const alpha = p.alpha * proj.scale;
+        ctx.beginPath();
+        ctx.arc(proj.sx, proj.sy, Math.max(sz, 0.3), 0, Math.PI * 2);
+        const hex = p.color;
+        ctx.fillStyle = hex.replace("#", "rgba(").replace(/(..)(..)(..)/, (_,r,g,b) =>
+          `${parseInt(r,16)},${parseInt(g,16)},${parseInt(b,16)},`) + `${alpha})`;
+        // simple: use fillStyle directly
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = p.color;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      });
+
+      // Update and draw 3D shapes
+      shapes.forEach(shape => {
+        shape.rotX += shape.rotSpeedX;
+        shape.rotY += shape.rotSpeedY;
+        shape.rotZ += shape.rotSpeedZ;
+        shape.x += shape.vx;
+        shape.y += shape.vy;
+        shape.z += shape.vz;
+
+        // Boundary bounce
+        if (Math.abs(shape.x) > W * 0.8) shape.vx *= -1;
+        if (Math.abs(shape.y) > H * 0.8) shape.vy *= -1;
+        if (shape.z < 50 || shape.z > 600) shape.vz *= -1;
+
+        if (shape.type === "cube") drawCube(ctx, shape, cx, cy, t);
+        else if (shape.type === "tetra") drawTetra(ctx, shape, cx, cy, t);
+        else drawRing(ctx, shape, cx, cy, t);
+      });
+
+      animFrameRef.current = requestAnimationFrame(render);
+    };
+
+    render();
+
+    const handleResize = () => {
+      W = canvas.offsetWidth;
+      H = canvas.offsetHeight;
+      canvas.width = W;
+      canvas.height = H;
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      cancelAnimationFrame(animFrameRef.current);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  // ── Stats counter ──
   useEffect(() => {
     setMounted(true);
-
-    // Start counter from 0 and animate up
     let step = 0;
     const steps = 60;
     const duration = 1800;
@@ -201,7 +451,26 @@ export default function HeroSection() {
           .hero-actions { flex-direction: column; align-items: center; }
           .hero-btn, .hero-secondary-btn { width: 100%; max-width: 300px; justify-content: center; }
         }
+
+        /* Reduce motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+          canvas { display: none; }
+        }
       `}</style>
+
+      {/* ── 3D Canvas Layer (bottom-most) ── */}
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          pointerEvents: "none",
+          zIndex: 0,
+          opacity: 0.75,
+        }}
+      />
 
       {/* ── Animated grid ── */}
       <div style={{
@@ -212,6 +481,7 @@ export default function HeroSection() {
         willChange: "background-position",
         transform: "translateZ(0)",
         pointerEvents: "none",
+        zIndex: 0,
       }} />
 
       {/* ── Radial vignette ── */}
@@ -219,6 +489,7 @@ export default function HeroSection() {
         position: "absolute", inset: 0,
         background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,77,0,0.06) 0%, transparent 70%)",
         pointerEvents: "none",
+        zIndex: 0,
       }} />
 
       {/* ── Floating orbs ── */}
@@ -241,11 +512,11 @@ export default function HeroSection() {
           left: (orb as any).left,
           right: (orb as any).right,
           pointerEvents: "none",
+          zIndex: 0,
         }} />
       ))}
 
       {/* ── Floating tags (desktop only) ── */}
-      {/* ✅ FIX 2: Removed {mounted && ...} wrapper — opacity handles visibility safely */}
       {[
         { text: "📱 Smartphone Reviews", top: "18%", left: "4%",   delay: "0s" },
         { text: "💻 Laptop Guides",      top: "28%", right: "4%",  delay: "0.4s" },
@@ -261,13 +532,14 @@ export default function HeroSection() {
           animationDelay: tag.delay,
           opacity: mounted ? 1 : 0,
           transition: `opacity 0.6s ease ${tag.delay}`,
+          zIndex: 1,
         }}>
           {tag.text}
         </div>
       ))}
 
       {/* ── Main content ── */}
-      <div style={{ maxWidth: "780px", margin: "0 auto", position: "relative", zIndex: 1 }}>
+      <div style={{ maxWidth: "780px", margin: "0 auto", position: "relative", zIndex: 2 }}>
 
         {/* Badge */}
         <div style={{
