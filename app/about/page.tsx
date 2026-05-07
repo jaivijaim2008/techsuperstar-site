@@ -9,7 +9,7 @@ export default function AboutPage() {
     <div style={{ background: "#060606", minHeight: "100vh", fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", overflowX: "hidden" }}>
       <Navbar />
 
-      <style>{`
+      <style suppressHydrationWarning>{`
         @keyframes shimmerText {
           0%   { background-position: 0% center; }
           100% { background-position: 200% center; }

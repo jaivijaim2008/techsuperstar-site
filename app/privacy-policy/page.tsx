@@ -12,7 +12,7 @@ export default function PrivacyPolicyPage() {
     <div style={{ background: "#060606", minHeight: "100vh", fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif" }}>
       <Navbar />
 
-      <style>{`
+      <style suppressHydrationWarning>{`
         .policy-section { margin-bottom: 36px; }
         .policy-section h2 {
           color: #ff4d00;

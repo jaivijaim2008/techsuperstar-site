@@ -124,7 +124,7 @@ export default async function PostPage({
       />
       <Navbar />
 
-      <style>{`
+      <style suppressHydrationWarning>{`
         @keyframes gridPan {
           from { background-position: 0 0; }
           to   { background-position: 50px 50px; }
