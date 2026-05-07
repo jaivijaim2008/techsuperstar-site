@@ -55,7 +55,7 @@ export default function ScrollReveal({ children, delay = 0, direction = "up" }: 
   return (
     <>
       {/* Inject the CSS once — safe for SSR */}
-      <style>{STYLE}</style>
+      <style suppressHydrationWarning>{STYLE}</style>
       <div
         ref={ref}
         className="scroll-reveal-hidden"
