@@ -19,9 +19,9 @@ const categoryInfo: Record<string, { icon: string; color: string; rgb: string; d
 export default async function CategoryPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const { slug } = params;
+  const { slug } = await params;
   const posts = await getPostsByCategory(slug);
   const info = categoryInfo[slug] || { icon: "📂", color: "#ff4d00", rgb: "255,77,0", description: "" };
   const label = slug.charAt(0).toUpperCase() + slug.slice(1);
