@@ -6,7 +6,7 @@ import Link from "next/link";
 import { PortableText } from "@portabletext/react";
 import { ShareButtons, CommentsSection } from "./ClientComponents";
 
-export const revalidate = 60;
+export const revalidate = 0;
 
 function getYouTubeId(url: string) {
   if (!url) return null;
