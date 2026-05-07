@@ -21,8 +21,9 @@ function getYouTubeId(url: string) {
   return null;
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const post = await getPost(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const post = await getPost(slug);
   if (!post) return { title: "Post Not Found" };
 
   const description = post.body
@@ -60,9 +61,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 export default async function PostPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const { slug } = params;
+  const { slug } = await params;
   const post = await getPost(slug);
 
   if (!post) {
