@@ -449,10 +449,15 @@ export default function Footer() {
             alignItems: "center", justifyContent: "space-between",
             gap: "12px",
           }}>
-            <p style={{
-              color: "#333", fontSize: "12px", margin: 0,
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-            }}>
+            {/* ✅ suppressHydrationWarning: new Date().getFullYear() can differ
+                between server render and client render — safe to suppress here */}
+            <p
+              suppressHydrationWarning
+              style={{
+                color: "#333", fontSize: "12px", margin: 0,
+                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+              }}
+            >
               © {new Date().getFullYear()}{" "}
               <span style={{
                 color: "#ff4d00",
@@ -463,9 +468,9 @@ export default function Footer() {
               <Link href="/privacy-policy" className="footer-bottom-link">
                 Privacy Policy
               </Link>
-                    <Link href="/terms" className="footer-bottom-link">
-                    Terms of Use
-                    </Link>
+              <Link href="/terms" className="footer-bottom-link">
+                Terms of Use
+              </Link>
             </div>
           </div>
 
