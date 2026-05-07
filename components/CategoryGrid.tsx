@@ -357,16 +357,22 @@ export default function CategoryGrid() {
     setX(x);
   }, [cancelRaf, setX, wrap]);
 
-  // ── Auto-scroll on mount ──────────────────────────────────────────────────
+  // ── Auto-scroll — runs AFTER isMobile resolves so the carousel DOM exists ──
   useEffect(() => {
-    const id = requestAnimationFrame(() => {
-      const el = trackRef.current;
-      if (!el) return;
-      trackWidthRef.current = el.scrollWidth / 4;
-      el.style.animation = "scrollLeft 30s linear 0s infinite";
+    // isMobile===null means carousel isn't mounted yet, skip
+    if (isMobile === null) return;
+    // Two rAF frames: first lets React commit the DOM, second lets layout settle
+    let id1: number, id2: number;
+    id1 = requestAnimationFrame(() => {
+      id2 = requestAnimationFrame(() => {
+        const el = trackRef.current;
+        if (!el || el.scrollWidth === 0) return;
+        trackWidthRef.current = el.scrollWidth / 4;
+        el.style.animation = "scrollLeft 30s linear 0s infinite";
+      });
     });
-    return () => { cancelAnimationFrame(id); cancelRaf(); };
-  }, [cancelRaf]);
+    return () => { cancelAnimationFrame(id1); cancelAnimationFrame(id2); cancelRaf(); };
+  }, [isMobile, cancelRaf]);
 
   // ── Touch handlers ────────────────────────────────────────────────────────
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
