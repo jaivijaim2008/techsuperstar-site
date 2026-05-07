@@ -17,21 +17,22 @@ export default function PostCard({ post }: any) {
   const cat = post.categories?.[0]?.toLowerCase() || "";
   const { color, glow } = categoryColors[cat] || { color: "#ff4d00", glow: "rgba(255,77,0,0.3)" };
 
+  // Unique class per category so styles don't bleed between cards
+  const uid = `pc-${cat || "default"}`;
+
   return (
     <>
       <style suppressHydrationWarning>{`
-  @keyframes shimmer {
+        @keyframes shimmer-${uid} {
           0%   { background-position: -200% center; }
           100% { background-position:  200% center; }
         }
-        @keyframes badgePulse {
+        @keyframes badgePulse-${uid} {
           0%,100% { box-shadow: 0 0 6px ${color}66; }
           50%      { box-shadow: 0 0 14px ${color}99; }
         }
 
-        /* ── All hover-dependent styles live here, NOT in inline style props ── */
-
-        .post-card {
+        .${uid} {
           background: #111111;
           border-radius: 16px;
           overflow: hidden;
@@ -45,15 +46,14 @@ export default function PostCard({ post }: any) {
           transform: translateY(0);
           box-shadow: 0 2px 12px rgba(0,0,0,0.3);
         }
-        .post-card:hover {
+        .${uid}:hover {
           background: linear-gradient(135deg, #161616, #121212);
           border-color: ${color}55;
           transform: translateY(-8px);
           box-shadow: 0 20px 60px ${glow}, 0 0 0 1px ${color}22;
         }
 
-        /* Corner accents — shown only on hover via opacity */
-        .post-card-corner {
+        .${uid}-corner {
           position: absolute;
           width: 20px; height: 20px;
           opacity: 0;
@@ -61,41 +61,38 @@ export default function PostCard({ post }: any) {
           z-index: 2;
           pointer-events: none;
         }
-        .post-card:hover .post-card-corner { opacity: 1; }
-        .post-card-corner-tl {
+        .${uid}:hover .${uid}-corner { opacity: 1; }
+        .${uid}-corner-tl {
           top: 0; left: 0;
           border-top: 2px solid ${color};
           border-left: 2px solid ${color};
           border-radius: 16px 0 0 0;
         }
-        .post-card-corner-tr {
+        .${uid}-corner-tr {
           top: 0; right: 0;
           border-top: 2px solid ${color};
           border-right: 2px solid ${color};
           border-radius: 0 16px 0 0;
         }
 
-        /* Image zoom */
-        .post-card-img {
+        .${uid}-img {
           position: absolute; top: 0; left: 0;
           width: 100%; height: 100%; object-fit: cover;
           transition: transform 0.5s ease;
           transform: scale(1);
         }
-        .post-card:hover .post-card-img { transform: scale(1.06); }
+        .${uid}:hover .${uid}-img { transform: scale(1.06); }
 
-        /* Image overlay */
-        .post-card-overlay {
+        .${uid}-overlay {
           position: absolute; inset: 0;
           background: linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 60%);
           transition: background 0.35s ease;
         }
-        .post-card:hover .post-card-overlay {
+        .${uid}:hover .${uid}-overlay {
           background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%);
         }
 
-        /* Category badge */
-        .post-card-badge {
+        .${uid}-badge {
           position: absolute; top: 12px; left: 12px;
           background: ${color};
           color: #fff; font-size: 10px; font-weight: 800;
@@ -105,12 +102,11 @@ export default function PostCard({ post }: any) {
           box-shadow: 0 0 10px ${glow};
           animation: none;
         }
-        .post-card:hover .post-card-badge {
-          animation: badgePulse 1.5s ease-in-out infinite;
+        .${uid}:hover .${uid}-badge {
+          animation: badgePulse-${uid} 1.5s ease-in-out infinite;
         }
 
-        /* Title — shimmer only on hover */
-        .post-card-title {
+        .${uid}-title {
           font-size: 15px; font-weight: 700;
           line-height: 1.5; margin: 0 0 12px;
           font-family: 'Georgia', serif;
@@ -120,18 +116,16 @@ export default function PostCard({ post }: any) {
           overflow: hidden;
           color: #ffffff;
           transition: all 0.35s ease;
-          /* No background-clip on server — avoids the #425 mismatch */
         }
-        .post-card:hover .post-card-title {
+        .${uid}:hover .${uid}-title {
           background: linear-gradient(90deg, #fff, ${color}, #fff);
           background-size: 200% auto;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
-          animation: shimmer 2s linear infinite;
+          animation: shimmer-${uid} 2s linear infinite;
         }
 
-        /* Meta divider */
-        .post-card-meta {
+        .${uid}-meta {
           margin-top: auto;
           display: flex; align-items: center;
           justify-content: space-between;
@@ -139,12 +133,11 @@ export default function PostCard({ post }: any) {
           border-top: 1px solid rgba(255,255,255,0.06);
           transition: border-color 0.35s ease;
         }
-        .post-card:hover .post-card-meta {
+        .${uid}:hover .${uid}-meta {
           border-top-color: ${color}22;
         }
 
-        /* Read more arrow */
-        .post-card-read-more {
+        .${uid}-read-more {
           margin-top: 12px;
           display: flex; align-items: center; gap: 6px;
           color: #444;
@@ -154,25 +147,25 @@ export default function PostCard({ post }: any) {
           text-transform: uppercase;
           transition: color 0.35s ease;
         }
-        .post-card:hover .post-card-read-more { color: ${color}; }
+        .${uid}:hover .${uid}-read-more { color: ${color}; }
 
-        .post-card-arrow {
+        .${uid}-arrow {
           display: inline-block;
           transform: translateX(0);
           transition: transform 0.35s ease;
         }
-        .post-card:hover .post-card-arrow { transform: translateX(4px); }
+        .${uid}:hover .${uid}-arrow { transform: translateX(4px); }
       `}</style>
 
       <Link href={`/post/${post.slug.current}`} style={{ textDecoration: "none", display: "block", height: "100%" }}>
         <div
-          className="post-card"
+          className={uid}
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
         >
           {/* Corner accents */}
-          <div className="post-card-corner post-card-corner-tl" />
-          <div className="post-card-corner post-card-corner-tr" />
+          <div className={`${uid}-corner ${uid}-corner-tl`} />
+          <div className={`${uid}-corner ${uid}-corner-tr`} />
 
           {/* Image */}
           <div style={{ position: "relative", paddingTop: "56.25%", background: "#1a1a1a", overflow: "hidden" }}>
@@ -180,7 +173,7 @@ export default function PostCard({ post }: any) {
               <img
                 src={post.image}
                 alt={post.title}
-                className="post-card-img"
+                className={`${uid}-img`}
               />
             ) : (
               <div style={{
@@ -193,11 +186,11 @@ export default function PostCard({ post }: any) {
               </div>
             )}
 
-            <div className="post-card-overlay" />
+            <div className={`${uid}-overlay`} />
 
             {/* Category Badge */}
             {post.categories?.[0] && (
-              <div className="post-card-badge">
+              <div className={`${uid}-badge`}>
                 {post.categories[0]}
               </div>
             )}
@@ -219,10 +212,10 @@ export default function PostCard({ post }: any) {
           {/* Content */}
           <div style={{ padding: "18px", flex: 1, display: "flex", flexDirection: "column" }}>
 
-            <h3 className="post-card-title">{post.title}</h3>
+            <h3 className={`${uid}-title`}>{post.title}</h3>
 
             {/* Meta */}
-            <div className="post-card-meta">
+            <div className={`${uid}-meta`}>
               <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                 <div style={{
                   width: "22px", height: "22px", borderRadius: "50%",
@@ -247,9 +240,9 @@ export default function PostCard({ post }: any) {
             </div>
 
             {/* Read more */}
-            <div className="post-card-read-more">
+            <div className={`${uid}-read-more`}>
               Read Article
-              <span className="post-card-arrow">→</span>
+              <span className={`${uid}-arrow`}>→</span>
             </div>
           </div>
         </div>
