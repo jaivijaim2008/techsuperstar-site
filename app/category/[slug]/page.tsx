@@ -152,40 +152,125 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           }} />
         </div>
 
+        {/* Posts Header */}
+        <div style={{ marginBottom: "48px" }}>
+          <h2 style={{
+            fontSize: "24px",
+            fontWeight: 800,
+            margin: "0 0 8px",
+            color: "#fff",
+            fontFamily: "'Inter', sans-serif",
+            textTransform: "uppercase",
+            letterSpacing: "1px",
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+          }}>
+            <span style={{
+              width: 12,
+              height: 12,
+              borderRadius: "50%",
+              background: info.color,
+              boxShadow: `0 0 16px ${info.color}`,
+            }} />
+            Featured Articles
+          </h2>
+          <p style={{
+            fontSize: "14px",
+            color: "#999",
+            margin: 0,
+            fontFamily: "'Inter', sans-serif",
+          }}>
+            {posts.length} {posts.length === 1 ? "article" : "articles"} available
+          </p>
+        </div>
+
         {/* Posts Grid */}
         {posts.length > 0 ? (
           <div style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-            gap: "28px",
-            marginBottom: "60px",
+            gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+            gap: "32px",
+            marginBottom: "80px",
           }}>
-            {posts.map((post: Post) => (
-              <PostCard key={post._id} post={post} />
+            {posts.map((post: Post, index: number) => (
+              <div
+                key={post._id}
+                style={{
+                  animation: `slideUp 0.6s ease-out ${index * 0.1}s backwards`,
+                  perspective: "1000px",
+                }}
+              >
+                <PostCard post={post} />
+              </div>
             ))}
           </div>
         ) : (
           <div style={{
             textAlign: "center",
-            padding: "60px 20px",
-            color: "#666",
+            padding: "80px 40px",
+            borderRadius: 20,
+            background: `linear-gradient(135deg, rgba(${info.rgb},0.05), rgba(${info.rgb},0.01))`,
+            border: `1px solid rgba(${info.rgb},0.1)`,
+            marginBottom: "60px",
           }}>
-            <p style={{ fontSize: "18px", marginBottom: "20px" }}>
-              No posts found in this category yet.
+            <div style={{
+              fontSize: 64,
+              marginBottom: 20,
+            }}>
+              📭
+            </div>
+            <p style={{
+              fontSize: "20px",
+              fontWeight: 600,
+              color: "#fff",
+              marginBottom: "12px",
+              fontFamily: "'Inter', sans-serif",
+            }}>
+              No posts yet in this category
+            </p>
+            <p style={{
+              fontSize: "14px",
+              color: "#999",
+              marginBottom: "28px",
+              fontFamily: "'Inter', sans-serif",
+            }}>
+              This section is coming soon. Check back later!
             </p>
             <Link
               href="/"
               style={{
-                color: info.color,
+                display: "inline-block",
+                padding: "12px 28px",
+                background: `linear-gradient(135deg, ${info.color}, rgba(${info.rgb},0.7))`,
+                color: "#fff",
                 textDecoration: "none",
-                fontWeight: 600,
-                fontSize: "16px",
+                fontWeight: 700,
+                fontSize: "14px",
+                borderRadius: 12,
+                transition: "all 0.3s ease",
+                boxShadow: `0 8px 24px rgba(${info.rgb},0.3)`,
+                border: "none",
+                cursor: "pointer",
               }}
             >
               ← Back to Home
             </Link>
           </div>
         )}
+
+        <style>{`
+          @keyframes slideUp {
+            from {
+              opacity: 0;
+              transform: translateY(30px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}</style>
       </main>
 
       <Footer />
