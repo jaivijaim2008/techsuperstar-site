@@ -6,7 +6,7 @@ import Link from "next/link";
 import { PortableText } from "@portabletext/react";
 import { ShareButtons, CommentsSection } from "./ClientComponents";
 
-export const revalidate = 0;
+export const revalidate = 60;
 
 function getYouTubeId(url: string) {
   if (!url) return null;
@@ -129,6 +129,10 @@ export default async function PostPage({
           from { background-position: 0 0; }
           to   { background-position: 50px 50px; }
         }
+        @keyframes shimmerText {
+          0%   { background-position: 0% center; }
+          100% { background-position: 200% center; }
+        }
         .prose-content p { margin-bottom: 22px; color: #999; line-height: 1.95; font-size: 16px; }
         .prose-content h1 { color: #fff; font-size: 2rem; font-family: var(--font-playfair), Georgia, serif; margin: 44px 0 18px; font-weight: 900; }
         .prose-content h2 { color: #fff; font-size: 1.5rem; font-family: var(--font-playfair), Georgia, serif; margin: 38px 0 16px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,77,0,0.15); font-weight: 900; }
@@ -138,7 +142,7 @@ export default async function PostPage({
         .prose-content li { margin-bottom: 10px; line-height: 1.7; }
         .prose-content strong { color: #fff; font-weight: 700; }
         .prose-content em { color: #aaa; }
-        .prose-content a { color: #ff4d00; text-decoration: none; border-bottom: 1px solid rgba(255,77,0,0.3); }
+        .prose-content a { color: #ff4d00; text-decoration: none; border-bottom: 1px solid rgba(255,77,0,0.3); transition: border-color 0.2s ease; }
         .prose-content a:hover { border-color: #ff4d00; }
       `}</style>
 
@@ -285,25 +289,9 @@ export default async function PostPage({
                         src={value?.asset?.url || value?.url} alt={value?.alt || ""}
                         style={{ width: "100%", borderRadius: "12px", border: "1px solid rgba(255,77,0,0.1)" }}
                       />
-                      {value?.alt && <p style={{ color: "#444", fontSize: "12px", textAlign: "center", marginTop: "10px" }}>{value.alt}</p>}
+                      {value?.alt && <p style={{ color: "#444", fontSize: "12px", textAlign: "center", marginTop: "10px", letterSpacing: "0.5px" }}>{value.alt}</p>}
                     </div>
                   ),
-                  youtube: ({ value }) => {
-                    const videoId = getYouTubeId(value?.url);
-                    if (!videoId) return null;
-                    return (
-                      <div style={{ margin: "32px 0", position: "relative", paddingBottom: "56.25%", height: 0, overflow: "hidden", borderRadius: "12px", border: "1px solid rgba(255,77,0,0.15)" }}>
-                        <iframe
-                          style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
-                          src={`https://www.youtube.com/embed/${videoId}`}
-                          title={value?.caption || "YouTube Video"}
-                          frameBorder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        />
-                      </div>
-                    );
-                  },
                 },
               }} />
             ) : (
@@ -324,6 +312,7 @@ export default async function PostPage({
               background: "rgba(255,77,0,0.08)",
               border: "1px solid rgba(255,77,0,0.2)",
               padding: "10px 20px", borderRadius: "50px",
+              transition: "all 0.25s ease",
             }}>
               ← Back to Home
             </Link>

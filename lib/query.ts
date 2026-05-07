@@ -21,7 +21,7 @@ export async function getPosts() {
           publishedAt
         }
       `),
-      15000
+      5000
     );
     return posts || [];
   } catch (error) {
@@ -43,7 +43,7 @@ export async function getPostsByCategory(categorySlug: string) {
         }`,
         { categorySlug }
       ),
-      15000
+      5000
     );
     return posts || [];
   } catch (error) {
@@ -60,7 +60,7 @@ export async function getCategories() {
           title, slug, description
         }
       `),
-      15000
+      5000
     );
   } catch (error) {
     console.warn("⚠️ Sanity fetch failed, using default categories");
@@ -94,7 +94,7 @@ export async function getPost(slug: string) {
         }`,
         { slug }
       ),
-      15000
+      5000
     );
     return post || null;
   } catch (error) {

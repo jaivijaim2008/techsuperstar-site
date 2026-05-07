@@ -5,6 +5,7 @@ const c = createClient({
   apiVersion: '2024-01-01',
   useCdn: false
 });
-c.fetch('*[_type=="post"]{"s":slug.current}')
+const slug = 'vivo-x300-pro-vs-xiaomi-17-ultra-best-camera-phone';
+c.fetch('*[_type=="post" && slug.current == $slug][0]{_id,title,slug}', {slug})
   .then(r => console.log(JSON.stringify(r)))
   .catch(console.error);
