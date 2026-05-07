@@ -46,6 +46,7 @@ function NewsletterForm() {
           <input
   id="email-input"
   name="email"
+  autoComplete="email"
   type="email" placeholder="your@email.com" value={email}
             onChange={e => setEmail(e.target.value)}
             onKeyDown={e => e.key === "Enter" && handleSubmit()}
