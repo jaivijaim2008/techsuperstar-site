@@ -1,21 +1,34 @@
 "use client";
 import Link from "next/link";
 import SearchBar from "./SearchBar";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function Navbar() {
+  const navRef = useRef<HTMLElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const [activeLink, setActiveLink] = useState("");
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
+    const nav = navRef.current;
+    if (!nav) return;
+
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        nav.classList.add("nav-scrolled");
+      } else {
+        nav.classList.remove("nav-scrolled");
+      }
+    };
+
+    // Run once on mount in case page loads already scrolled
+    handleScroll();
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const categories = [
-    { name: "All Articles", slug: "all", icon: "📰" },
+    { name: "All Articles", slug: "all",         icon: "📰" },
     { name: "Phones",       slug: "phones",      icon: "📱" },
     { name: "Laptops",      slug: "laptops",     icon: "💻" },
     { name: "Tablets",      slug: "tablets",     icon: "📟" },
@@ -46,6 +59,24 @@ export default function Navbar() {
         @keyframes dotPulse {
           0%,100% { opacity: 1; transform: scale(1); }
           50%      { opacity: 0.4; transform: scale(0.6); }
+        }
+
+        /* ── Scroll-dependent styles via class (no inline state) ── */
+        .site-nav {
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          background: rgba(6,6,6,0.98);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          border-bottom: 1px solid rgba(255,77,0,0.1);
+          transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+          box-shadow: none;
+        }
+        .site-nav.nav-scrolled {
+          background: rgba(6,6,6,0.92);
+          border-bottom-color: rgba(255,77,0,0.2);
+          box-shadow: 0 4px 32px rgba(0,0,0,0.6);
         }
 
         .nav-link {
@@ -128,19 +159,7 @@ export default function Navbar() {
         }
       `}</style>
 
-      <nav style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 100,
-        background: scrolled
-          ? "rgba(6,6,6,0.92)"
-          : "rgba(6,6,6,0.98)",
-        backdropFilter: "blur(24px)",
-        WebkitBackdropFilter: "blur(24px)",
-        borderBottom: `1px solid ${scrolled ? "rgba(255,77,0,0.2)" : "rgba(255,77,0,0.1)"}`,
-        transition: "all 0.4s ease",
-        boxShadow: scrolled ? "0 4px 32px rgba(0,0,0,0.6)" : "none",
-      }}>
+      <nav ref={navRef} className="site-nav">
 
         {/* Animated top accent line */}
         <div style={{
@@ -151,7 +170,6 @@ export default function Navbar() {
           position: "relative",
           overflow: "hidden",
         }}>
-          {/* Scan shimmer */}
           <div style={{
             position: "absolute",
             top: 0,
@@ -247,10 +265,10 @@ export default function Navbar() {
               animation: "slideDown 0.25s ease forwards",
               borderTop: "1px solid rgba(255,77,0,0.1)",
               paddingTop: "12px",
+              position: "relative",
             }}>
-              {/* Hologram grid bg on mobile menu */}
               <div style={{
-                position: "absolute", left: 0, right: 0,
+                position: "absolute", left: 0, right: 0, top: 0, bottom: 0,
                 backgroundImage: "linear-gradient(rgba(255,77,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,77,0,0.03) 1px, transparent 1px)",
                 backgroundSize: "24px 24px",
                 pointerEvents: "none",
@@ -262,7 +280,7 @@ export default function Navbar() {
                   href={cat.slug === "all" ? "/articles" : `/category/${cat.slug}`}
                   onClick={() => setMenuOpen(false)}
                   className="mobile-nav-link"
-                  style={{ animationDelay: `${i * 0.04}s` }}
+                  style={{ animationDelay: `${i * 0.04}s`, position: "relative", zIndex: 1 }}
                 >
                   <span style={{ fontSize: 16 }}>{cat.icon}</span>
                   {cat.name}

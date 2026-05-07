@@ -1,16 +1,16 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function HeroSection() {
-  const [mounted, setMounted] = useState(false);
-  // ✅ FIX 1: Start from 0 so server and client both render 0.00M+ on first load
+  const sectionRef = useRef<HTMLElement>(null);
   const [count, setCount] = useState({ subs: 0, views: 0, likes: 0 });
 
   useEffect(() => {
-    setMounted(true);
+    // Add mounted class — this drives ALL conditional animations via CSS
+    sectionRef.current?.classList.add("hero-mounted");
 
-    // Start counter from 0 and animate up
+    // Counter animation
     let step = 0;
     const steps = 60;
     const duration = 1800;
@@ -32,15 +32,17 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <section style={{
-      position: "relative",
-      overflow: "hidden",
-      background: "linear-gradient(160deg, #060606 0%, #0f0600 45%, #060606 100%)",
-      padding: "clamp(80px, 12vw, 130px) 1.5rem clamp(60px, 10vw, 100px)",
-      textAlign: "center",
-      borderBottom: "1px solid rgba(255,77,0,0.12)",
-    }}>
-
+    <section
+      ref={sectionRef}
+      style={{
+        position: "relative",
+        overflow: "hidden",
+        background: "linear-gradient(160deg, #060606 0%, #0f0600 45%, #060606 100%)",
+        padding: "clamp(80px, 12vw, 130px) 1.5rem clamp(60px, 10vw, 100px)",
+        textAlign: "center",
+        borderBottom: "1px solid rgba(255,77,0,0.12)",
+      }}
+    >
       <style>{`
         @keyframes orbFloat1 {
           0%,100% { transform: translateY(0) translateX(0) scale(1); }
@@ -101,6 +103,84 @@ export default function HeroSection() {
           50%      { transform: translateY(-8px); }
         }
 
+        /* ── Floating tags: always hidden on server, fade in after mount ── */
+        .floating-tag {
+          position: absolute;
+          background: rgba(255,77,0,0.08);
+          border: 1px solid rgba(255,77,0,0.2);
+          border-radius: 8px;
+          padding: 6px 12px;
+          font-size: 11px;
+          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+          font-weight: 600;
+          color: rgba(255,77,0,0.7);
+          letter-spacing: 0.5px;
+          backdrop-filter: blur(8px);
+          white-space: nowrap;
+          pointer-events: none;
+          will-change: transform, opacity;
+          /* Server default: invisible, no animation */
+          opacity: 0;
+          animation: none;
+        }
+        /* Client after mount: fade in + float */
+        .hero-mounted .floating-tag {
+          animation: tagFloat var(--tag-dur, 3s) ease-in-out infinite var(--tag-delay, 0s),
+                     subtitleFade 0.6s ease var(--tag-delay, 0s) both;
+        }
+
+        /* ── Badge animation: only after mount ── */
+        .hero-badge {
+          animation: none;
+        }
+        .hero-mounted .hero-badge {
+          animation: badgePulse 2.5s ease infinite, subtitleFade 0.6s ease both;
+        }
+
+        /* ── Title animations: only after mount ── */
+        .hero-title-sub {
+          animation: none;
+        }
+        .hero-mounted .hero-title-sub {
+          animation: titleReveal 0.9s ease 0.1s both;
+        }
+
+        .hero-title-main {
+          animation: none;
+        }
+        .hero-mounted .hero-title-main {
+          animation: titleReveal 0.9s ease 0.25s both, nameShimmer 4s linear infinite;
+        }
+
+        .hero-subtitle {
+          animation: none;
+        }
+        .hero-mounted .hero-subtitle {
+          animation: subtitleFade 0.8s ease 0.5s both;
+        }
+
+        .hero-actions-wrap {
+          animation: none;
+        }
+        .hero-mounted .hero-actions-wrap {
+          animation: subtitleFade 0.8s ease 0.65s both;
+        }
+
+        .hero-divider {
+          animation: none;
+        }
+        .hero-mounted .hero-divider {
+          animation: subtitleFade 0.8s ease 0.8s both;
+        }
+
+        .hero-stats-wrap {
+          animation: none;
+        }
+        .hero-mounted .hero-stats-wrap {
+          animation: statsReveal 0.8s ease 0.9s both;
+        }
+
+        /* ── Buttons ── */
         .hero-btn {
           display: inline-flex;
           align-items: center;
@@ -178,23 +258,6 @@ export default function HeroSection() {
           box-shadow: 0 12px 30px rgba(255,77,0,0.1);
         }
 
-        .floating-tag {
-          position: absolute;
-          background: rgba(255,77,0,0.08);
-          border: 1px solid rgba(255,77,0,0.2);
-          border-radius: 8px;
-          padding: 6px 12px;
-          font-size: 11px;
-          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
-          font-weight: 600;
-          color: rgba(255,77,0,0.7);
-          letter-spacing: 0.5px;
-          backdrop-filter: blur(8px);
-          white-space: nowrap;
-          pointer-events: none;
-          will-change: transform;
-        }
-
         @media (max-width: 640px) {
           .floating-tag { display: none; }
           .stat-card { padding: 16px 14px; min-width: 90px; }
@@ -245,23 +308,25 @@ export default function HeroSection() {
       ))}
 
       {/* ── Floating tags (desktop only) ── */}
-      {/* ✅ FIX 2: Removed {mounted && ...} wrapper — opacity handles visibility safely */}
       {[
-        { text: "📱 Smartphone Reviews", top: "18%", left: "4%",   delay: "0s" },
-        { text: "💻 Laptop Guides",      top: "28%", right: "4%",  delay: "0.4s" },
-        { text: "🎮 Gaming Gear",        bottom: "28%", left: "3%",  delay: "0.8s" },
-        { text: "⭐ Honest Opinions",    bottom: "22%", right: "3%", delay: "1.2s" },
+        { text: "📱 Smartphone Reviews", top: "18%", left: "4%",      dur: "3s",   delay: "0s"   },
+        { text: "💻 Laptop Guides",      top: "28%", right: "4%",     dur: "3.5s", delay: "0.4s" },
+        { text: "🎮 Gaming Gear",        bottom: "28%", left: "3%",   dur: "4s",   delay: "0.8s" },
+        { text: "⭐ Honest Opinions",    bottom: "22%", right: "3%",  dur: "4.5s", delay: "1.2s" },
       ].map((tag, i) => (
-        <div key={i} className="floating-tag" style={{
-          top: (tag as any).top,
-          bottom: (tag as any).bottom,
-          left: (tag as any).left,
-          right: (tag as any).right,
-          animation: `tagFloat ${3 + i * 0.5}s ease-in-out infinite`,
-          animationDelay: tag.delay,
-          opacity: mounted ? 1 : 0,
-          transition: `opacity 0.6s ease ${tag.delay}`,
-        }}>
+        <div
+          key={i}
+          className="floating-tag"
+          style={{
+            top: (tag as any).top,
+            bottom: (tag as any).bottom,
+            left: (tag as any).left,
+            right: (tag as any).right,
+            // CSS custom props drive per-tag timing inside the CSS rule above
+            "--tag-dur": tag.dur,
+            "--tag-delay": tag.delay,
+          } as React.CSSProperties}
+        >
           {tag.text}
         </div>
       ))}
@@ -270,18 +335,20 @@ export default function HeroSection() {
       <div style={{ maxWidth: "780px", margin: "0 auto", position: "relative", zIndex: 1 }}>
 
         {/* Badge */}
-        <div style={{
-          display: "inline-flex", alignItems: "center", gap: "8px",
-          background: "rgba(255,77,0,0.08)",
-          border: "1px solid rgba(255,77,0,0.28)",
-          color: "#ff6622",
-          fontSize: "10px", fontWeight: "700",
-          padding: "6px 18px", borderRadius: "50px",
-          letterSpacing: "2.5px", textTransform: "uppercase",
-          marginBottom: "32px",
-          fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-          animation: mounted ? "badgePulse 2.5s ease infinite, subtitleFade 0.6s ease both" : "none",
-        }}>
+        <div
+          className="hero-badge"
+          style={{
+            display: "inline-flex", alignItems: "center", gap: "8px",
+            background: "rgba(255,77,0,0.08)",
+            border: "1px solid rgba(255,77,0,0.28)",
+            color: "#ff6622",
+            fontSize: "10px", fontWeight: "700",
+            padding: "6px 18px", borderRadius: "50px",
+            letterSpacing: "2.5px", textTransform: "uppercase",
+            marginBottom: "32px",
+            fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+          }}
+        >
           <span style={{
             width: 6, height: 6, borderRadius: "50%",
             background: "#ff4d00", display: "inline-block",
@@ -292,56 +359,66 @@ export default function HeroSection() {
 
         {/* Main title */}
         <div style={{ marginBottom: "10px" }}>
-          <h1 style={{
-            fontSize: "clamp(1.6rem, 4.5vw, 3rem)",
-            fontWeight: "700",
-            color: "#999",
-            lineHeight: "1.1",
-            margin: 0,
-            fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif",
-            fontStyle: "italic",
-            letterSpacing: "-0.5px",
-            animation: mounted ? "titleReveal 0.9s ease 0.1s both" : "none",
-          }}>
+          <h1
+            className="hero-title-sub"
+            style={{
+              fontSize: "clamp(1.6rem, 4.5vw, 3rem)",
+              fontWeight: "700",
+              color: "#999",
+              lineHeight: "1.1",
+              margin: 0,
+              fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif",
+              fontStyle: "italic",
+              letterSpacing: "-0.5px",
+            }}
+          >
             Welcome to
           </h1>
         </div>
 
-        <h1 style={{
-          fontSize: "clamp(3rem, 9vw, 6.5rem)",
-          fontWeight: "900",
-          lineHeight: "1.0",
-          margin: "0 0 28px",
-          fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif",
-          letterSpacing: "-3px",
-          background: "linear-gradient(135deg, #ff6622 0%, #ffaa44 30%, #ff4d00 55%, #ffcc66 75%, #ff4d00 100%)",
-          backgroundSize: "200% auto",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          animation: mounted ? "titleReveal 0.9s ease 0.25s both, nameShimmer 4s linear infinite" : "none",
-        }}>
+        <h1
+          className="hero-title-main"
+          style={{
+            fontSize: "clamp(3rem, 9vw, 6.5rem)",
+            fontWeight: "900",
+            lineHeight: "1.0",
+            margin: "0 0 28px",
+            fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif",
+            letterSpacing: "-3px",
+            background: "linear-gradient(135deg, #ff6622 0%, #ffaa44 30%, #ff4d00 55%, #ffcc66 75%, #ff4d00 100%)",
+            backgroundSize: "200% auto",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
           TechSuperStar
         </h1>
 
-        <p style={{
-          color: "#666",
-          fontSize: "clamp(14px, 2.2vw, 18px)",
-          lineHeight: "1.75",
-          margin: "0 auto 44px",
-          maxWidth: "520px",
-          fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-          fontWeight: "400",
-          animation: mounted ? "subtitleFade 0.8s ease 0.5s both" : "none",
-        }}>
-          Your ultimate source for <span style={{ color: "#ff6622", fontWeight: 600 }}>honest tech reviews</span>, buying guides, and the latest news — all in Tamil.
+        <p
+          className="hero-subtitle"
+          style={{
+            color: "#666",
+            fontSize: "clamp(14px, 2.2vw, 18px)",
+            lineHeight: "1.75",
+            margin: "0 auto 44px",
+            maxWidth: "520px",
+            fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+            fontWeight: "400",
+          }}
+        >
+          Your ultimate source for{" "}
+          <span style={{ color: "#ff6622", fontWeight: 600 }}>honest tech reviews</span>,
+          buying guides, and the latest news — all in Tamil.
         </p>
 
         {/* CTAs */}
-        <div className="hero-actions" style={{
-          display: "flex", justifyContent: "center",
-          gap: "14px", flexWrap: "wrap",
-          animation: mounted ? "subtitleFade 0.8s ease 0.65s both" : "none",
-        }}>
+        <div
+          className="hero-actions-wrap hero-actions"
+          style={{
+            display: "flex", justifyContent: "center",
+            gap: "14px", flexWrap: "wrap",
+          }}
+        >
           <Link href="/articles" className="hero-btn">
             Browse All Articles
             <span style={{ fontSize: "18px", lineHeight: 1 }}>→</span>
@@ -352,20 +429,24 @@ export default function HeroSection() {
         </div>
 
         {/* Divider */}
-        <div style={{
-          width: "1px", height: "48px",
-          background: "linear-gradient(to bottom, transparent, rgba(255,77,0,0.3), transparent)",
-          margin: "48px auto 0",
-          animation: mounted ? "subtitleFade 0.8s ease 0.8s both" : "none",
-        }} />
+        <div
+          className="hero-divider"
+          style={{
+            width: "1px", height: "48px",
+            background: "linear-gradient(to bottom, transparent, rgba(255,77,0,0.3), transparent)",
+            margin: "48px auto 0",
+          }}
+        />
 
         {/* Stats */}
-        <div style={{
-          display: "flex", justifyContent: "center",
-          gap: "12px", marginTop: "28px",
-          flexWrap: "wrap",
-          animation: mounted ? "statsReveal 0.8s ease 0.9s both" : "none",
-        }}>
+        <div
+          className="hero-stats-wrap"
+          style={{
+            display: "flex", justifyContent: "center",
+            gap: "12px", marginTop: "28px",
+            flexWrap: "wrap",
+          }}
+        >
           {[
             { num: `${(count.subs / 100).toFixed(2)}M`,  suffix: "+", label: "YouTube Subscribers" },
             { num: `${(count.views / 100).toFixed(1)}M`, suffix: "+", label: "Video Views" },
