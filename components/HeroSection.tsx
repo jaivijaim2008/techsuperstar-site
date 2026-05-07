@@ -12,11 +12,6 @@ export default function HeroSection() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
-    // Skip canvas on mobile entirely — use CSS animations instead
-    const isMobile = window.innerWidth < 768;
-    if (isMobile) return;
-
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -25,14 +20,11 @@ export default function HeroSection() {
     canvas.width = W;
     canvas.height = H;
 
-    // Desktop only counts
-    const SHAPE_COUNT = 12;
-    const PARTICLE_COUNT = 100;
+    const isMobile = W < 640;
 
-    // FPS throttle — target 40fps on desktop
-    const TARGET_FPS = 40;
-    const FRAME_INTERVAL = 1000 / TARGET_FPS;
-    let lastFrameTime = 0;
+    // Floating 3D-style tech icons as wireframe shapes
+    const SHAPE_COUNT = isMobile ? 6 : 12;
+    const PARTICLE_COUNT = isMobile ? 40 : 100;
 
     type Shape = {
       x: number; y: number; z: number;
@@ -66,7 +58,7 @@ export default function HeroSection() {
       rotSpeedX: (Math.random() - 0.5) * 0.01,
       rotSpeedY: (Math.random() - 0.5) * 0.012,
       rotSpeedZ: (Math.random() - 0.5) * 0.008,
-      size: Math.random() * 32 + 18,
+      size: isMobile ? Math.random() * 20 + 14 : Math.random() * 32 + 18,
       type: (["cube", "tetra", "ring"] as const)[Math.floor(Math.random() * 3)],
       alpha: Math.random() * 0.25 + 0.08,
       pulseOffset: Math.random() * Math.PI * 2,
@@ -196,12 +188,7 @@ export default function HeroSection() {
     };
 
     let t = 0;
-    const render = (timestamp: number) => {
-      if (timestamp - lastFrameTime < FRAME_INTERVAL) {
-        animFrameRef.current = requestAnimationFrame(render);
-        return;
-      }
-      lastFrameTime = timestamp;
+    const render = () => {
       t++;
       ctx.clearRect(0, 0, W, H);
       const cx = W / 2;
@@ -255,7 +242,7 @@ export default function HeroSection() {
       animFrameRef.current = requestAnimationFrame(render);
     };
 
-    render(0);
+    render();
 
     const handleResize = () => {
       W = canvas.offsetWidth;
@@ -593,14 +580,12 @@ export default function HeroSection() {
         </div>
 
         <h1 style={{
-          fontSize: "clamp(2.2rem, 9vw, 6.5rem)",
+          fontSize: "clamp(3rem, 9vw, 6.5rem)",
           fontWeight: "900",
           lineHeight: "1.0",
           margin: "0 0 28px",
           fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif",
-          letterSpacing: "clamp(-1px, -0.5vw, -3px)",
-          wordBreak: "break-word",
-          overflowWrap: "break-word",
+          letterSpacing: "-3px",
           background: "linear-gradient(135deg, #ff6622 0%, #ffaa44 30%, #ff4d00 55%, #ffcc66 75%, #ff4d00 100%)",
           backgroundSize: "200% auto",
           WebkitBackgroundClip: "text",
