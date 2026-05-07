@@ -452,7 +452,7 @@ export default function CategoryGrid() {
 
   return (
     <div style={{ padding: "32px 0 0", position: "relative", zIndex: 1 }}>
-      <style>{`
+      <style suppressHydrationWarning>{`
         @keyframes catShimmer {
           0%   { background-position: 0% center; }
           100% { background-position: 200% center; }
