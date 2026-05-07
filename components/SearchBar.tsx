@@ -47,7 +47,9 @@ export default function SearchBar() {
         >
           <div style={{ display: "flex", gap: "8px" }}>
             <input
-              autoFocus
+  id="search-input"
+  name="search"
+  autoFocus
               type="text"
               value={query}
               onChange={e => setQuery(e.target.value)}

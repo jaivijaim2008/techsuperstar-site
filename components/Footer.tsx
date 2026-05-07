@@ -44,7 +44,9 @@ function NewsletterForm() {
       <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
         <div style={{ position: "relative" }}>
           <input
-            type="email" placeholder="your@email.com" value={email}
+  id="email-input"
+  name="email"
+  type="email" placeholder="your@email.com" value={email}
             onChange={e => setEmail(e.target.value)}
             onKeyDown={e => e.key === "Enter" && handleSubmit()}
             disabled={status === "loading"}
