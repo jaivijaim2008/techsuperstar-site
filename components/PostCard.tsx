@@ -7,7 +7,7 @@ const categoryColors: Record<string, { color: string; glow: string }> = {
   laptops:     { color: "#0066ff", glow: "rgba(0,102,255,0.3)" },
   tablets:     { color: "#00cc66", glow: "rgba(0,204,102,0.3)" },
   gaming:      { color: "#aa00ff", glow: "rgba(170,0,255,0.3)" },
-  reviews:     { color: "#ff8800", glow: "rgba(255,136,0,0.3)" },
+  reviews:     { color: "#FFD700", glow: "rgba(255,215,0,0.35)" },
   accessories: { color: "#00ccff", glow: "rgba(0,204,255,0.3)" },
 };
 
@@ -107,16 +107,19 @@ export default function PostCard({ post }: any) {
         }
 
         .${uid}-title {
-          font-size: 15px; font-weight: 700;
-          line-height: 1.5; margin: 0 0 12px;
-          font-family: 'Georgia', serif;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-          color: #ffffff;
-          transition: all 0.35s ease;
-        }
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.6;
+  margin: 0 0 12px;
+  font-family: 'Georgia', serif;
+  color: #ffffff;
+  transition: all 0.35s ease;
+
+  display: block;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  min-height: 48px;
+}
         .${uid}:hover .${uid}-title {
           background: linear-gradient(90deg, #fff, ${color}, #fff);
           background-size: 200% auto;
