@@ -20,7 +20,6 @@ export default function Navbar() {
       }
     };
 
-    // Run once on mount in case page loads already scrolled
     handleScroll();
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -39,7 +38,10 @@ export default function Navbar() {
 
   return (
     <>
-      <style>{`
+      {/* ✅ suppressHydrationWarning: server HTML-encodes single quotes in style
+          strings as &#x27; but client renders them as ' — this causes a text
+          content mismatch. suppressHydrationWarning tells React to ignore it. */}
+      <style suppressHydrationWarning>{`
         @keyframes logoPulse {
           0%,100% { box-shadow: 0 0 8px rgba(255,77,0,0.4), 0 0 16px rgba(255,77,0,0.2); }
           50%      { box-shadow: 0 0 20px rgba(255,77,0,0.9), 0 0 40px rgba(255,77,0,0.4); }
