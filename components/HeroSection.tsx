@@ -43,8 +43,8 @@ export default function HeroSection() {
         borderBottom: "1px solid rgba(255,77,0,0.12)",
       }}
     >
-      <style>{`
-        @keyframes orbFloat1 {
+      <style suppressHydrationWarning>{`
+  @keyframes orbFloat1 {
           0%,100% { transform: translateY(0) translateX(0) scale(1); }
           33%      { transform: translateY(-40px) translateX(20px) scale(1.05); }
           66%      { transform: translateY(20px) translateX(-15px) scale(0.97); }

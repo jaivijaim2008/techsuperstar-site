@@ -133,8 +133,8 @@ export default function Footer() {
 
   return (
     <>
-      <style>{`
-        @keyframes footerShimmer {
+      <style suppressHydrationWarning>{`
+  @keyframes footerShimmer {
           0%   { background-position: 0% center; }
           100% { background-position: 200% center; }
         }

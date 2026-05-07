@@ -19,8 +19,8 @@ export default function PostCard({ post }: any) {
 
   return (
     <>
-      <style>{`
-        @keyframes shimmer {
+      <style suppressHydrationWarning>{`
+  @keyframes shimmer {
           0%   { background-position: -200% center; }
           100% { background-position:  200% center; }
         }
