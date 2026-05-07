@@ -68,7 +68,11 @@ export function CommentsSection({ postId, initialComments }: { postId: string; i
                 </div>
                 <div>
                   <div style={{ color: "#fff", fontSize: "14px", fontWeight: "600" }}>{comment.name}</div>
-                  <div style={{ color: "#444", fontSize: "11px" }}>{new Date(comment.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</div>
+                  {/* ✅ suppressHydrationWarning: toLocaleDateString() output can differ
+                      between server (UTC) and client (local timezone) — safe to suppress */}
+                  <div suppressHydrationWarning style={{ color: "#444", fontSize: "11px" }}>
+                    {new Date(comment.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
+                  </div>
                 </div>
               </div>
               <p style={{ color: "#aaa", fontSize: "14px", lineHeight: "1.7", margin: 0 }}>{comment.message}</p>
