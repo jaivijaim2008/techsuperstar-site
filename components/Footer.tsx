@@ -34,7 +34,7 @@ function NewsletterForm() {
         display: "flex", alignItems: "center", gap: "8px",
         boxShadow: "0 0 20px rgba(74,222,128,0.1)",
       }}>
-        ✅ Subscribed! You'll get notified on new posts.
+        ✅ Subscribed! You&apos;ll get notified on new posts.
       </div>
     );
   }
@@ -42,62 +42,22 @@ function NewsletterForm() {
   return (
     <div>
       <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        <div style={{ position: "relative" }}>
-          <input
-  id="email-input"
-  name="email"
-  autoComplete="email"
-  type="email" placeholder="your@email.com" value={email}
-            onChange={e => setEmail(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && handleSubmit()}
-            disabled={status === "loading"}
-            style={{
-              width: "100%", background: "rgba(255,255,255,0.02)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: "10px", padding: "12px 14px",
-              color: "#fff", fontSize: "13px", outline: "none",
-              boxSizing: "border-box",
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              transition: "all 0.25s ease",
-            }}
-            onFocus={e => {
-              e.currentTarget.style.borderColor = "rgba(255,77,0,0.5)";
-              e.currentTarget.style.boxShadow = "0 0 16px rgba(255,77,0,0.1)";
-              e.currentTarget.style.background = "rgba(255,77,0,0.04)";
-            }}
-            onBlur={e => {
-              e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
-              e.currentTarget.style.boxShadow = "none";
-              e.currentTarget.style.background = "rgba(255,255,255,0.02)";
-            }}
-          />
-        </div>
+        <input
+          id="email-input"
+          name="email"
+          autoComplete="email"
+          type="email"
+          placeholder="your@email.com"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && handleSubmit()}
+          disabled={status === "loading"}
+          className="footer-email-input"
+        />
         <button
-          onClick={handleSubmit} disabled={status === "loading"}
-          style={{
-            width: "100%",
-            background: "linear-gradient(135deg, #ff4d00, #ff7300, #ff9500, #ff7300, #ff4d00)",
-            backgroundSize: "200% auto",
-            border: "none", borderRadius: "10px",
-            padding: "12px", color: "#fff",
-            fontWeight: "700", fontSize: "13px",
-            cursor: status === "loading" ? "not-allowed" : "pointer",
-            opacity: status === "loading" ? 0.7 : 1,
-            boxShadow: "0 4px 20px rgba(255,77,0,0.3)",
-            transition: "all 0.3s ease",
-            fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-            letterSpacing: "0.5px",
-          }}
-          onMouseEnter={e => {
-            if (status !== "loading") {
-              (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)";
-              (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 30px rgba(255,77,0,0.5)";
-            }
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-            (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 20px rgba(255,77,0,0.3)";
-          }}
+          onClick={handleSubmit}
+          disabled={status === "loading"}
+          className="footer-subscribe-btn"
         >
           {status === "loading" ? "Subscribing..." : "🔔 Subscribe for Free"}
         </button>
@@ -112,15 +72,6 @@ function NewsletterForm() {
 }
 
 export default function Footer() {
-  const categories = [
-    { name: "Phones",      slug: "phones",      icon: "📱" },
-    { name: "Laptops",     slug: "laptops",     icon: "💻" },
-    { name: "Tablets",     slug: "tablets",     icon: "📟" },
-    { name: "Gaming",      slug: "gaming",      icon: "🎮" },
-    { name: "Reviews",     slug: "reviews",     icon: "⭐" },
-    { name: "Accessories", slug: "accessories", icon: "🎧" },
-  ];
-
   const quickLinks = [
     { name: "Home",         href: "/" },
     { name: "All Articles", href: "/articles" },
@@ -137,7 +88,7 @@ export default function Footer() {
   return (
     <>
       <style suppressHydrationWarning>{`
-  @keyframes footerShimmer {
+        @keyframes footerShimmer {
           0%   { background-position: 0% center; }
           100% { background-position: 200% center; }
         }
@@ -154,28 +105,53 @@ export default function Footer() {
           50%      { opacity: 0.3; }
         }
 
-        .footer-cat-link {
-          color: #444;
-          text-decoration: none;
+        .footer-email-input {
+          width: 100%;
+          background: rgba(255,255,255,0.02);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 10px;
+          padding: 12px 14px;
+          color: #fff;
           font-size: 13px;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 6px 10px;
-          border-radius: 8px;
-          border: 1px solid transparent;
-          transition: all 0.25s ease;
+          outline: none;
+          box-sizing: border-box;
           font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+          transition: all 0.25s ease;
         }
-        .footer-cat-link:hover {
-          color: #ff4d00;
-          background: rgba(255,77,0,0.07);
-          border-color: rgba(255,77,0,0.18);
-          transform: translateX(4px);
+        .footer-email-input::placeholder { color: #555; }
+        .footer-email-input:focus {
+          border-color: rgba(255,77,0,0.5);
+          box-shadow: 0 0 16px rgba(255,77,0,0.1);
+          background: rgba(255,77,0,0.04);
+        }
+
+        .footer-subscribe-btn {
+          width: 100%;
+          background: linear-gradient(135deg, #ff4d00, #ff7300, #ff9500, #ff7300, #ff4d00);
+          background-size: 200% auto;
+          border: none;
+          border-radius: 10px;
+          padding: 12px;
+          color: #fff;
+          font-weight: 700;
+          font-size: 13px;
+          cursor: pointer;
+          box-shadow: 0 4px 20px rgba(255,77,0,0.3);
+          transition: all 0.3s ease;
+          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+          letter-spacing: 0.5px;
+        }
+        .footer-subscribe-btn:disabled {
+          cursor: not-allowed;
+          opacity: 0.7;
+        }
+        .footer-subscribe-btn:not(:disabled):hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 30px rgba(255,77,0,0.5);
         }
 
         .footer-quick-link {
-          color: #444;
+          color: #555;
           text-decoration: none;
           font-size: 13px;
           display: flex;
@@ -195,7 +171,7 @@ export default function Footer() {
         }
 
         .footer-bottom-link {
-          color: #333;
+          color: #444;
           font-size: 12px;
           text-decoration: none;
           transition: color 0.2s ease;
@@ -222,6 +198,71 @@ export default function Footer() {
         .social-btn:hover {
           transform: translateY(-4px) scale(1.08);
         }
+
+        /* ── Layout ── */
+        .footer-header-row {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          justify-content: space-between;
+          gap: 20px;
+          padding-bottom: 36px;
+          border-bottom: 1px solid rgba(255,77,0,0.08);
+          margin-bottom: 40px;
+        }
+
+        .footer-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 40px;
+          margin-bottom: 44px;
+        }
+
+        .footer-quick-list {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .footer-bottom-row {
+          border-top: 1px solid rgba(255,77,0,0.08);
+          padding-top: 22px;
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+        }
+
+        /* ── Tablet ── */
+        @media (max-width: 768px) {
+          .footer-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 28px 32px;
+          }
+        }
+
+        /* ── Mobile ── */
+        @media (max-width: 480px) {
+          .footer-grid {
+            grid-template-columns: 1fr;
+            gap: 24px;
+          }
+          .footer-quick-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+          }
+          .footer-header-row {
+            padding-bottom: 24px;
+            margin-bottom: 28px;
+          }
+          .footer-bottom-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+          }
+        }
       `}</style>
 
       <footer style={{
@@ -232,6 +273,7 @@ export default function Footer() {
         overflow: "hidden",
       }}>
 
+        {/* Grid texture */}
         <div style={{
           position: "absolute", inset: 0,
           backgroundImage: "linear-gradient(rgba(255,77,0,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,77,0,0.018) 1px, transparent 1px)",
@@ -240,6 +282,7 @@ export default function Footer() {
           zIndex: 0,
         }} />
 
+        {/* Radial glow */}
         <div style={{
           position: "absolute", top: 0, left: "50%",
           transform: "translateX(-50%)",
@@ -249,6 +292,7 @@ export default function Footer() {
           zIndex: 0,
         }} />
 
+        {/* Animated top border */}
         <div style={{
           height: "2px",
           background: "linear-gradient(90deg, transparent 0%, #ff4d00 30%, #ffaa44 50%, #ff4d00 70%, transparent 100%)",
@@ -266,13 +310,8 @@ export default function Footer() {
 
         <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "52px 1.5rem 32px", position: "relative", zIndex: 1 }}>
 
-          <div style={{
-            display: "flex", flexWrap: "wrap",
-            alignItems: "center", justifyContent: "space-between",
-            gap: "20px", paddingBottom: "36px",
-            borderBottom: "1px solid rgba(255,77,0,0.08)",
-            marginBottom: "40px",
-          }}>
+          {/* ── Header: logo + socials ── */}
+          <div className="footer-header-row">
             <Link href="/" style={{ textDecoration: "none" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
                 <div style={{
@@ -280,6 +319,7 @@ export default function Footer() {
                   overflow: "hidden",
                   border: "2px solid #ff4d00",
                   boxShadow: "0 0 20px rgba(255,77,0,0.35), 0 0 40px rgba(255,77,0,0.1)",
+                  flexShrink: 0,
                 }}>
                   <img src="/favicon.jpg" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </div>
@@ -314,7 +354,6 @@ export default function Footer() {
                     background: `rgba(${s.rgb}, 0.08)`,
                     border: `1px solid rgba(${s.rgb}, 0.22)`,
                     color: s.color,
-                    boxShadow: `0 0 0 0 rgba(${s.rgb}, 0)`,
                   }}
                   onMouseEnter={e => {
                     (e.currentTarget as HTMLElement).style.boxShadow = `0 8px 24px rgba(${s.rgb},0.3)`;
@@ -333,11 +372,10 @@ export default function Footer() {
             </div>
           </div>
 
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-            gap: "40px", marginBottom: "44px",
-          }}>
+          {/* ── 3-column grid ── */}
+          <div className="footer-grid">
+
+            {/* About */}
             <div>
               <h4 style={{
                 color: "#ff4d00", fontSize: "10px", fontWeight: "700",
@@ -346,11 +384,11 @@ export default function Footer() {
                 fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
                 display: "flex", alignItems: "center", gap: "7px",
               }}>
-                <span style={{ width: 4, height: 14, background: "#ff4d00", borderRadius: 2, display: "inline-block" }} />
+                <span style={{ width: 4, height: 14, background: "#ff4d00", borderRadius: 2, display: "inline-block", flexShrink: 0 }} />
                 About
               </h4>
               <p style={{
-                color: "#444", fontSize: "13px", lineHeight: "1.85",
+                color: "#555", fontSize: "13px", lineHeight: "1.85",
                 margin: "0 0 18px",
                 fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
               }}>
@@ -368,6 +406,7 @@ export default function Footer() {
                   background: "#4ade80", display: "inline-block",
                   boxShadow: "0 0 8px #4ade80",
                   animation: "dotBlink 1.5s ease-in-out infinite",
+                  flexShrink: 0,
                 }} />
                 <span style={{
                   color: "#4ade80", fontSize: "10px",
@@ -380,6 +419,7 @@ export default function Footer() {
               </div>
             </div>
 
+            {/* Quick Links */}
             <div>
               <h4 style={{
                 color: "#ff4d00", fontSize: "10px", fontWeight: "700",
@@ -388,31 +428,10 @@ export default function Footer() {
                 fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
                 display: "flex", alignItems: "center", gap: "7px",
               }}>
-                <span style={{ width: 4, height: 14, background: "#ff4d00", borderRadius: 2, display: "inline-block" }} />
-                Categories
-              </h4>
-              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                {categories.map(cat => (
-                  <Link key={cat.slug} href={`/category/${cat.slug}`} className="footer-cat-link">
-                    <span style={{ fontSize: 14 }}>{cat.icon}</span>
-                    {cat.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h4 style={{
-                color: "#ff4d00", fontSize: "10px", fontWeight: "700",
-                textTransform: "uppercase", letterSpacing: "2.5px",
-                margin: "0 0 16px",
-                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                display: "flex", alignItems: "center", gap: "7px",
-              }}>
-                <span style={{ width: 4, height: 14, background: "#ff4d00", borderRadius: 2, display: "inline-block" }} />
+                <span style={{ width: 4, height: 14, background: "#ff4d00", borderRadius: 2, display: "inline-block", flexShrink: 0 }} />
                 Quick Links
               </h4>
-              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+              <div className="footer-quick-list">
                 {quickLinks.map(link => (
                   <Link key={link.name} href={link.href} className="footer-quick-link">
                     <span style={{ color: "#ff4d00", fontSize: 10 }}>▸</span>
@@ -422,6 +441,7 @@ export default function Footer() {
               </div>
             </div>
 
+            {/* Newsletter */}
             <div>
               <h4 style={{
                 color: "#ff4d00", fontSize: "10px", fontWeight: "700",
@@ -430,11 +450,11 @@ export default function Footer() {
                 fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
                 display: "flex", alignItems: "center", gap: "7px",
               }}>
-                <span style={{ width: 4, height: 14, background: "#ff4d00", borderRadius: 2, display: "inline-block" }} />
+                <span style={{ width: 4, height: 14, background: "#ff4d00", borderRadius: 2, display: "inline-block", flexShrink: 0 }} />
                 Newsletter
               </h4>
               <p style={{
-                color: "#444", fontSize: "13px", lineHeight: "1.7",
+                color: "#555", fontSize: "13px", lineHeight: "1.7",
                 margin: "0 0 16px",
                 fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
               }}>
@@ -442,22 +462,15 @@ export default function Footer() {
               </p>
               <NewsletterForm />
             </div>
+
           </div>
 
-          {/* Bottom bar */}
-          <div style={{
-            borderTop: "1px solid rgba(255,77,0,0.08)",
-            paddingTop: "22px",
-            display: "flex", flexWrap: "wrap",
-            alignItems: "center", justifyContent: "space-between",
-            gap: "12px",
-          }}>
-            {/* ✅ suppressHydrationWarning: new Date().getFullYear() can differ
-                between server render and client render — safe to suppress here */}
+          {/* ── Bottom bar ── */}
+          <div className="footer-bottom-row">
             <p
               suppressHydrationWarning
               style={{
-                color: "#333", fontSize: "12px", margin: 0,
+                color: "#444", fontSize: "12px", margin: 0,
                 fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
               }}
             >
@@ -468,12 +481,8 @@ export default function Footer() {
               }}>TechSuperStar</span>. All rights reserved.
             </p>
             <div style={{ display: "flex", gap: "20px" }}>
-              <Link href="/privacy-policy" className="footer-bottom-link">
-                Privacy Policy
-              </Link>
-              <Link href="/terms" className="footer-bottom-link">
-                Terms of Use
-              </Link>
+              <Link href="/privacy-policy" className="footer-bottom-link">Privacy Policy</Link>
+              <Link href="/terms" className="footer-bottom-link">Terms of Use</Link>
             </div>
           </div>
 
