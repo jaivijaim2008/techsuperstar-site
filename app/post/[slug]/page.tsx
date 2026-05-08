@@ -4,7 +4,7 @@ import ScrollReveal from "@/components/ScrollReveal";
 import { getPost, getRelatedPosts } from "@/lib/query";
 import Link from "next/link";
 import { PortableText } from "@portabletext/react";
-import { ShareButtons, CommentsSection } from "./ClientComponents";
+import { ShareButtons, CommentsSection, ReadingProgressBar, TableOfContents } from "./ClientComponents";
 
 export const revalidate = 60;
 
@@ -19,6 +19,11 @@ function getYouTubeId(url: string) {
     if (match) return match[1];
   }
   return null;
+}
+
+// Inject IDs into h2/h3 headings so TOC anchor links work
+function makeHeadingId(text: string) {
+  return text.toLowerCase().replace(/[^a-z0-9\s]/g, "").replace(/\s+/g, "-").slice(0, 60);
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -91,14 +96,18 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   return (
     <div style={{ background: "#060606", minHeight: "100vh", fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", overflowX: "hidden" }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+
+      {/* Reading Progress Bar — fixed at very top */}
+      <ReadingProgressBar />
+
       <Navbar />
 
       <style suppressHydrationWarning>{`
         @keyframes gridPan { from { background-position: 0 0; } to { background-position: 50px 50px; } }
         .prose-content p { margin-bottom: 22px; color: #999; line-height: 1.95; font-size: 16px; }
-        .prose-content h1 { color: #fff; font-size: 2rem; font-family: var(--font-playfair), Georgia, serif; margin: 44px 0 18px; font-weight: 900; }
-        .prose-content h2 { color: #fff; font-size: 1.5rem; font-family: var(--font-playfair), Georgia, serif; margin: 38px 0 16px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,77,0,0.15); font-weight: 900; }
-        .prose-content h3 { color: #ddd; font-size: 1.2rem; font-family: var(--font-playfair), Georgia, serif; margin: 30px 0 14px; font-weight: 700; }
+        .prose-content h1 { color: #fff; font-size: 2rem; font-family: var(--font-playfair), Georgia, serif; margin: 44px 0 18px; font-weight: 900; scroll-margin-top: 80px; }
+        .prose-content h2 { color: #fff; font-size: 1.5rem; font-family: var(--font-playfair), Georgia, serif; margin: 38px 0 16px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,77,0,0.15); font-weight: 900; scroll-margin-top: 80px; }
+        .prose-content h3 { color: #ddd; font-size: 1.2rem; font-family: var(--font-playfair), Georgia, serif; margin: 30px 0 14px; font-weight: 700; scroll-margin-top: 80px; }
         .prose-content blockquote { border-left: 3px solid #ff4d00; padding: 12px 20px; margin: 28px 0; color: #666; font-style: italic; background: rgba(255,77,0,0.04); border-radius: 0 10px 10px 0; }
         .prose-content ul, .prose-content ol { padding-left: 22px; margin-bottom: 22px; color: #999; }
         .prose-content li { margin-bottom: 10px; line-height: 1.7; }
@@ -176,10 +185,19 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
           <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(255,77,0,0.3), transparent)", marginBottom: "40px" }} />
 
+          {/* Table of Contents — auto generated from body headings */}
+          {post.body && <TableOfContents body={post.body} />}
+
           <div className="prose-content">
             {post.body ? (
               <PortableText value={post.body} components={{
-                block: { normal: ({ children }) => <p>{children}</p>, h1: ({ children }) => <h1>{children}</h1>, h2: ({ children }) => <h2>{children}</h2>, h3: ({ children }) => <h3>{children}</h3>, blockquote: ({ children }) => <blockquote>{children}</blockquote> },
+                block: {
+                  normal: ({ children }) => <p>{children}</p>,
+                  h1: ({ children, value }) => <h1 id={makeHeadingId(value?.children?.map((c: any) => c.text).join("") || "")}>{children}</h1>,
+                  h2: ({ children, value }) => <h2 id={makeHeadingId(value?.children?.map((c: any) => c.text).join("") || "")}>{children}</h2>,
+                  h3: ({ children, value }) => <h3 id={makeHeadingId(value?.children?.map((c: any) => c.text).join("") || "")}>{children}</h3>,
+                  blockquote: ({ children }) => <blockquote>{children}</blockquote>,
+                },
                 list: { bullet: ({ children }) => <ul>{children}</ul>, number: ({ children }) => <ol>{children}</ol> },
                 listItem: { bullet: ({ children }) => <li>{children}</li>, number: ({ children }) => <li>{children}</li> },
                 marks: { strong: ({ children }) => <strong>{children}</strong>, em: ({ children }) => <em>{children}</em>, link: ({ value, children }) => <a href={value?.href} target="_blank" rel="noopener noreferrer">{children}</a> },
@@ -193,7 +211,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           <ShareButtons title={post.title} slug={slug} />
           <CommentsSection postId={post._id} initialComments={post.comments || []} />
 
-          {/* ── Related Articles ── */}
+          {/* Related Articles */}
           {relatedPosts.length > 0 && (
             <div style={{ marginTop: "60px" }}>
               <div style={{ marginBottom: "24px" }}>
