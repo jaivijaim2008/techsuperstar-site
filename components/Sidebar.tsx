@@ -66,14 +66,12 @@ export default function Sidebar({ posts }: { posts: any[] }) {
   return (
     <>
       <style suppressHydrationWarning>{`
-        /* On desktop the sidebar is sticky */
         @media (min-width: 900px) {
           .sidebar-inner {
             position: sticky;
             top: 80px;
           }
         }
-        /* On mobile the sidebar lays out horizontally where it can */
         .sidebar-yt-btn:hover {
           transform: translateY(-2px);
           box-shadow: 0 8px 24px rgba(255,77,0,0.5) !important;
@@ -94,7 +92,7 @@ export default function Sidebar({ posts }: { posts: any[] }) {
 
       <aside className="sidebar-inner">
 
-        {/* ── YouTube Banner ── */}
+        {/* YouTube Banner */}
         <div style={{
           background: "linear-gradient(135deg, #1a0800, #0f0500, #1a0800)",
           border: "1px solid rgba(255,77,0,0.25)",
@@ -105,7 +103,6 @@ export default function Sidebar({ posts }: { posts: any[] }) {
           position: "relative",
           overflow: "hidden",
         }}>
-          {/* Glow */}
           <div style={{
             position: "absolute", top: "-40px", left: "50%",
             transform: "translateX(-50%)",
@@ -142,7 +139,6 @@ export default function Sidebar({ posts }: { posts: any[] }) {
             Tamil Tech Reviews
           </div>
 
-          {/* Stats row */}
           <div style={{ display: "flex", justifyContent: "center", gap: "20px", marginBottom: "16px", position: "relative", zIndex: 1, flexWrap: "wrap" }}>
             {[
               { val: "2.06M", label: "Subscribers" },
@@ -188,7 +184,6 @@ export default function Sidebar({ posts }: { posts: any[] }) {
               boxShadow: "0 4px 16px rgba(255,77,0,0.35)",
               transition: "transform 0.2s ease, box-shadow 0.2s ease",
               position: "relative", zIndex: 1,
-              /* full width on very small screens */
               minWidth: "min(160px, 80%)",
               justifyContent: "center",
             }}
@@ -197,7 +192,7 @@ export default function Sidebar({ posts }: { posts: any[] }) {
           </a>
         </div>
 
-        {/* ── Categories ── */}
+        {/* Categories */}
         <SidebarSection title="Browse by Category">
           <div style={{ padding: "12px", display: "flex", flexWrap: "wrap", gap: "6px" }}>
             {CATEGORIES.map((cat) => (
@@ -217,7 +212,6 @@ export default function Sidebar({ posts }: { posts: any[] }) {
                   fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
                   transition: "all 0.2s ease",
                   display: "inline-block",
-                  /* bigger tap target on mobile */
                   minHeight: "32px",
                   lineHeight: "20px",
                 }}
@@ -228,9 +222,9 @@ export default function Sidebar({ posts }: { posts: any[] }) {
           </div>
         </SidebarSection>
 
-        {/* ── Trending ── */}
+        {/* Trending — 10 posts to fill desktop gap */}
         <SidebarSection title="Trending Now">
-          {posts.slice(0, 5).map((post: any, i: number) => (
+          {posts.slice(0, 10).map((post: any, i: number) => (
             <Link
               key={post.slug?.current}
               href={`/post/${post.slug?.current}`}
@@ -242,7 +236,7 @@ export default function Sidebar({ posts }: { posts: any[] }) {
                   display: "flex",
                   gap: "10px",
                   padding: "12px 14px",
-                  borderBottom: i < Math.min(posts.length, 5) - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                  borderBottom: i < Math.min(posts.length, 10) - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
                   alignItems: "flex-start",
                   cursor: "pointer",
                   transition: "background 0.2s ease",
@@ -282,7 +276,9 @@ export default function Sidebar({ posts }: { posts: any[] }) {
                       background: "linear-gradient(135deg, #1a0800, #0f0500)",
                       display: "flex", alignItems: "center",
                       justifyContent: "center", fontSize: "18px",
-                    }}>📱</div>
+                    }}>
+                      📱
+                    </div>
                   )}
                 </div>
 
