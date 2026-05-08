@@ -43,6 +43,14 @@ export const postType = defineType({
       name: "publishedAt",
       type: "datetime",
     }),
+    // ── NEW: Excerpt field ──
+    defineField({
+      name: "excerpt",
+      title: "Excerpt",
+      type: "text",
+      rows: 3,
+      description: "Short summary shown under the article title on cards (1-2 sentences).",
+    }),
     defineField({
       name: "youtubeUrl",
       title: "YouTube Video URL",

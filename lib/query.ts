@@ -19,6 +19,7 @@ export async function getPosts() {
           "image": mainImage.asset->url,
           "categories": categories[]->title,
           "bodyText": body[].children[].text,
+          excerpt,
           publishedAt
         }
       `),
@@ -41,6 +42,7 @@ export async function getPostsByCategory(categorySlug: string) {
           "image": mainImage.asset->url,
           "categories": categories[]->title,
           "bodyText": pt::text(body),
+          excerpt,
           publishedAt
         }`,
         { categorySlug }
@@ -90,6 +92,7 @@ export async function getPost(slug: string) {
           publishedAt,
           youtubeUrl,
           body,
+          excerpt,
           "comments": *[_type == "comment" && references(^._id) && approved == true] | order(createdAt asc) {
             _id, name, message, createdAt
           }
