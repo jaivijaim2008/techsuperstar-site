@@ -309,8 +309,8 @@ export default function FeaturedGrid({ posts }: { posts: any[] }) {
 
   const hero      = posts[0];
   const secondary = posts.slice(1, 4);
-  // ✅ FIX: Take ALL remaining posts (not just 3), so 8, 9, 10+ posts fill the grid
-  const bottom    = posts.slice(4);
+  // ✅ FIX: Take exactly 6 bottom posts (posts 5–10) = 2 perfect rows of 3 on desktop
+  const bottom    = posts.slice(4, 10);
 
   // ── How many bottom posts are in the last incomplete row ──
   const cols = 3; // desktop columns
