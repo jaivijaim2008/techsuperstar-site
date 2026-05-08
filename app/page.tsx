@@ -1,82 +1,35 @@
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import NewsTicker from "@/components/NewsTicker";
+import FeaturedGrid from "@/components/FeaturedGrid";
+import Sidebar from "@/components/Sidebar";
 import PostCard from "@/components/PostCard";
-import CategoryGrid from "@/components/CategoryGrid";
+import ScrollReveal from "@/components/ScrollReveal";
 import { getPosts } from "@/lib/query";
 import Link from "next/link";
-import Footer from "@/components/Footer";
-import HeroSection from "@/components/HeroSection";
-import ScrollReveal from "@/components/ScrollReveal";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const posts = await getPosts();
-  const latestPosts = posts?.slice(0, 3);
 
   return (
-    <div className="home-root">
-      <Navbar />
+    <div style={{
+      background: "#060606",
+      minHeight: "100vh",
+      fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+    }}>
 
       <style>{`
-        .home-root {
-          background: #060606;
-          min-height: 100vh;
-          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
-          overflow-x: hidden;
+        /* ── Responsive layout ── */
+        .main-grid {
+          display: grid;
+          grid-template-columns: 1fr 300px;
+          gap: 20px;
+          align-items: start;
         }
 
-        .home-root::before {
-          content: '';
-          position: fixed;
-          inset: 0;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
-          pointer-events: none;
-          z-index: 0;
-          opacity: 0.4;
-        }
-
-        .ambient-glow {
-          position: fixed;
-          top: -200px;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 900px;
-          height: 500px;
-          background: radial-gradient(ellipse, rgba(255,77,0,0.07) 0%, transparent 70%);
-          pointer-events: none;
-          z-index: 0;
-        }
-
-        @keyframes shimmerText {
-          0%   { background-position: 0% center; }
-          100% { background-position: 200% center; }
-        }
-        @keyframes badgePulse {
-          0%,100% { box-shadow: 0 0 0 0 rgba(255,77,0,0.25); }
-          50%     { box-shadow: 0 0 0 6px rgba(255,77,0,0); }
-        }
-        @keyframes floatDot {
-          0%,100% { transform: translateY(0); }
-          50%     { transform: translateY(-6px); }
-        }
-
-        .section-wrapper {
-          position: relative;
-          z-index: 1;
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 0 1.5rem;
-        }
-
-        .section-header {
-          display: flex;
-          align-items: flex-end;
-          justify-content: space-between;
-          margin-bottom: 36px;
-          flex-wrap: wrap;
-          gap: 16px;
-        }
-
+        /* ── Section header ── */
         .section-badge {
           display: inline-flex;
           align-items: center;
@@ -91,35 +44,29 @@ export default async function Home() {
           letter-spacing: 2px;
           text-transform: uppercase;
           margin-bottom: 10px;
-          animation: badgePulse 2.5s ease infinite;
         }
-
         .section-badge-dot {
           width: 5px; height: 5px;
           border-radius: 50%;
           background: #ff4d00;
-          animation: floatDot 2s ease infinite;
         }
-
         .section-title {
-          font-size: clamp(22px, 3.5vw, 32px);
+          font-size: clamp(20px, 3vw, 28px);
           font-weight: 900;
-          margin: 0 0 10px;
+          margin: 0 0 8px;
           font-family: var(--font-playfair), 'Playfair Display', Georgia, serif;
-          background: linear-gradient(90deg, #ffffff 0%, #ff4d00 40%, #ffaa55 60%, #ffffff 100%);
+          background: linear-gradient(90deg, #ffffff 0%, #ff4d00 40%, #ffaa55 65%, #ffffff 100%);
           background-size: 200% auto;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
-          animation: shimmerText 4s linear infinite;
           line-height: 1.2;
         }
-
         .section-underline {
           height: 2px;
+          width: 60px;
           background: linear-gradient(90deg, #ff4d00, rgba(255,77,0,0.1));
           border-radius: 2px;
         }
-
         .view-all-btn {
           display: inline-flex;
           align-items: center;
@@ -132,36 +79,27 @@ export default async function Home() {
           padding: 9px 18px;
           border-radius: 50px;
           transition: all 0.25s ease;
-          letter-spacing: 0.5px;
           white-space: nowrap;
           background: rgba(255,77,0,0.04);
+          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
         }
         .view-all-btn:hover {
           background: rgba(255,77,0,0.12);
           border-color: rgba(255,77,0,0.6);
           transform: translateX(3px);
-          box-shadow: 0 0 20px rgba(255,77,0,0.15);
         }
 
+        /* ── Posts grid ── */
         .posts-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-          gap: 22px;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 20px;
         }
 
-        .empty-state {
-          text-align: center;
-          padding: 80px 24px;
-          background: linear-gradient(135deg, #0f0f0f, #141414);
-          border-radius: 20px;
-          border: 1px dashed rgba(255,77,0,0.15);
-          color: #555;
-          font-size: 14px;
-        }
-
+        /* ── CTA banner ── */
         .cta-banner {
           position: relative;
-          background: linear-gradient(135deg, #1a0800 0%, #0e0500 50%, #1a0800 100%);
+          background: linear-gradient(135deg, #1a0800, #0e0500, #1a0800);
           border: 1px solid rgba(255,77,0,0.2);
           border-radius: 24px;
           padding: clamp(28px, 5vw, 52px) clamp(20px, 5vw, 52px);
@@ -172,49 +110,11 @@ export default async function Home() {
           flex-wrap: wrap;
           overflow: hidden;
         }
-        .cta-banner::before {
-          content: '';
-          position: absolute;
-          top: -60px; right: -60px;
-          width: 240px; height: 240px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(255,77,0,0.12), transparent 70%);
-          pointer-events: none;
-        }
-        .cta-banner::after {
-          content: '';
-          position: absolute;
-          bottom: -40px; left: 30%;
-          width: 160px; height: 160px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(255,100,0,0.06), transparent 70%);
-          pointer-events: none;
-        }
-        .cta-text h3 {
-          font-size: clamp(18px, 3vw, 26px);
-          font-family: var(--font-playfair), 'Playfair Display', serif;
-          font-weight: 900;
-          color: #fff;
-          margin: 0 0 8px;
-        }
-        .cta-text p {
-          font-size: 13px;
-          color: #666;
-          margin: 0;
-          line-height: 1.6;
-          max-width: 400px;
-        }
-        .cta-stats {
-          display: flex;
-          gap: 24px;
-          margin-top: 18px;
-          flex-wrap: wrap;
-        }
         .cta-stat-value {
           font-size: 20px;
           font-weight: 800;
           color: #ff4d00;
-          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+          font-family: var(--font-playfair), 'Playfair Display', serif;
           line-height: 1.1;
         }
         .cta-stat-label {
@@ -224,12 +124,7 @@ export default async function Home() {
           letter-spacing: 1.5px;
           text-transform: uppercase;
           margin-top: 3px;
-        }
-        .cta-actions {
-          display: flex;
-          gap: 12px;
-          flex-wrap: wrap;
-          flex-shrink: 0;
+          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
         }
         .cta-btn-primary {
           display: inline-flex;
@@ -244,6 +139,7 @@ export default async function Home() {
           font-size: 13px;
           box-shadow: 0 4px 20px rgba(255,77,0,0.35);
           transition: all 0.25s ease;
+          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
         }
         .cta-btn-primary:hover {
           transform: translateY(-2px);
@@ -262,6 +158,7 @@ export default async function Home() {
           font-size: 13px;
           border: 1px solid rgba(255,255,255,0.08);
           transition: all 0.25s ease;
+          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
         }
         .cta-btn-secondary:hover {
           background: rgba(255,255,255,0.08);
@@ -269,33 +166,77 @@ export default async function Home() {
           transform: translateY(-2px);
         }
 
+        /* ── Divider ── */
+        .section-divider {
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(255,77,0,0.15), transparent);
+          margin: 0;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 900px) {
+          .main-grid {
+            grid-template-columns: 1fr;
+          }
+        }
         @media (max-width: 640px) {
-          .cta-banner { text-align: center; justify-content: center; }
-          .cta-text p { max-width: 100%; }
-          .cta-stats { justify-content: center; }
-          .cta-actions { justify-content: center; width: 100%; }
-          .cta-btn-primary, .cta-btn-secondary { flex: 1; justify-content: center; }
+          .cta-banner {
+            text-align: center;
+            justify-content: center;
+          }
+          .cta-actions {
+            justify-content: center;
+            width: 100%;
+          }
+          .cta-btn-primary, .cta-btn-secondary {
+            flex: 1;
+            justify-content: center;
+          }
         }
       `}</style>
 
-      <div className="ambient-glow" />
+      {/* ── Navbar ── */}
+      <Navbar />
 
-      <HeroSection />
+      {/* ── News Ticker ── */}
+      <NewsTicker posts={posts ?? []} />
 
-      <h1 style={{ position:"absolute", left:"-9999px", width:"1px", height:"1px", overflow:"hidden" }}>
-        TechSuperStar - Tech Reviews, News & Buying Guides
-      </h1>
+      {/* ── Main content ── */}
+      <div style={{
+        maxWidth: "1200px",
+        margin: "0 auto",
+        padding: "20px 1.5rem 0",
+      }}>
 
-      <div className="section-wrapper">
+        {/* ── Featured + Sidebar grid ── */}
+        <div className="main-grid">
 
-        <ScrollReveal direction="up" delay={0}>
-          <CategoryGrid />
-        </ScrollReveal>
+          {/* LEFT: Featured numbered grid */}
+          <ScrollReveal direction="up" delay={0}>
+            <FeaturedGrid posts={posts ?? []} />
+          </ScrollReveal>
 
-        <div style={{ padding: "40px 0 80px" }}>
+          {/* RIGHT: Sidebar */}
+          <ScrollReveal direction="up" delay={100}>
+            <Sidebar posts={posts ?? []} />
+          </ScrollReveal>
+
+        </div>
+
+        <div className="section-divider" style={{ margin: "48px 0 0" }} />
+
+        {/* ── All Articles section ── */}
+        <div style={{ padding: "48px 0 72px" }}>
 
           <ScrollReveal direction="up" delay={0}>
-            <div className="section-header">
+            <div style={{
+              display: "flex",
+              alignItems: "flex-end",
+              justifyContent: "space-between",
+              marginBottom: "32px",
+              flexWrap: "wrap",
+              gap: "16px",
+            }}>
               <div>
                 <div className="section-badge">
                   <span className="section-badge-dot" />
@@ -311,14 +252,25 @@ export default async function Home() {
           </ScrollReveal>
 
           <ScrollReveal direction="up" delay={100}>
-            {latestPosts && latestPosts.length > 0 ? (
+            {posts && posts.length > 0 ? (
               <div className="posts-grid">
-                {latestPosts.filter((post: any) => post?.slug?.current).map((post: any) => (
-                  <PostCard key={post.slug.current} post={post} />
-                ))}
+                {posts
+                  .filter((post: any) => post?.slug?.current)
+                  .map((post: any) => (
+                    <PostCard key={post.slug.current} post={post} />
+                  ))}
               </div>
             ) : (
-              <div className="empty-state">
+              <div style={{
+                textAlign: "center",
+                padding: "80px 24px",
+                background: "linear-gradient(135deg, #0f0f0f, #141414)",
+                borderRadius: "20px",
+                border: "1px dashed rgba(255,77,0,0.15)",
+                color: "#555",
+                fontSize: "14px",
+                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+              }}>
                 No articles yet. Start creating posts in the studio!
               </div>
             )}
@@ -327,13 +279,37 @@ export default async function Home() {
         </div>
       </div>
 
+      {/* ── CTA Banner ── */}
       <ScrollReveal direction="up" delay={0}>
-        <div style={{ padding: "0 1.5rem 72px", position: "relative", zIndex: 1 }}>
+        <div style={{ padding: "0 1.5rem 72px" }}>
           <div className="cta-banner" style={{ maxWidth: "1200px", margin: "0 auto" }}>
+
+            {/* Decorative glows */}
+            <div style={{
+              position: "absolute", top: "-60px", right: "-60px",
+              width: "240px", height: "240px", borderRadius: "50%",
+              background: "radial-gradient(circle, rgba(255,77,0,0.12), transparent 70%)",
+              pointerEvents: "none",
+            }} />
+
             <div className="cta-text">
-              <h3>Stay ahead of the tech curve 🚀</h3>
-              <p>Subscribe to our YouTube channel and never miss a review, unboxing or buying guide — all in Tamil.</p>
-              <div className="cta-stats">
+              <h3 style={{
+                fontSize: "clamp(18px, 3vw, 26px)",
+                fontFamily: "var(--font-playfair), 'Playfair Display', serif",
+                fontWeight: 900,
+                color: "#fff",
+                margin: "0 0 8px",
+              }}>
+                Stay ahead of the tech curve 🚀
+              </h3>
+              <p style={{
+                fontSize: "13px", color: "#666", margin: 0,
+                lineHeight: "1.6", maxWidth: "400px",
+                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+              }}>
+                Subscribe to our YouTube channel and never miss a review, unboxing or buying guide — all in Tamil.
+              </p>
+              <div style={{ display: "flex", gap: "24px", marginTop: "18px", flexWrap: "wrap" }}>
                 {[
                   { label: "Subscribers", value: "2.06M" },
                   { label: "Total Views",  value: "3.2M"  },
@@ -346,19 +322,27 @@ export default async function Home() {
                 ))}
               </div>
             </div>
-            <div className="cta-actions">
-              <Link href="https://www.youtube.com/@TechSuperStarOfficial" target="_blank" className="cta-btn-primary">
+
+            <div className="cta-actions" style={{ display: "flex", gap: "12px", flexWrap: "wrap", flexShrink: 0 }}>
+              <Link
+                href="https://www.youtube.com/@TechSuperStarOfficial"
+                target="_blank"
+                className="cta-btn-primary"
+              >
                 ▶ Subscribe on YouTube
               </Link>
               <Link href="/contact" className="cta-btn-secondary">
                 Contact Us →
               </Link>
             </div>
+
           </div>
         </div>
       </ScrollReveal>
 
+      {/* ── Footer ── */}
       <Footer />
+
     </div>
   );
 }
