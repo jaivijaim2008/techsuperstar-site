@@ -12,12 +12,12 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 const CATEGORY_SECTIONS = [
-  { key: "phones",      label: "Latest Phones",      emoji: "📱", href: "/category/phones"      },
-  { key: "laptops",     label: "Latest Laptops",     emoji: "💻", href: "/category/laptops"     },
-  { key: "gaming",      label: "Gaming Gear",         emoji: "🎮", href: "/category/gaming"      },
-  { key: "tablets",     label: "Latest Tablets",     emoji: "📟", href: "/category/tablets"     },
-  { key: "reviews",     label: "Reviews",             emoji: "⭐", href: "/category/reviews"     },
-  { key: "accessories", label: "Accessories",         emoji: "🎧", href: "/category/accessories" },
+  { key: "phones",      label: "Latest Phones",  emoji: "📱", href: "/category/phones"      },
+  { key: "laptops",     label: "Latest Laptops", emoji: "💻", href: "/category/laptops"     },
+  { key: "gaming",      label: "Gaming Gear",    emoji: "🎮", href: "/category/gaming"      },
+  { key: "tablets",     label: "Latest Tablets", emoji: "📟", href: "/category/tablets"     },
+  { key: "reviews",     label: "Reviews",        emoji: "⭐", href: "/category/reviews"     },
+  { key: "accessories", label: "Accessories",    emoji: "🎧", href: "/category/accessories" },
 ];
 
 export default async function Home() {
@@ -41,6 +41,7 @@ export default async function Home() {
         @media (min-width: 900px) {
           .main-grid {
             grid-template-columns: 1fr 300px;
+            align-items: start;
           }
         }
 
@@ -219,7 +220,6 @@ export default async function Home() {
         .section-divider {
           height: 1px;
           background: linear-gradient(90deg, transparent, rgba(255,77,0,0.15), transparent);
-          margin: 0;
         }
 
         /* ── CTA responsive ── */
@@ -321,7 +321,8 @@ export default async function Home() {
           </ScrollReveal>
         </div>
 
-        <div className="section-divider" style={{ margin: "48px 0 0" }} />
+        {/* ── Divider — margin:0 so no gap below sidebar ── */}
+        <div className="section-divider" style={{ margin: "0" }} />
 
         {/* ── Category Sections (like Beebom) ── */}
         {CATEGORY_SECTIONS.map((cat) => {
