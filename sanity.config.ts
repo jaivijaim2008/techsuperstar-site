@@ -55,6 +55,7 @@ export default defineConfig({
             of: [{ type: "reference", to: [{ type: "category" }] }],
           },
           { name: "publishedAt", title: "Published At", type: "datetime" },
+          { name: "excerpt", title: "Excerpt", type: "text", description: "Short summary shown under the article title on cards (1-2 sentences)." },
           {
             name: "youtubeUrl",
             title: "YouTube Video URL",
