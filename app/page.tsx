@@ -6,6 +6,7 @@ import Sidebar from "@/components/Sidebar";
 import PostCard from "@/components/PostCard";
 import ScrollReveal from "@/components/ScrollReveal";
 import { getPosts } from "@/lib/query";
+import TagsBar from "@/components/TagsBar";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -230,6 +231,7 @@ export default async function Home() {
 
       {/* ── News Ticker ── */}
       <NewsTicker posts={posts ?? []} />
+      <TagsBar />
 
       {/* ── Main content ── */}
       <div style={{
