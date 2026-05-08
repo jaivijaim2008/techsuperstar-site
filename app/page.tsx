@@ -380,10 +380,11 @@ export default async function Home() {
             {posts && posts.length > 0 ? (
               <div className="posts-grid">
                 {posts
-                  .filter((post: any) => post?.slug?.current)
-                  .map((post: any) => (
-                    <PostCard key={post.slug.current} post={post} />
-                  ))}
+  .filter((post: any) => post?.slug?.current)
+  .slice(0, 3)
+  .map((post: any) => (
+    <PostCard key={post.slug.current} post={post} />
+  ))}
               </div>
             ) : (
               <div style={{
