@@ -17,11 +17,9 @@ export default async function SearchPage({
 
   const results = query.trim() === "" ? [] : allPosts?.filter((post: any) => {
   const q = query.toLowerCase().trim();
-  const words = q.split(/\s+/);
   const title = post.title?.toLowerCase() || "";
   const cats = post.categories?.map((c: string) => c?.toLowerCase()).join(" ") || "";
-  const searchable = `${title} ${cats}`;
-  return words.every(word => searchable.includes(word));
+  return title.includes(q) || cats.includes(q);
 });
 
   return (
