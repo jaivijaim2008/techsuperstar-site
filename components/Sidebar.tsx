@@ -66,12 +66,7 @@ export default function Sidebar({ posts }: { posts: any[] }) {
   return (
     <>
       <style suppressHydrationWarning>{`
-        @media (min-width: 900px) {
-          .sidebar-inner {
-            position: sticky;
-            top: 80px;
-          }
-        }
+        
         .sidebar-yt-btn:hover {
           transform: translateY(-2px);
           box-shadow: 0 8px 24px rgba(255,77,0,0.5) !important;
@@ -224,7 +219,7 @@ export default function Sidebar({ posts }: { posts: any[] }) {
 
         {/* Trending — 10 posts to fill desktop gap */}
         <SidebarSection title="Trending Now">
-          {posts.slice(0, 10).map((post: any, i: number) => (
+          {posts.slice(0, 5).map((post: any, i: number) => (
             <Link
               key={post.slug?.current}
               href={`/post/${post.slug?.current}`}
