@@ -10,9 +10,10 @@ export const dynamic = "force-dynamic";
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: { q?: string };
+  searchParams: Promise<{ q?: string }> | { q?: string };
 }) {
-  const query = decodeURIComponent(searchParams.q || "");
+  const resolvedParams = await Promise.resolve(searchParams);
+  const query = decodeURIComponent(resolvedParams.q || "");
   const allPosts = await getPosts();
 
   const results = query.trim() === "" ? [] : allPosts?.filter((post: any) => {
@@ -20,9 +21,9 @@ export default async function SearchPage({
     const title = post.title?.toLowerCase() || "";
     const cats = post.categories?.map((c: string) => c?.toLowerCase()).join(" ") || "";
     const body = Array.isArray(post.bodyText)
-  ? post.bodyText.join(" ").toLowerCase()
-  : post.bodyText?.toLowerCase() || "";
-return title.includes(q) || cats.includes(q) || body.includes(q);
+      ? post.bodyText.join(" ").toLowerCase()
+      : post.bodyText?.toLowerCase() || "";
+    return title.includes(q) || cats.includes(q) || body.includes(q);
   });
 
   return (
