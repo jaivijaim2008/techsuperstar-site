@@ -18,7 +18,7 @@ export async function getPosts() {
           "author": coalesce(author->name, author),
           "image": mainImage.asset->url,
           "categories": categories[]->title,
-          "bodyText": pt::text(body),
+          "bodyText": body[].children[].text,
           publishedAt
         }
       `),

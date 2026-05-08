@@ -19,8 +19,10 @@ export default async function SearchPage({
     const q = query.toLowerCase().trim();
     const title = post.title?.toLowerCase() || "";
     const cats = post.categories?.map((c: string) => c?.toLowerCase()).join(" ") || "";
-    const body = post.bodyText?.toLowerCase() || "";
-    return title.includes(q) || cats.includes(q) || body.includes(q);
+    const body = Array.isArray(post.bodyText)
+  ? post.bodyText.join(" ").toLowerCase()
+  : post.bodyText?.toLowerCase() || "";
+return title.includes(q) || cats.includes(q) || body.includes(q);
   });
 
   return (
