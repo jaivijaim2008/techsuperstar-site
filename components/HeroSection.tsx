@@ -19,12 +19,11 @@ export default function HeroSection() {
     if (!canvas) return;
     const ctx = canvas.getContext("2d", {
       alpha: true,
-      desynchronized: true,        // ← key for low-latency on 120Hz displays
+      desynchronized: true,
     });
     if (!ctx) return;
 
-    // ── Pixel-perfect sizing (critical for sharp 120fps on HiDPI) ──
-    const dpr = Math.min(window.devicePixelRatio || 1, 2); // cap at 2x to save fill-rate
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     let W = canvas.offsetWidth;
     let H = canvas.offsetHeight;
 
@@ -33,13 +32,11 @@ export default function HeroSection() {
       H = canvas.offsetHeight;
       canvas.width  = W * dpr;
       canvas.height = H * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // scale once, draw in CSS px
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
     resize();
 
     const isMobile = W < 640;
-
-    // ── Reduce counts on mobile to stay within fill-rate budget ──
     const SHAPE_COUNT    = isMobile ? 5  : 12;
     const PARTICLE_COUNT = isMobile ? 35 : 100;
 
@@ -59,7 +56,7 @@ export default function HeroSection() {
       vx: number; vy: number; vz: number;
       size: number;
       alpha: number;
-      colorR: number; colorG: number; colorB: number; // pre-parsed RGB
+      colorR: number; colorG: number; colorB: number;
     };
 
     const shapes: Shape[] = Array.from({ length: SHAPE_COUNT }, () => ({
@@ -81,7 +78,6 @@ export default function HeroSection() {
       pulseOffset: Math.random() * Math.PI * 2,
     }));
 
-    // Pre-parse colors into RGB to avoid string ops per frame
     const colorPalette = [
       [255, 77,  0],
       [255, 102, 34],
@@ -105,7 +101,6 @@ export default function HeroSection() {
       };
     });
 
-    // ── Math helpers (inline, no allocation per frame) ──
     const project = (x: number, y: number, z: number, cx: number, cy: number) => {
       const scale = 500 / (500 + z);
       return { sx: cx + x * scale, sy: cy + y * scale, scale };
@@ -121,7 +116,6 @@ export default function HeroSection() {
       return { x: x3, y: y3, z: z2 };
     };
 
-    // ── Reusable projected vertex buffer (avoids array alloc per frame) ──
     const projBuf: { sx: number; sy: number }[] = Array.from({ length: 16 }, () => ({ sx: 0, sy: 0 }));
 
     const drawCube = (shape: Shape, cx: number, cy: number, t: number) => {
@@ -141,7 +135,6 @@ export default function HeroSection() {
         projBuf[i].sx = p.sx; projBuf[i].sy = p.sy;
       }
       const alpha = shape.alpha * (0.85 + Math.sin(t * 0.001 + shape.pulseOffset) * 0.15);
-      // NO shadowBlur — single strokeStyle set, batch all edges in one path
       ctx.strokeStyle = `rgba(255,100,30,${alpha.toFixed(3)})`;
       ctx.lineWidth = 0.8;
       ctx.beginPath();
@@ -180,7 +173,7 @@ export default function HeroSection() {
     };
 
     const drawRing = (shape: Shape, cx: number, cy: number, t: number) => {
-      const segments = 12; // reduced from 16 — imperceptible difference at small sizes
+      const segments = 12;
       const r = shape.size;
       const pulse = 1 + Math.sin(t * 0.002 + shape.pulseOffset) * 0.06;
       for (let i = 0; i < segments; i++) {
@@ -201,29 +194,21 @@ export default function HeroSection() {
       ctx.stroke();
     };
 
-    // ── Use timestamp-based animation to respect 120Hz ──
     let lastTs = 0;
     let t = 0;
 
     const render = (ts: number) => {
       animFrameRef.current = requestAnimationFrame(render);
-
-      // Delta-time throttle: skip frames only if running faster than display (safety guard)
       const delta = ts - lastTs;
-      if (delta < 4) return; // never faster than ~240fps
+      if (delta < 4) return;
       lastTs = ts;
-
-      // Normalize t advancement to be frame-rate independent
-      // target: same visual speed at 60 OR 120 fps
-      const dtFactor = Math.min(delta / 16.67, 3); // 1.0 at 60fps, ~0.5 at 120fps
+      const dtFactor = Math.min(delta / 16.67, 3);
       t += dtFactor;
 
       ctx.clearRect(0, 0, W, H);
       const cx = W / 2;
       const cy = H / 2;
 
-      // ── Particles (batched by color to minimize state changes) ──
-      // Sort particles into color buckets once — reuse across frames via a stable order
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
         p.x += p.vx * dtFactor;
@@ -247,7 +232,6 @@ export default function HeroSection() {
       }
       ctx.globalAlpha = 1;
 
-      // ── 3D Shapes ──
       for (let i = 0; i < shapes.length; i++) {
         const shape = shapes[i];
         shape.rotX += shape.rotSpeedX * dtFactor;
@@ -268,36 +252,42 @@ export default function HeroSection() {
     };
 
     animFrameRef.current = requestAnimationFrame(render);
-
-    const handleResize = () => {
-      resize();
-    };
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", resize);
 
     return () => {
       cancelAnimationFrame(animFrameRef.current);
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", resize);
     };
   }, []);
 
-  // ── Stats counter ──
+  // ── Stats counter (FIXED) ──
   useEffect(() => {
     setMounted(true);
-    let step = 0;
-    const steps = 60;
-    const duration = 1800;
-    const interval = duration / steps;
-    const timer = setInterval(() => {
-      step++;
-      const ease = 1 - Math.pow(1 - step / steps, 3);
-      setCount({
-        subs:  Math.floor(ease * 206),
-        views: Math.floor(ease * 320),
-        likes: Math.floor(ease * 203),
-      });
-      if (step >= steps) clearInterval(timer);
-    }, interval);
-    return () => clearInterval(timer);
+
+    // Delay matches the statsReveal CSS animation delay (0.9s)
+    // so the counter starts counting exactly when the cards become visible
+    const delay = setTimeout(() => {
+      let step = 0;
+      const steps = 60;
+      const duration = 1800;
+      const interval = duration / steps;
+
+      const timer = setInterval(() => {
+        step++;
+        const ease = 1 - Math.pow(1 - step / steps, 3);
+        setCount({
+          subs:  Math.floor(ease * 206),
+          views: Math.floor(ease * 320),
+          likes: Math.floor(ease * 203),
+        });
+        if (step >= steps) clearInterval(timer);
+      }, interval);
+
+      // Cleanup inner interval if outer timeout is cleared
+      return () => clearInterval(timer);
+    }, 900); // ← THE FIX: wait for reveal animation before counting
+
+    return () => clearTimeout(delay);
   }, []);
 
   return (
@@ -324,7 +314,6 @@ export default function HeroSection() {
           0%,100% { transform: translateY(0) rotate(0deg); }
           50%      { transform: translateY(-20px) rotate(8deg); }
         }
-        /* Grid: use transform instead of background-position — compositor-only */
         @keyframes gridPan {
           from { transform: translate(0, 0); }
           to   { transform: translate(55px, 55px); }
@@ -385,7 +374,6 @@ export default function HeroSection() {
           font-size: clamp(13px, 2vw, 15px);
           font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
           letter-spacing: 0.3px;
-          /* Only animate transform/opacity — GPU composited */
           transition: transform 0.3s ease, opacity 0.3s ease;
           animation: btnShimmer 4s ease infinite, btnGlow 2.5s ease infinite;
           position: relative;
@@ -395,7 +383,6 @@ export default function HeroSection() {
           transform: scale(1.06) translateY(-2px);
           box-shadow: 0 12px 50px rgba(255,77,0,0.7);
         }
-        /* Shimmer: use transform translate instead of left/right — compositor only */
         .hero-btn::after {
           content: '';
           position: absolute;
@@ -439,7 +426,6 @@ export default function HeroSection() {
           text-align: center;
           flex: 1;
           min-width: 120px;
-          /* Use transform for hover — no layout recalc */
           transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
         }
         .stat-card:hover {
@@ -451,7 +437,6 @@ export default function HeroSection() {
 
         .floating-tag {
           position: absolute;
-          /* Remove backdrop-filter — huge GPU cost on mobile */
           background: rgba(20,5,0,0.85);
           border: 1px solid rgba(255,77,0,0.2);
           border-radius: 8px;
@@ -478,7 +463,7 @@ export default function HeroSection() {
         }
       `}</style>
 
-      {/* ── 3D Canvas (own compositing layer, isolated from DOM) ── */}
+      {/* ── 3D Canvas ── */}
       <canvas
         ref={canvasRef}
         style={{
@@ -489,16 +474,15 @@ export default function HeroSection() {
           pointerEvents: "none",
           zIndex: 0,
           opacity: 0.75,
-          // Force GPU layer — keeps canvas repaints isolated from DOM
           transform: "translateZ(0)",
-          willChange: "transform", // only on canvas — not every child
+          willChange: "transform",
         }}
       />
 
-      {/* ── Grid: use a separate layer with transform animation (compositor-only) ── */}
+      {/* ── Grid ── */}
       <div style={{
         position: "absolute",
-        inset: "-55px",           // oversize so pan never shows edge
+        inset: "-55px",
         backgroundImage: "linear-gradient(rgba(255,77,0,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,77,0,0.025) 1px, transparent 1px)",
         backgroundSize: "55px 55px",
         animation: "gridPan 20s linear infinite",
@@ -515,12 +499,12 @@ export default function HeroSection() {
         zIndex: 0,
       }} />
 
-      {/* ── Orbs: only opacity + transform animated — compositor-only ── */}
+      {/* ── Orbs ── */}
       {([
-        { w:380, h:380, top:"5%",    left:"-5%",  color:"rgba(255,60,0,0.07)",  anim:"orbFloat1 10s ease-in-out infinite",          blur:40 },
-        { w:260, h:260, top:"55%",   right:"-3%", color:"rgba(255,100,0,0.05)", anim:"orbFloat2 13s ease-in-out infinite",          blur:35 },
-        { w:200, h:200, top:"20%",   right:"15%", color:"rgba(255,140,0,0.04)", anim:"orbFloat3 8s ease-in-out infinite",           blur:28 },
-        { w:150, h:150, bottom:"10%",left:"15%",  color:"rgba(255,40,0,0.05)",  anim:"orbFloat2 11s ease-in-out infinite reverse",  blur:22 },
+        { w:380, h:380, top:"5%",    left:"-5%",  color:"rgba(255,60,0,0.07)",  anim:"orbFloat1 10s ease-in-out infinite",         blur:40 },
+        { w:260, h:260, top:"55%",   right:"-3%", color:"rgba(255,100,0,0.05)", anim:"orbFloat2 13s ease-in-out infinite",         blur:35 },
+        { w:200, h:200, top:"20%",   right:"15%", color:"rgba(255,140,0,0.04)", anim:"orbFloat3 8s ease-in-out infinite",          blur:28 },
+        { w:150, h:150, bottom:"10%",left:"15%",  color:"rgba(255,40,0,0.05)",  anim:"orbFloat2 11s ease-in-out infinite reverse", blur:22 },
       ] as const).map((orb, i) => (
         <div key={i} style={{
           position: "absolute",
@@ -538,10 +522,10 @@ export default function HeroSection() {
         }} />
       ))}
 
-      {/* ── Floating tags (desktop only, no backdrop-filter) ── */}
+      {/* ── Floating tags ── */}
       {[
-        { text: "📱 Smartphone Reviews", top: "18%", left: "4%",   delay: "0s" },
-        { text: "💻 Laptop Guides",      top: "28%", right: "4%",  delay: "0.4s" },
+        { text: "📱 Smartphone Reviews", top: "18%", left: "4%",    delay: "0s" },
+        { text: "💻 Laptop Guides",      top: "28%", right: "4%",   delay: "0.4s" },
         { text: "🎮 Gaming Gear",        bottom: "28%", left: "3%", delay: "0.8s" },
         { text: "⭐ Honest Opinions",    bottom: "22%", right: "3%",delay: "1.2s" },
       ].map((tag, i) => (
