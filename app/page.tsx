@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const posts = await getPosts();
-  const latestPosts = posts?.slice(0, 6);
+  const latestPosts = posts?.slice(0, 3);
 
   return (
     <div className="home-root">
