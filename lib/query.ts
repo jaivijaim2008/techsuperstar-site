@@ -107,3 +107,25 @@ export async function getPost(slug: string) {
     return null;
   }
 }
+
+export async function getRelatedPosts(slug: string, categories: string[]) {
+  try {
+    const posts = await withTimeout(
+      client.fetch(
+        `*[_type == "post" && slug.current != $slug && count((categories[]->title)[@ in $categories]) > 0] | order(publishedAt desc)[0...3] {
+          title, slug,
+          "image": mainImage.asset->url,
+          "categories": categories[]->title,
+          excerpt,
+          publishedAt
+        }`,
+        { slug, categories }
+      ),
+      5000
+    );
+    return posts || [];
+  } catch (error) {
+    console.warn("⚠️ Related posts fetch failed:", error);
+    return [];
+  }
+}
