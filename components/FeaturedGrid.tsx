@@ -309,7 +309,12 @@ export default function FeaturedGrid({ posts }: { posts: any[] }) {
 
   const hero      = posts[0];
   const secondary = posts.slice(1, 4);
-  const bottom    = posts.slice(4, 7);
+  // ✅ FIX: Take ALL remaining posts (not just 3), so 8, 9, 10+ posts fill the grid
+  const bottom    = posts.slice(4);
+
+  // ── How many bottom posts are in the last incomplete row ──
+  const cols = 3; // desktop columns
+  const remainder = bottom.length % cols; // 0 = perfect, 1 or 2 = gap
 
   return (
     <>
@@ -339,7 +344,8 @@ export default function FeaturedGrid({ posts }: { posts: any[] }) {
             border-radius: 16px 0 0 16px !important;
           }
         }
-        /* Bottom grid: 1 col mobile, auto on larger */
+
+        /* ── Bottom grid ── */
         .featured-bottom-grid {
           display: grid;
           grid-template-columns: 1fr;
@@ -353,6 +359,24 @@ export default function FeaturedGrid({ posts }: { posts: any[] }) {
         @media (min-width: 768px) {
           .featured-bottom-grid {
             grid-template-columns: repeat(3, 1fr);
+          }
+
+          /* ✅ FIX: Last row has 1 orphan → stretch to full width */
+          .featured-bottom-grid.remainder-1 > :last-child {
+            grid-column: 1 / -1;
+          }
+
+          /* ✅ FIX: Last row has 2 orphans → each takes 1.5 cols (split the 3 cols) */
+          .featured-bottom-grid.remainder-2 > :nth-last-child(1),
+          .featured-bottom-grid.remainder-2 > :nth-last-child(2) {
+            grid-column: span 1;
+          }
+          /* Make the 2 orphan cards wider by switching to a 2-col sub-layout */
+          .featured-bottom-grid.remainder-2 > :nth-last-child(2) {
+            grid-column: 1 / 2;
+          }
+          .featured-bottom-grid.remainder-2 > :nth-last-child(1) {
+            grid-column: 2 / 4;
           }
         }
       `}</style>
@@ -379,7 +403,7 @@ export default function FeaturedGrid({ posts }: { posts: any[] }) {
 
         {/* ── Bottom row ── */}
         {bottom.length > 0 && (
-          <div className="featured-bottom-grid">
+          <div className={`featured-bottom-grid${remainder !== 0 ? ` remainder-${remainder}` : ""}`}>
             {bottom.map((post: any, i: number) => (
               <BottomCard key={post.slug?.current} post={post} num={i + secondary.length + 2} />
             ))}
