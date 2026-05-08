@@ -12,7 +12,7 @@ export default async function SearchPage({
 }: {
   searchParams: { q?: string };
 }) {
-  const query = searchParams.q || "";
+  const query = decodeURIComponent(searchParams.q || "");
   const allPosts = await getPosts();
 
   const results = query.trim() === "" ? [] : allPosts?.filter((post: any) => {
