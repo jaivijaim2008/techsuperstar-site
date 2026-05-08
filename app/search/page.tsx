@@ -16,11 +16,12 @@ export default async function SearchPage({
   const allPosts = await getPosts();
 
   const results = query.trim() === "" ? [] : allPosts?.filter((post: any) => {
-  const q = query.toLowerCase().trim();
-  const title = post.title?.toLowerCase() || "";
-  const cats = post.categories?.map((c: string) => c?.toLowerCase()).join(" ") || "";
-  return title.includes(q) || cats.includes(q);
-});
+    const q = query.toLowerCase().trim();
+    const title = post.title?.toLowerCase() || "";
+    const cats = post.categories?.map((c: string) => c?.toLowerCase()).join(" ") || "";
+    const body = post.bodyText?.toLowerCase() || "";
+    return title.includes(q) || cats.includes(q) || body.includes(q);
+  });
 
   return (
     <div style={{ background: "#060606", minHeight: "100vh", fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", overflowX: "hidden" }}>

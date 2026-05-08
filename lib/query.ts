@@ -18,6 +18,7 @@ export async function getPosts() {
           "author": coalesce(author->name, author),
           "image": mainImage.asset->url,
           "categories": categories[]->title,
+          "bodyText": pt::text(body),
           publishedAt
         }
       `),
@@ -39,6 +40,7 @@ export async function getPostsByCategory(categorySlug: string) {
           "author": coalesce(author->name, author),
           "image": mainImage.asset->url,
           "categories": categories[]->title,
+          "bodyText": pt::text(body),
           publishedAt
         }`,
         { categorySlug }
