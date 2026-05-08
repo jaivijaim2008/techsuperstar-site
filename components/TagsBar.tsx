@@ -1,19 +1,30 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import {
+  MdPhoneAndroid,
+  MdLaptop,
+  MdTablet,
+  MdSportsEsports,
+  MdStar,
+  MdHeadphones,
+  MdGridView,
+} from "react-icons/md";
 
 const TAGS = [
-  { name: "All",         href: "/articles",           icon: "🔥" },
-  { name: "Phones",      href: "/category/phones",     icon: "📱" },
-  { name: "Laptops",     href: "/category/laptops",    icon: "💻" },
-  { name: "Tablets",     href: "/category/tablets",    icon: "📟" },
-  { name: "Gaming",      href: "/category/gaming",     icon: "🎮" },
-  { name: "Reviews",     href: "/category/reviews",    icon: "⭐" },
-  { name: "Accessories", href: "/category/accessories",icon: "🎧" },
+  { name: "All",         filter: null,          icon: MdGridView      },
+  { name: "Phones",      filter: "phones",      icon: MdPhoneAndroid  },
+  { name: "Laptops",     filter: "laptops",     icon: MdLaptop        },
+  { name: "Tablets",     filter: "tablets",     icon: MdTablet        },
+  { name: "Gaming",      filter: "gaming",      icon: MdSportsEsports },
+  { name: "Reviews",     filter: "reviews",     icon: MdStar          },
+  { name: "Accessories", filter: "accessories", icon: MdHeadphones    },
 ];
 
 export default function TagsBar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentFilter = searchParams.get("filter");
 
   return (
     <>
@@ -25,9 +36,7 @@ export default function TagsBar() {
           -webkit-overflow-scrolling: touch;
           scrollbar-width: none;
         }
-        .tags-bar-wrap::-webkit-scrollbar {
-          display: none;
-        }
+        .tags-bar-wrap::-webkit-scrollbar { display: none; }
         .tags-bar-inner {
           display: flex;
           align-items: center;
@@ -39,7 +48,7 @@ export default function TagsBar() {
         .tag-pill {
           display: inline-flex;
           align-items: center;
-          gap: 5px;
+          gap: 6px;
           padding: 6px 14px;
           border-radius: 20px;
           font-size: 12px;
@@ -63,27 +72,25 @@ export default function TagsBar() {
           border-color: #ff4d00;
           color: #fff;
         }
-        .tag-icon {
-          font-size: 13px;
-          line-height: 1;
-        }
       `}</style>
 
       <div className="tags-bar-wrap">
         <div className="tags-bar-inner">
           {TAGS.map((tag) => {
-            const isActive =
-              tag.href === "/articles"
-                ? pathname === "/" || pathname === "/articles"
-                : pathname.startsWith(tag.href);
+            const isActive = pathname === "/" || pathname === "/articles"
+              ? tag.filter === currentFilter
+              : false;
+
+            const href = tag.filter ? `/?filter=${tag.filter}` : "/";
+            const Icon = tag.icon;
 
             return (
               <Link
                 key={tag.name}
-                href={tag.href}
+                href={href}
                 className={`tag-pill${isActive ? " active" : ""}`}
               >
-                <span className="tag-icon">{tag.icon}</span>
+                <Icon size={14} />
                 {tag.name}
               </Link>
             );

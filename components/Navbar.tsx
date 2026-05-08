@@ -2,6 +2,15 @@
 import Link from "next/link";
 import SearchBar from "./SearchBar";
 import { useState, useEffect, useRef } from "react";
+import {
+  MdPhoneAndroid,
+  MdLaptop,
+  MdTablet,
+  MdSportsEsports,
+  MdStar,
+  MdHeadphones,
+  MdArticle,
+} from "react-icons/md";
 
 export default function Navbar() {
   const navRef = useRef<HTMLElement>(null);
@@ -11,36 +20,27 @@ export default function Navbar() {
   useEffect(() => {
     const nav = navRef.current;
     if (!nav) return;
-
     const handleScroll = () => {
-      if (window.scrollY > 20) {
-        nav.classList.add("nav-scrolled");
-      } else {
-        nav.classList.remove("nav-scrolled");
-      }
+      if (window.scrollY > 20) nav.classList.add("nav-scrolled");
+      else nav.classList.remove("nav-scrolled");
     };
-
     handleScroll();
-
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const categories = [
-    { name: "All Articles", slug: "all",         icon: "📰" },
-    { name: "Phones",       slug: "phones",      icon: "📱" },
-    { name: "Laptops",      slug: "laptops",     icon: "💻" },
-    { name: "Tablets",      slug: "tablets",     icon: "📟" },
-    { name: "Gaming",       slug: "gaming",      icon: "🎮" },
-    { name: "Reviews",      slug: "reviews",     icon: "⭐" },
-    { name: "Accessories",  slug: "accessories", icon: "🎧" },
+    { name: "All Articles", filter: null,          icon: MdArticle       },
+    { name: "Phones",       filter: "phones",      icon: MdPhoneAndroid  },
+    { name: "Laptops",      filter: "laptops",     icon: MdLaptop        },
+    { name: "Tablets",      filter: "tablets",     icon: MdTablet        },
+    { name: "Gaming",       filter: "gaming",      icon: MdSportsEsports },
+    { name: "Reviews",      filter: "reviews",     icon: MdStar          },
+    { name: "Accessories",  filter: "accessories", icon: MdHeadphones    },
   ];
 
   return (
     <>
-      {/* ✅ suppressHydrationWarning: server HTML-encodes single quotes in style
-          strings as &#x27; but client renders them as ' — this causes a text
-          content mismatch. suppressHydrationWarning tells React to ignore it. */}
       <style suppressHydrationWarning>{`
         @keyframes logoPulse {
           0%,100% { box-shadow: 0 0 8px rgba(255,77,0,0.4), 0 0 16px rgba(255,77,0,0.2); }
@@ -63,7 +63,6 @@ export default function Navbar() {
           50%      { opacity: 0.4; transform: scale(0.6); }
         }
 
-        /* ── Scroll-dependent styles via class (no inline state) ── */
         .site-nav {
           position: sticky;
           top: 0;
@@ -82,19 +81,21 @@ export default function Navbar() {
         }
 
         .nav-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
           padding: 7px 13px;
           color: #666;
           text-decoration: none;
-          font-size: 12px;
+          font-size: 11px;
           font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
           font-weight: 600;
           border-radius: 8px;
           transition: all 0.25s ease;
-          position: relative;
-          letter-spacing: 0.5px;
           border: 1px solid transparent;
           white-space: nowrap;
           text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
         .nav-link:hover {
           color: #ff4d00;
@@ -144,8 +145,7 @@ export default function Navbar() {
           align-items: center;
           justify-content: center;
         }
-        .hamburger-btn:hover,
-        .hamburger-btn.open {
+        .hamburger-btn:hover, .hamburger-btn.open {
           background: rgba(255,77,0,0.1);
           border-color: rgba(255,77,0,0.35);
           color: #ff4d00;
@@ -162,7 +162,6 @@ export default function Navbar() {
       `}</style>
 
       <nav ref={navRef} className="site-nav">
-
         {/* Animated top accent line */}
         <div style={{
           height: "2px",
@@ -173,30 +172,23 @@ export default function Navbar() {
           overflow: "hidden",
         }}>
           <div style={{
-            position: "absolute",
-            top: 0,
-            width: "60px",
-            height: "100%",
+            position: "absolute", top: 0,
+            width: "60px", height: "100%",
             background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)",
             animation: "navScan 2.5s ease-in-out infinite",
           }} />
         </div>
 
         <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem" }}>
-          <div style={{
-            display: "flex", alignItems: "center",
-            justifyContent: "space-between", height: "64px",
-          }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: "64px" }}>
 
             {/* Logo */}
             <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "12px" }}>
               <div style={{
                 width: "38px", height: "38px", borderRadius: "50%",
-                overflow: "hidden",
-                border: "2px solid #ff4d00",
+                overflow: "hidden", border: "2px solid #ff4d00",
                 animation: "logoPulse 2.5s ease-in-out infinite",
                 flexShrink: 0,
-                position: "relative",
               }}>
                 <img src="/favicon.jpg" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
@@ -207,10 +199,7 @@ export default function Navbar() {
                   fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif",
                   lineHeight: 1.1,
                 }}>
-                  Tech<span style={{
-                    color: "#ff4d00",
-                    filter: "drop-shadow(0 0 10px rgba(255,77,0,0.6))",
-                  }}>SuperStar</span>
+                  Tech<span style={{ color: "#ff4d00", filter: "drop-shadow(0 0 10px rgba(255,77,0,0.6))" }}>SuperStar</span>
                 </div>
                 <div style={{
                   fontSize: "8px", color: "#444",
@@ -231,16 +220,21 @@ export default function Navbar() {
 
             {/* Desktop Nav */}
             <div style={{ display: "flex", alignItems: "center", gap: "2px" }} className="desktop-nav">
-              {categories.map((cat) => (
-                <Link
-                  key={cat.slug}
-                  href={cat.slug === "all" ? "/articles" : `/category/${cat.slug}`}
-                  className={`nav-link${activeLink === cat.slug ? " active" : ""}`}
-                  onClick={() => setActiveLink(cat.slug)}
-                >
-                  {cat.name}
-                </Link>
-              ))}
+              {categories.map((cat) => {
+                const Icon = cat.icon;
+                const href = cat.filter ? `/?filter=${cat.filter}` : "/";
+                return (
+                  <Link
+                    key={cat.name}
+                    href={href}
+                    className={`nav-link${activeLink === (cat.filter || "all") ? " active" : ""}`}
+                    onClick={() => setActiveLink(cat.filter || "all")}
+                  >
+                    <Icon size={13} />
+                    {cat.name}
+                  </Link>
+                );
+              })}
               <div style={{ marginLeft: "10px" }}>
                 <SearchBar />
               </div>
@@ -256,7 +250,6 @@ export default function Navbar() {
                 {menuOpen ? "✕" : "☰"}
               </button>
             </div>
-
           </div>
 
           {/* Mobile Menu */}
@@ -273,22 +266,25 @@ export default function Navbar() {
                 position: "absolute", left: 0, right: 0, top: 0, bottom: 0,
                 backgroundImage: "linear-gradient(rgba(255,77,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,77,0,0.03) 1px, transparent 1px)",
                 backgroundSize: "24px 24px",
-                pointerEvents: "none",
-                zIndex: 0,
+                pointerEvents: "none", zIndex: 0,
               }} />
-              {categories.map((cat, i) => (
-                <Link
-                  key={cat.slug}
-                  href={cat.slug === "all" ? "/articles" : `/category/${cat.slug}`}
-                  onClick={() => setMenuOpen(false)}
-                  className="mobile-nav-link"
-                  style={{ animationDelay: `${i * 0.04}s`, position: "relative", zIndex: 1 }}
-                >
-                  <span style={{ fontSize: 16 }}>{cat.icon}</span>
-                  {cat.name}
-                  <span style={{ marginLeft: "auto", color: "#333", fontSize: 12 }}>→</span>
-                </Link>
-              ))}
+              {categories.map((cat, i) => {
+                const Icon = cat.icon;
+                const href = cat.filter ? `/?filter=${cat.filter}` : "/";
+                return (
+                  <Link
+                    key={cat.name}
+                    href={href}
+                    onClick={() => setMenuOpen(false)}
+                    className="mobile-nav-link"
+                    style={{ animationDelay: `${i * 0.04}s`, position: "relative", zIndex: 1 }}
+                  >
+                    <Icon size={16} />
+                    {cat.name}
+                    <span style={{ marginLeft: "auto", color: "#333", fontSize: 12 }}>→</span>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
