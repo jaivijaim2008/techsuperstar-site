@@ -21,12 +21,17 @@ export default async function Home() {
     }}>
 
       <style>{`
-        /* ── Responsive layout ── */
+        /* ── Main layout: single col on mobile, sidebar on desktop ── */
         .main-grid {
           display: grid;
-          grid-template-columns: 1fr 300px;
+          grid-template-columns: 1fr;
           gap: 20px;
           align-items: start;
+        }
+        @media (min-width: 900px) {
+          .main-grid {
+            grid-template-columns: 1fr 300px;
+          }
         }
 
         /* ── Section header ── */
@@ -51,7 +56,7 @@ export default async function Home() {
           background: #ff4d00;
         }
         .section-title {
-          font-size: clamp(20px, 3vw, 28px);
+          font-size: clamp(18px, 4vw, 28px);
           font-weight: 900;
           margin: 0 0 8px;
           font-family: var(--font-playfair), 'Playfair Display', Georgia, serif;
@@ -76,12 +81,14 @@ export default async function Home() {
           font-size: 12px;
           font-weight: 600;
           border: 1px solid rgba(255,77,0,0.3);
-          padding: 9px 18px;
+          padding: 10px 18px;
           border-radius: 50px;
           transition: all 0.25s ease;
           white-space: nowrap;
           background: rgba(255,77,0,0.04);
           font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+          /* bigger tap target */
+          min-height: 40px;
         }
         .view-all-btn:hover {
           background: rgba(255,77,0,0.12);
@@ -92,8 +99,19 @@ export default async function Home() {
         /* ── Posts grid ── */
         .posts-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-          gap: 20px;
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+        @media (min-width: 480px) {
+          .posts-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        @media (min-width: 900px) {
+          .posts-grid {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+          }
         }
 
         /* ── CTA banner ── */
@@ -101,8 +119,8 @@ export default async function Home() {
           position: relative;
           background: linear-gradient(135deg, #1a0800, #0e0500, #1a0800);
           border: 1px solid rgba(255,77,0,0.2);
-          border-radius: 24px;
-          padding: clamp(28px, 5vw, 52px) clamp(20px, 5vw, 52px);
+          border-radius: 20px;
+          padding: clamp(20px, 5vw, 52px) clamp(16px, 5vw, 52px);
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -132,7 +150,7 @@ export default async function Home() {
           gap: 8px;
           background: linear-gradient(135deg, #ff4d00, #ff8800);
           color: #fff;
-          padding: 12px 24px;
+          padding: 13px 24px;
           border-radius: 10px;
           text-decoration: none;
           font-weight: 700;
@@ -140,6 +158,8 @@ export default async function Home() {
           box-shadow: 0 4px 20px rgba(255,77,0,0.35);
           transition: all 0.25s ease;
           font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+          min-height: 44px;
+          justify-content: center;
         }
         .cta-btn-primary:hover {
           transform: translateY(-2px);
@@ -151,7 +171,7 @@ export default async function Home() {
           gap: 8px;
           background: rgba(255,255,255,0.04);
           color: #aaa;
-          padding: 12px 24px;
+          padding: 13px 24px;
           border-radius: 10px;
           text-decoration: none;
           font-weight: 600;
@@ -159,6 +179,8 @@ export default async function Home() {
           border: 1px solid rgba(255,255,255,0.08);
           transition: all 0.25s ease;
           font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+          min-height: 44px;
+          justify-content: center;
         }
         .cta-btn-secondary:hover {
           background: rgba(255,255,255,0.08);
@@ -173,12 +195,7 @@ export default async function Home() {
           margin: 0;
         }
 
-        /* ── Responsive ── */
-        @media (max-width: 900px) {
-          .main-grid {
-            grid-template-columns: 1fr;
-          }
-        }
+        /* ── CTA responsive ── */
         @media (max-width: 640px) {
           .cta-banner {
             text-align: center;
@@ -190,8 +207,21 @@ export default async function Home() {
           }
           .cta-btn-primary, .cta-btn-secondary {
             flex: 1;
+            min-width: 140px;
+          }
+          .cta-stats-row {
             justify-content: center;
           }
+        }
+
+        /* Section header: stack on mobile, row on larger */
+        .section-header-row {
+          display: flex;
+          align-items: flex-end;
+          justify-content: space-between;
+          margin-bottom: 32px;
+          flex-wrap: wrap;
+          gap: 16px;
         }
       `}</style>
 
@@ -205,7 +235,7 @@ export default async function Home() {
       <div style={{
         maxWidth: "1200px",
         margin: "0 auto",
-        padding: "20px 1.5rem 0",
+        padding: "clamp(14px, 4vw, 20px) clamp(12px, 4vw, 24px) 0",
       }}>
 
         {/* ── Featured + Sidebar grid ── */}
@@ -226,17 +256,10 @@ export default async function Home() {
         <div className="section-divider" style={{ margin: "48px 0 0" }} />
 
         {/* ── All Articles section ── */}
-        <div style={{ padding: "48px 0 72px" }}>
+        <div style={{ padding: "40px 0 60px" }}>
 
           <ScrollReveal direction="up" delay={0}>
-            <div style={{
-              display: "flex",
-              alignItems: "flex-end",
-              justifyContent: "space-between",
-              marginBottom: "32px",
-              flexWrap: "wrap",
-              gap: "16px",
-            }}>
+            <div className="section-header-row">
               <div>
                 <div className="section-badge">
                   <span className="section-badge-dot" />
@@ -246,7 +269,7 @@ export default async function Home() {
                 <div className="section-underline" />
               </div>
               <Link href="/articles" className="view-all-btn">
-                View All Articles →
+                View All →
               </Link>
             </div>
           </ScrollReveal>
@@ -263,7 +286,7 @@ export default async function Home() {
             ) : (
               <div style={{
                 textAlign: "center",
-                padding: "80px 24px",
+                padding: "60px 24px",
                 background: "linear-gradient(135deg, #0f0f0f, #141414)",
                 borderRadius: "20px",
                 border: "1px dashed rgba(255,77,0,0.15)",
@@ -281,10 +304,10 @@ export default async function Home() {
 
       {/* ── CTA Banner ── */}
       <ScrollReveal direction="up" delay={0}>
-        <div style={{ padding: "0 1.5rem 72px" }}>
+        <div style={{ padding: "0 clamp(12px, 4vw, 24px) 60px" }}>
           <div className="cta-banner" style={{ maxWidth: "1200px", margin: "0 auto" }}>
 
-            {/* Decorative glows */}
+            {/* Decorative glow */}
             <div style={{
               position: "absolute", top: "-60px", right: "-60px",
               width: "240px", height: "240px", borderRadius: "50%",
@@ -294,7 +317,7 @@ export default async function Home() {
 
             <div className="cta-text">
               <h3 style={{
-                fontSize: "clamp(18px, 3vw, 26px)",
+                fontSize: "clamp(16px, 4vw, 26px)",
                 fontFamily: "var(--font-playfair), 'Playfair Display', serif",
                 fontWeight: 900,
                 color: "#fff",
@@ -309,7 +332,7 @@ export default async function Home() {
               }}>
                 Subscribe to our YouTube channel and never miss a review, unboxing or buying guide — all in Tamil.
               </p>
-              <div style={{ display: "flex", gap: "24px", marginTop: "18px", flexWrap: "wrap" }}>
+              <div className="cta-stats-row" style={{ display: "flex", gap: "24px", marginTop: "18px", flexWrap: "wrap" }}>
                 {[
                   { label: "Subscribers", value: "2.06M" },
                   { label: "Total Views",  value: "3.2M"  },

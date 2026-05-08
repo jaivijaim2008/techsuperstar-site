@@ -17,7 +17,7 @@ function NumBadge({ n, size = "large" }: { n: number; size?: "large" | "small" }
     <div style={{
       fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif",
       fontWeight: 900,
-      fontSize: size === "large" ? "clamp(48px, 7vw, 72px)" : "clamp(28px, 4vw, 40px)",
+      fontSize: size === "large" ? "clamp(36px, 7vw, 72px)" : "clamp(22px, 4vw, 40px)",
       color: "#ff4d00",
       lineHeight: 1,
       opacity: 0.9,
@@ -57,18 +57,16 @@ function HeroCard({ post, num }: { post: any; num: number }) {
         .hero-card { transition: all 0.3s ease; }
         .hero-card:hover .hero-img { transform: scale(1.04); }
         .hero-card:hover .hero-title { color: #ffaa55 !important; }
-        .hero-card-inner { display: flex; flex-direction: column; justify-content: flex-end; height: 100%; }
       `}</style>
 
       <Link href={`/post/${post.slug?.current}`} style={{ textDecoration: "none", display: "block" }}>
         <div className="hero-card" style={{
           position: "relative",
-          minHeight: "clamp(280px, 40vw, 380px)",
-          borderRadius: "16px 0 0 16px",
+          minHeight: "clamp(220px, 45vw, 380px)",
+          borderRadius: "16px 16px 0 0",
           overflow: "hidden",
           background: "#111",
         }}>
-          {/* Image */}
           {post.image ? (
             <img
               src={post.image}
@@ -88,16 +86,14 @@ function HeroCard({ post, num }: { post: any; num: number }) {
             }} />
           )}
 
-          {/* Gradient overlay */}
           <div style={{
             position: "absolute", inset: 0,
             background: "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%)",
           }} />
 
-          {/* Content */}
           <div style={{
             position: "relative", zIndex: 2,
-            padding: "24px",
+            padding: "clamp(14px, 4vw, 24px)",
             display: "flex", flexDirection: "column",
             justifyContent: "flex-end",
             height: "100%",
@@ -108,11 +104,11 @@ function HeroCard({ post, num }: { post: any; num: number }) {
               <CatBadge cat={post.categories?.[0] || "Tech"} />
             </div>
             <h2 className="hero-title" style={{
-              fontSize: "clamp(18px, 2.5vw, 26px)",
+              fontSize: "clamp(15px, 3.5vw, 26px)",
               fontWeight: "700",
               color: "#fff",
               lineHeight: "1.3",
-              margin: "0 0 12px",
+              margin: "0 0 10px",
               fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif",
               transition: "color 0.3s ease",
             }}>
@@ -150,17 +146,17 @@ function SecondaryCard({ post, num }: { post: any; num: number }) {
       <Link href={`/post/${post.slug?.current}`} style={{ textDecoration: "none" }}>
         <div className="sec-card" style={{
           display: "flex",
-          gap: "12px",
-          padding: "16px",
+          gap: "10px",
+          padding: "12px",
           borderBottom: "1px solid rgba(255,255,255,0.05)",
           alignItems: "flex-start",
           cursor: "pointer",
         }}>
           <NumBadge n={num} size="small" />
 
-          {/* Thumbnail */}
           <div style={{
-            width: "80px", height: "64px",
+            width: "clamp(60px, 15vw, 80px)",
+            height: "clamp(48px, 12vw, 64px)",
             borderRadius: "8px",
             overflow: "hidden",
             flexShrink: 0,
@@ -178,22 +174,21 @@ function SecondaryCard({ post, num }: { post: any; num: number }) {
                 width: "100%", height: "100%",
                 background: "linear-gradient(135deg, #1a0800, #0f0500)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: "24px",
+                fontSize: "20px",
               }}>📱</div>
             )}
           </div>
 
-          {/* Text */}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ marginBottom: "5px" }}>
+            <div style={{ marginBottom: "4px" }}>
               <CatBadge cat={post.categories?.[0] || "Tech"} />
             </div>
             <h3 className="sec-title" style={{
-              fontSize: "13px",
+              fontSize: "clamp(11px, 2.5vw, 13px)",
               fontWeight: "600",
               color: "#ddd",
               lineHeight: "1.4",
-              margin: "0 0 6px",
+              margin: "0 0 4px",
               fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
               transition: "color 0.2s ease",
               display: "-webkit-box",
@@ -204,7 +199,7 @@ function SecondaryCard({ post, num }: { post: any; num: number }) {
               {post.title}
             </h3>
             <div style={{
-              fontSize: "11px",
+              fontSize: "10px",
               color: "#555",
               fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
             }}>
@@ -237,7 +232,6 @@ function BottomCard({ post, num }: { post: any; num: number }) {
           overflow: "hidden",
           cursor: "pointer",
         }}>
-          {/* Image */}
           <div style={{
             position: "relative",
             paddingTop: "56.25%",
@@ -267,12 +261,11 @@ function BottomCard({ post, num }: { post: any; num: number }) {
               position: "absolute", inset: 0,
               background: "linear-gradient(to top, rgba(0,0,0,0.6), transparent 60%)",
             }} />
-            {/* Number on image */}
             <div style={{
               position: "absolute", bottom: "10px", left: "12px",
               fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif",
               fontWeight: 900,
-              fontSize: "28px",
+              fontSize: "clamp(20px, 4vw, 28px)",
               color: "#ff4d00",
               lineHeight: 1,
               textShadow: "0 0 20px rgba(255,77,0,0.5)",
@@ -281,17 +274,16 @@ function BottomCard({ post, num }: { post: any; num: number }) {
             </div>
           </div>
 
-          {/* Body */}
-          <div style={{ padding: "12px" }}>
-            <div style={{ marginBottom: "6px" }}>
+          <div style={{ padding: "10px 12px 12px" }}>
+            <div style={{ marginBottom: "5px" }}>
               <CatBadge cat={post.categories?.[0] || "Tech"} />
             </div>
             <h3 className="bot-title" style={{
-              fontSize: "13px",
+              fontSize: "clamp(12px, 2.5vw, 13px)",
               fontWeight: "600",
               color: "#ccc",
               lineHeight: "1.4",
-              margin: "0 0 8px",
+              margin: "0 0 6px",
               fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
               transition: "color 0.2s ease",
               display: "-webkit-box",
@@ -301,10 +293,7 @@ function BottomCard({ post, num }: { post: any; num: number }) {
             }}>
               {post.title}
             </h3>
-            <div style={{
-              fontSize: "11px", color: "#555",
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-            }}>
+            <div style={{ fontSize: "11px", color: "#555", fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif" }}>
               {timeAgo(post.publishedAt)}
             </div>
           </div>
@@ -318,51 +307,86 @@ function BottomCard({ post, num }: { post: any; num: number }) {
 export default function FeaturedGrid({ posts }: { posts: any[] }) {
   if (!posts || posts.length === 0) return null;
 
-  const hero       = posts[0];
-  const secondary  = posts.slice(1, 4);   // up to 3 stacked
-  const bottom     = posts.slice(4, 7);   // up to 3 bottom cards
+  const hero      = posts[0];
+  const secondary = posts.slice(1, 4);
+  const bottom    = posts.slice(4, 7);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+    <>
+      <style suppressHydrationWarning>{`
+        /* Mobile: hero stacks on top, secondary below */
+        .featured-top-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          background: #111;
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 16px;
+          overflow: hidden;
+        }
+        .featured-secondary-col {
+          border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        /* Desktop: side by side */
+        @media (min-width: 640px) {
+          .featured-top-grid {
+            grid-template-columns: 1fr 1fr;
+          }
+          .featured-secondary-col {
+            border-top: none;
+            border-left: 1px solid rgba(255,255,255,0.06);
+          }
+          .hero-card {
+            border-radius: 16px 0 0 16px !important;
+          }
+        }
+        /* Bottom grid: 1 col mobile, auto on larger */
+        .featured-bottom-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+        @media (min-width: 480px) {
+          .featured-bottom-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        @media (min-width: 768px) {
+          .featured-bottom-grid {
+            grid-template-columns: repeat(3, 1fr);
+          }
+        }
+      `}</style>
 
-      {/* ── Top row: hero + secondary stack ── */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        background: "#111",
-        border: "1px solid rgba(255,255,255,0.06)",
-        borderRadius: "16px",
-        overflow: "hidden",
-      }}>
-        {/* Hero */}
-        <HeroCard post={hero} num={1} />
+      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
 
-        {/* Secondary stack */}
-        <div style={{ borderLeft: "1px solid rgba(255,255,255,0.06)" }}>
-          {secondary.map((post: any, i: number) => (
-            <SecondaryCard key={post.slug?.current} post={post} num={i + 2} />
-          ))}
-          {/* Fill empty slots so grid stays consistent */}
-          {secondary.length === 0 && (
-            <div style={{ padding: "24px", color: "#444", fontSize: "13px", textAlign: "center" }}>
-              More articles coming soon
-            </div>
-          )}
+        {/* ── Top row: hero + secondary stack ── */}
+        <div className="featured-top-grid">
+          {/* Hero */}
+          <HeroCard post={hero} num={1} />
+
+          {/* Secondary stack */}
+          <div className="featured-secondary-col">
+            {secondary.map((post: any, i: number) => (
+              <SecondaryCard key={post.slug?.current} post={post} num={i + 2} />
+            ))}
+            {secondary.length === 0 && (
+              <div style={{ padding: "24px", color: "#444", fontSize: "13px", textAlign: "center" }}>
+                More articles coming soon
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* ── Bottom row ── */}
+        {bottom.length > 0 && (
+          <div className="featured-bottom-grid">
+            {bottom.map((post: any, i: number) => (
+              <BottomCard key={post.slug?.current} post={post} num={i + secondary.length + 2} />
+            ))}
+          </div>
+        )}
+
       </div>
-
-      {/* ── Bottom row: small cards ── */}
-      {bottom.length > 0 && (
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: `repeat(${bottom.length}, 1fr)`,
-          gap: "12px",
-        }}>
-          {bottom.map((post: any, i: number) => (
-            <BottomCard key={post.slug?.current} post={post} num={i + secondary.length + 2} />
-          ))}
-        </div>
-      )}
-    </div>
+    </>
   );
 }

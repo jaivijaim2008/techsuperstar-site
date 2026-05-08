@@ -64,282 +64,294 @@ function SidebarSection({ title, children }: { title: string; children: React.Re
 
 export default function Sidebar({ posts }: { posts: any[] }) {
   return (
-    <aside style={{ position: "sticky", top: "80px" }}>
+    <>
+      <style suppressHydrationWarning>{`
+        /* On desktop the sidebar is sticky */
+        @media (min-width: 900px) {
+          .sidebar-inner {
+            position: sticky;
+            top: 80px;
+          }
+        }
+        /* On mobile the sidebar lays out horizontally where it can */
+        .sidebar-yt-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(255,77,0,0.5) !important;
+        }
+        .cat-pill:hover {
+          background: rgba(255,77,0,0.1) !important;
+          border-color: rgba(255,77,0,0.3) !important;
+          color: #ff4d00 !important;
+        }
+        .trending-row:hover {
+          background: rgba(255,77,0,0.04) !important;
+        }
+        .view-all-link:hover {
+          background: rgba(255,77,0,0.1) !important;
+          border-color: rgba(255,77,0,0.4) !important;
+        }
+      `}</style>
 
-      {/* ── YouTube Banner ── */}
-      <div style={{
-        background: "linear-gradient(135deg, #1a0800, #0f0500, #1a0800)",
-        border: "1px solid rgba(255,77,0,0.25)",
-        borderRadius: "16px",
-        padding: "20px",
-        textAlign: "center",
-        marginBottom: "16px",
-        position: "relative",
-        overflow: "hidden",
-      }}>
-        {/* Glow */}
-        <div style={{
-          position: "absolute", top: "-40px", left: "50%",
-          transform: "translateX(-50%)",
-          width: "200px", height: "120px",
-          background: "radial-gradient(ellipse, rgba(255,77,0,0.15), transparent 70%)",
-          pointerEvents: "none",
-        }} />
+      <aside className="sidebar-inner">
 
+        {/* ── YouTube Banner ── */}
         <div style={{
-          width: "52px", height: "52px",
-          borderRadius: "50%",
+          background: "linear-gradient(135deg, #1a0800, #0f0500, #1a0800)",
+          border: "1px solid rgba(255,77,0,0.25)",
+          borderRadius: "16px",
+          padding: "20px",
+          textAlign: "center",
+          marginBottom: "16px",
+          position: "relative",
           overflow: "hidden",
-          border: "2px solid #ff4d00",
-          boxShadow: "0 0 16px rgba(255,77,0,0.4)",
-          margin: "0 auto 12px",
-          position: "relative", zIndex: 1,
         }}>
-          <img src="/favicon.jpg" alt="TechSuperStar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        </div>
+          {/* Glow */}
+          <div style={{
+            position: "absolute", top: "-40px", left: "50%",
+            transform: "translateX(-50%)",
+            width: "200px", height: "120px",
+            background: "radial-gradient(ellipse, rgba(255,77,0,0.15), transparent 70%)",
+            pointerEvents: "none",
+          }} />
 
-        <div style={{
-          fontSize: "15px", fontWeight: "700", color: "#fff",
-          fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif",
-          marginBottom: "4px", position: "relative", zIndex: 1,
-        }}>
-          Tech<span style={{ color: "#ff4d00" }}>SuperStar</span>
-        </div>
-        <div style={{
-          fontSize: "10px", color: "#555",
-          letterSpacing: "1.5px", textTransform: "uppercase",
-          fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-          marginBottom: "14px", position: "relative", zIndex: 1,
-        }}>
-          Tamil Tech Reviews
-        </div>
-
-        <div style={{ display: "flex", justifyContent: "center", gap: "20px", marginBottom: "16px", position: "relative", zIndex: 1 }}>
-          {[
-            { val: "2.06M", label: "Subscribers" },
-            { val: "3.2M",  label: "Views" },
-          ].map((s) => (
-            <div key={s.label} style={{ textAlign: "center" }}>
-              <div style={{
-                fontSize: "18px", fontWeight: "800", color: "#ff4d00",
-                fontFamily: "var(--font-playfair), 'Playfair Display', serif",
-                lineHeight: 1,
-              }}>
-                {s.val}
-              </div>
-              <div style={{
-                fontSize: "10px", color: "#555",
-                letterSpacing: "1px", textTransform: "uppercase",
-                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                marginTop: "3px",
-              }}>
-                {s.label}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <a
-          href="https://www.youtube.com/@TechSuperStarOfficial"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "6px",
-            background: "#ff4d00",
-            color: "#fff",
-            padding: "9px 20px",
-            borderRadius: "8px",
-            textDecoration: "none",
-            fontSize: "12px",
-            fontWeight: "700",
-            fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-            boxShadow: "0 4px 16px rgba(255,77,0,0.35)",
-            transition: "transform 0.2s ease, box-shadow 0.2s ease",
+          <div style={{
+            width: "52px", height: "52px",
+            borderRadius: "50%",
+            overflow: "hidden",
+            border: "2px solid #ff4d00",
+            boxShadow: "0 0 16px rgba(255,77,0,0.4)",
+            margin: "0 auto 12px",
             position: "relative", zIndex: 1,
-          }}
-          onMouseEnter={e => {
-            (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)";
-            (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 24px rgba(255,77,0,0.5)";
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-            (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 16px rgba(255,77,0,0.35)";
-          }}
-        >
-          ▶ Subscribe Free
-        </a>
-      </div>
+          }}>
+            <img src="/favicon.jpg" alt="TechSuperStar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          </div>
 
-      {/* ── Categories ── */}
-      <SidebarSection title="Browse by Category">
-        <div style={{ padding: "12px", display: "flex", flexWrap: "wrap", gap: "6px" }}>
-          {CATEGORIES.map((cat) => (
-            <Link
-              key={cat.name}
-              href={cat.href}
-              style={{
-                fontSize: "11px",
-                fontWeight: "600",
-                color: "#666",
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                borderRadius: "20px",
-                padding: "5px 13px",
-                textDecoration: "none",
-                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                transition: "all 0.2s ease",
-                display: "inline-block",
-              }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.background = "rgba(255,77,0,0.1)";
-                (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,77,0,0.3)";
-                (e.currentTarget as HTMLElement).style.color = "#ff4d00";
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.03)";
-                (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.07)";
-                (e.currentTarget as HTMLElement).style.color = "#666";
-              }}
-            >
-              {cat.name}
-            </Link>
-          ))}
-        </div>
-      </SidebarSection>
+          <div style={{
+            fontSize: "15px", fontWeight: "700", color: "#fff",
+            fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif",
+            marginBottom: "4px", position: "relative", zIndex: 1,
+          }}>
+            Tech<span style={{ color: "#ff4d00" }}>SuperStar</span>
+          </div>
+          <div style={{
+            fontSize: "10px", color: "#555",
+            letterSpacing: "1.5px", textTransform: "uppercase",
+            fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+            marginBottom: "14px", position: "relative", zIndex: 1,
+          }}>
+            Tamil Tech Reviews
+          </div>
 
-      {/* ── Trending ── */}
-      <SidebarSection title="Trending Now">
-        {posts.slice(0, 5).map((post: any, i: number) => (
-          <Link
-            key={post.slug?.current}
-            href={`/post/${post.slug?.current}`}
-            style={{ textDecoration: "none", display: "block" }}
-          >
-            <div
-              style={{
-                display: "flex",
-                gap: "10px",
-                padding: "12px 14px",
-                borderBottom: i < Math.min(posts.length, 5) - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
-                alignItems: "flex-start",
-                cursor: "pointer",
-                transition: "background 0.2s ease",
-              }}
-              onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = "rgba(255,77,0,0.04)"}
-              onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "transparent"}
-            >
-              {/* Number */}
-              <div style={{
-                fontFamily: "var(--font-playfair), 'Playfair Display', serif",
-                fontWeight: 900,
-                fontSize: "22px",
-                color: "#ff4d00",
-                lineHeight: 1,
-                minWidth: "28px",
-                opacity: 0.85,
-                flexShrink: 0,
-              }}>
-                {String(i + 1).padStart(2, "0")}
-              </div>
-
-              {/* Thumbnail */}
-              <div style={{
-                width: "56px", height: "46px",
-                borderRadius: "6px",
-                overflow: "hidden",
-                flexShrink: 0,
-                background: "#1a1a1a",
-              }}>
-                {post.image ? (
-                  <img
-                    src={post.image}
-                    alt={post.title}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                ) : (
-                  <div style={{
-                    width: "100%", height: "100%",
-                    background: "linear-gradient(135deg, #1a0800, #0f0500)",
-                    display: "flex", alignItems: "center",
-                    justifyContent: "center", fontSize: "18px",
-                  }}>📱</div>
-                )}
-              </div>
-
-              {/* Text */}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                {post.categories?.[0] && (
-                  <div style={{
-                    fontSize: "9px", color: "#ff4d00",
-                    fontWeight: "700", textTransform: "uppercase",
-                    letterSpacing: "1px",
-                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                    marginBottom: "3px",
-                  }}>
-                    {post.categories[0]}
-                  </div>
-                )}
+          {/* Stats row */}
+          <div style={{ display: "flex", justifyContent: "center", gap: "20px", marginBottom: "16px", position: "relative", zIndex: 1, flexWrap: "wrap" }}>
+            {[
+              { val: "2.06M", label: "Subscribers" },
+              { val: "3.2M",  label: "Views" },
+            ].map((s) => (
+              <div key={s.label} style={{ textAlign: "center" }}>
                 <div style={{
-                  fontSize: "12px",
-                  fontWeight: "600",
-                  color: "#ccc",
-                  lineHeight: "1.4",
-                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                  display: "-webkit-box",
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
-                  transition: "color 0.2s ease",
+                  fontSize: "18px", fontWeight: "800", color: "#ff4d00",
+                  fontFamily: "var(--font-playfair), 'Playfair Display', serif",
+                  lineHeight: 1,
                 }}>
-                  {post.title}
+                  {s.val}
                 </div>
                 <div style={{
                   fontSize: "10px", color: "#555",
+                  letterSpacing: "1px", textTransform: "uppercase",
                   fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                  marginTop: "4px",
+                  marginTop: "3px",
                 }}>
-                  {timeAgo(post.publishedAt)}
+                  {s.label}
                 </div>
               </div>
-            </div>
-          </Link>
-        ))}
+            ))}
+          </div>
 
-        <div style={{ padding: "12px 14px", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
-          <Link
-            href="/articles"
+          <a
+            href="https://www.youtube.com/@TechSuperStarOfficial"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="sidebar-yt-btn"
             style={{
-              display: "flex",
+              display: "inline-flex",
               alignItems: "center",
-              justifyContent: "center",
               gap: "6px",
-              color: "#ff4d00",
-              fontSize: "12px",
-              fontWeight: "600",
-              textDecoration: "none",
-              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              padding: "8px",
+              background: "#ff4d00",
+              color: "#fff",
+              padding: "10px 24px",
               borderRadius: "8px",
-              border: "1px solid rgba(255,77,0,0.2)",
-              background: "rgba(255,77,0,0.04)",
-              transition: "all 0.2s ease",
-            }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLElement).style.background = "rgba(255,77,0,0.1)";
-              (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,77,0,0.4)";
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLElement).style.background = "rgba(255,77,0,0.04)";
-              (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,77,0,0.2)";
+              textDecoration: "none",
+              fontSize: "12px",
+              fontWeight: "700",
+              fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+              boxShadow: "0 4px 16px rgba(255,77,0,0.35)",
+              transition: "transform 0.2s ease, box-shadow 0.2s ease",
+              position: "relative", zIndex: 1,
+              /* full width on very small screens */
+              minWidth: "min(160px, 80%)",
+              justifyContent: "center",
             }}
           >
-            View All Articles →
-          </Link>
+            ▶ Subscribe Free
+          </a>
         </div>
-      </SidebarSection>
 
-    </aside>
+        {/* ── Categories ── */}
+        <SidebarSection title="Browse by Category">
+          <div style={{ padding: "12px", display: "flex", flexWrap: "wrap", gap: "6px" }}>
+            {CATEGORIES.map((cat) => (
+              <Link
+                key={cat.name}
+                href={cat.href}
+                className="cat-pill"
+                style={{
+                  fontSize: "11px",
+                  fontWeight: "600",
+                  color: "#666",
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                  borderRadius: "20px",
+                  padding: "6px 13px",
+                  textDecoration: "none",
+                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                  transition: "all 0.2s ease",
+                  display: "inline-block",
+                  /* bigger tap target on mobile */
+                  minHeight: "32px",
+                  lineHeight: "20px",
+                }}
+              >
+                {cat.name}
+              </Link>
+            ))}
+          </div>
+        </SidebarSection>
+
+        {/* ── Trending ── */}
+        <SidebarSection title="Trending Now">
+          {posts.slice(0, 5).map((post: any, i: number) => (
+            <Link
+              key={post.slug?.current}
+              href={`/post/${post.slug?.current}`}
+              style={{ textDecoration: "none", display: "block" }}
+            >
+              <div
+                className="trending-row"
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  padding: "12px 14px",
+                  borderBottom: i < Math.min(posts.length, 5) - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                  alignItems: "flex-start",
+                  cursor: "pointer",
+                  transition: "background 0.2s ease",
+                }}
+              >
+                {/* Number */}
+                <div style={{
+                  fontFamily: "var(--font-playfair), 'Playfair Display', serif",
+                  fontWeight: 900,
+                  fontSize: "22px",
+                  color: "#ff4d00",
+                  lineHeight: 1,
+                  minWidth: "28px",
+                  opacity: 0.85,
+                  flexShrink: 0,
+                }}>
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+
+                {/* Thumbnail */}
+                <div style={{
+                  width: "56px", height: "46px",
+                  borderRadius: "6px",
+                  overflow: "hidden",
+                  flexShrink: 0,
+                  background: "#1a1a1a",
+                }}>
+                  {post.image ? (
+                    <img
+                      src={post.image}
+                      alt={post.title}
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                  ) : (
+                    <div style={{
+                      width: "100%", height: "100%",
+                      background: "linear-gradient(135deg, #1a0800, #0f0500)",
+                      display: "flex", alignItems: "center",
+                      justifyContent: "center", fontSize: "18px",
+                    }}>📱</div>
+                  )}
+                </div>
+
+                {/* Text */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {post.categories?.[0] && (
+                    <div style={{
+                      fontSize: "9px", color: "#ff4d00",
+                      fontWeight: "700", textTransform: "uppercase",
+                      letterSpacing: "1px",
+                      fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                      marginBottom: "3px",
+                    }}>
+                      {post.categories[0]}
+                    </div>
+                  )}
+                  <div style={{
+                    fontSize: "12px",
+                    fontWeight: "600",
+                    color: "#ccc",
+                    lineHeight: "1.4",
+                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                  }}>
+                    {post.title}
+                  </div>
+                  <div style={{
+                    fontSize: "10px", color: "#555",
+                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                    marginTop: "4px",
+                  }}>
+                    {timeAgo(post.publishedAt)}
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+
+          <div style={{ padding: "12px 14px", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+            <Link
+              href="/articles"
+              className="view-all-link"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "6px",
+                color: "#ff4d00",
+                fontSize: "12px",
+                fontWeight: "600",
+                textDecoration: "none",
+                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                padding: "10px",
+                borderRadius: "8px",
+                border: "1px solid rgba(255,77,0,0.2)",
+                background: "rgba(255,77,0,0.04)",
+                transition: "all 0.2s ease",
+                minHeight: "40px",
+              }}
+            >
+              View All Articles →
+            </Link>
+          </div>
+        </SidebarSection>
+
+      </aside>
+    </>
   );
 }
