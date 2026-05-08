@@ -316,9 +316,9 @@ export default async function Home() {
           <ScrollReveal direction="up" delay={0}>
             <FeaturedGrid posts={posts ?? []} />
           </ScrollReveal>
-          <ScrollReveal direction="up" delay={100}>
-            <Sidebar posts={posts ?? []} />
-          </ScrollReveal>
+          <div style={{ position: "sticky", top: "80px", alignSelf: "start" }}>
+  <Sidebar posts={posts ?? []} />
+</div>
         </div>
 
         {/* ── Divider — margin:0 so no gap below sidebar ── */}
