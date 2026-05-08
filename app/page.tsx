@@ -204,7 +204,7 @@ export default async function Home({
       `}</style>
 
       <Navbar />
-      <NewsTicker posts={posts ?? []} />
+      <NewsTicker />
       <TagsBar />
 
       <div style={{
