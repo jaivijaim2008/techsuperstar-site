@@ -17,8 +17,10 @@ export default function PostCard({ post }: any) {
   const cat = post.categories?.[0]?.toLowerCase() || "";
   const { color, glow } = categoryColors[cat] || { color: "#ff4d00", glow: "rgba(255,77,0,0.3)" };
 
-  // Unique class per category so styles don't bleed between cards
   const uid = `pc-${cat || "default"}`;
+
+  // Summary: use excerpt/description field, fallback to nothing
+  const summary: string = post.excerpt || post.description || post.summary || "";
 
   return (
     <>
@@ -107,25 +109,39 @@ export default function PostCard({ post }: any) {
         }
 
         .${uid}-title {
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.6;
-  margin: 0 0 12px;
-  font-family: 'Georgia', serif;
-  color: #ffffff;
-  transition: all 0.35s ease;
-
-  display: block;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-  min-height: 48px;
-}
+          font-size: 15px;
+          font-weight: 700;
+          line-height: 1.6;
+          margin: 0 0 8px;
+          font-family: 'Georgia', serif;
+          color: #ffffff;
+          transition: all 0.35s ease;
+          display: block;
+          word-break: break-word;
+          overflow-wrap: anywhere;
+        }
         .${uid}:hover .${uid}-title {
           background: linear-gradient(90deg, #fff, ${color}, #fff);
           background-size: 200% auto;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           animation: shimmer-${uid} 2s linear infinite;
+        }
+
+        .${uid}-summary {
+          font-size: 13px;
+          color: #888;
+          line-height: 1.6;
+          margin: 0 0 12px;
+          font-family: 'Arial', sans-serif;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          transition: color 0.35s ease;
+        }
+        .${uid}:hover .${uid}-summary {
+          color: #aaa;
         }
 
         .${uid}-meta {
@@ -216,6 +232,11 @@ export default function PostCard({ post }: any) {
           <div style={{ padding: "18px", flex: 1, display: "flex", flexDirection: "column" }}>
 
             <h3 className={`${uid}-title`}>{post.title}</h3>
+
+            {/* Summary — shows if available */}
+            {summary && (
+              <p className={`${uid}-summary`}>{summary}</p>
+            )}
 
             {/* Meta */}
             <div className={`${uid}-meta`}>
