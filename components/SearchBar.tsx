@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { FiSearch } from "react-icons/fi";
 
 export default function SearchBar() {
   const [query, setQuery] = useState("");
@@ -22,15 +23,28 @@ export default function SearchBar() {
       <button
         onClick={() => setOpen(!open)}
         style={{
-          background: "none", border: "none", cursor: "pointer",
-          color: "#aaa", fontSize: "18px", padding: "8px",
+          background: open ? "rgba(255,77,0,0.1)" : "none",
+          border: open ? "1px solid rgba(255,77,0,0.35)" : "1px solid transparent",
+          cursor: "pointer",
+          color: open ? "#ff4d00" : "#aaa",
+          fontSize: "18px", padding: "8px",
           display: "flex", alignItems: "center", justifyContent: "center",
-          borderRadius: "8px", transition: "color 0.2s",
+          borderRadius: "8px", transition: "all 0.2s",
         }}
-        onMouseEnter={e => (e.currentTarget.style.color = "#ff4d00")}
-        onMouseLeave={e => (e.currentTarget.style.color = "#aaa")}
+        onMouseEnter={e => {
+          (e.currentTarget as HTMLElement).style.color = "#ff4d00";
+          (e.currentTarget as HTMLElement).style.background = "rgba(255,77,0,0.08)";
+          (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,77,0,0.25)";
+        }}
+        onMouseLeave={e => {
+          if (!open) {
+            (e.currentTarget as HTMLElement).style.color = "#aaa";
+            (e.currentTarget as HTMLElement).style.background = "none";
+            (e.currentTarget as HTMLElement).style.borderColor = "transparent";
+          }
+        }}
       >
-        🔍
+        <FiSearch size={18} />
       </button>
 
       {/* Search Dropdown */}
@@ -47,9 +61,9 @@ export default function SearchBar() {
         >
           <div style={{ display: "flex", gap: "8px" }}>
             <input
-  id="search-input"
-  name="search"
-  autoFocus
+              id="search-input"
+              name="search"
+              autoFocus
               type="text"
               value={query}
               onChange={e => setQuery(e.target.value)}
@@ -82,9 +96,7 @@ export default function SearchBar() {
       {open && (
         <div
           onClick={() => setOpen(false)}
-          style={{
-            position: "fixed", inset: 0, zIndex: 999,
-          }}
+          style={{ position: "fixed", inset: 0, zIndex: 999 }}
         />
       )}
     </div>
