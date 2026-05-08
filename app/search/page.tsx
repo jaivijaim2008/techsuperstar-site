@@ -15,10 +15,14 @@ export default async function SearchPage({
   const query = searchParams.q || "";
   const allPosts = await getPosts();
 
-  const results = allPosts?.filter((post: any) =>
-    post.title?.toLowerCase().includes(query.toLowerCase()) ||
-    post.categories?.some((cat: string) => cat?.toLowerCase().includes(query.toLowerCase()))
-  );
+  const results = query.trim() === "" ? [] : allPosts?.filter((post: any) => {
+  const q = query.toLowerCase().trim();
+  const words = q.split(/\s+/);
+  const title = post.title?.toLowerCase() || "";
+  const cats = post.categories?.map((c: string) => c?.toLowerCase()).join(" ") || "";
+  const searchable = `${title} ${cats}`;
+  return words.every(word => searchable.includes(word));
+});
 
   return (
     <div style={{ background: "#060606", minHeight: "100vh", fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", overflowX: "hidden" }}>
