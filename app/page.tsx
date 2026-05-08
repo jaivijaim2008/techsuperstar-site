@@ -11,6 +11,15 @@ import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
+const CATEGORY_SECTIONS = [
+  { key: "phones",      label: "Latest Phones",      emoji: "📱", href: "/category/phones"      },
+  { key: "laptops",     label: "Latest Laptops",     emoji: "💻", href: "/category/laptops"     },
+  { key: "gaming",      label: "Gaming Gear",         emoji: "🎮", href: "/category/gaming"      },
+  { key: "tablets",     label: "Latest Tablets",     emoji: "📟", href: "/category/tablets"     },
+  { key: "reviews",     label: "Reviews",             emoji: "⭐", href: "/category/reviews"     },
+  { key: "accessories", label: "Accessories",         emoji: "🎧", href: "/category/accessories" },
+];
+
 export default async function Home() {
   const posts = await getPosts();
 
@@ -22,7 +31,7 @@ export default async function Home() {
     }}>
 
       <style>{`
-        /* ── Main layout: single col on mobile, sidebar on desktop ── */
+        /* ── Main layout ── */
         .main-grid {
           display: grid;
           grid-template-columns: 1fr;
@@ -88,7 +97,6 @@ export default async function Home() {
           white-space: nowrap;
           background: rgba(255,77,0,0.04);
           font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
-          /* bigger tap target */
           min-height: 40px;
         }
         .view-all-btn:hover {
@@ -111,6 +119,24 @@ export default async function Home() {
         @media (min-width: 900px) {
           .posts-grid {
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+          }
+        }
+
+        /* ── Category section posts grid (3 max) ── */
+        .cat-posts-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+        @media (min-width: 480px) {
+          .cat-posts-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        @media (min-width: 900px) {
+          .cat-posts-grid {
+            grid-template-columns: repeat(3, 1fr);
             gap: 20px;
           }
         }
@@ -215,7 +241,6 @@ export default async function Home() {
           }
         }
 
-        /* Section header: stack on mobile, row on larger */
         .section-header-row {
           display: flex;
           align-items: flex-end;
@@ -223,6 +248,52 @@ export default async function Home() {
           margin-bottom: 32px;
           flex-wrap: wrap;
           gap: 16px;
+        }
+
+        /* ── Category section strip ── */
+        .cat-section {
+          padding: 40px 0 0;
+        }
+        .cat-section-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 20px;
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+        .cat-section-title {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-size: clamp(16px, 3vw, 22px);
+          font-weight: 800;
+          color: #fff;
+          font-family: var(--font-playfair), 'Playfair Display', Georgia, serif;
+          border-left: 3px solid #ff4d00;
+          padding-left: 12px;
+        }
+        .cat-section-emoji {
+          font-size: 20px;
+        }
+        .cat-view-all {
+          font-size: 12px;
+          color: #ff4d00;
+          text-decoration: none;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          border: 1px solid rgba(255,77,0,0.25);
+          padding: 6px 14px;
+          border-radius: 50px;
+          transition: all 0.2s;
+          white-space: nowrap;
+          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+        }
+        .cat-view-all:hover {
+          background: rgba(255,77,0,0.1);
+          border-color: #ff4d00;
         }
       `}</style>
 
@@ -242,24 +313,52 @@ export default async function Home() {
 
         {/* ── Featured + Sidebar grid ── */}
         <div className="main-grid">
-
-          {/* LEFT: Featured numbered grid */}
           <ScrollReveal direction="up" delay={0}>
             <FeaturedGrid posts={posts ?? []} />
           </ScrollReveal>
-
-          {/* RIGHT: Sidebar */}
           <ScrollReveal direction="up" delay={100}>
             <Sidebar posts={posts ?? []} />
           </ScrollReveal>
-
         </div>
 
         <div className="section-divider" style={{ margin: "48px 0 0" }} />
 
+        {/* ── Category Sections (like Beebom) ── */}
+        {CATEGORY_SECTIONS.map((cat) => {
+          const catPosts = (posts ?? []).filter((p: any) => {
+            const cats: string[] = (p.categories ?? []).map((c: any) =>
+              (typeof c === "string" ? c : c?.title ?? c?.slug?.current ?? "").toLowerCase()
+            );
+            return cats.includes(cat.key);
+          }).slice(0, 3);
+
+          if (catPosts.length === 0) return null;
+
+          return (
+            <ScrollReveal key={cat.key} direction="up" delay={0}>
+              <div className="cat-section">
+                <div className="cat-section-header">
+                  <div className="cat-section-title">
+                    <span className="cat-section-emoji">{cat.emoji}</span>
+                    {cat.label}
+                  </div>
+                  <Link href={cat.href} className="cat-view-all">
+                    View All →
+                  </Link>
+                </div>
+                <div className="cat-posts-grid">
+                  {catPosts.map((post: any) => (
+                    <PostCard key={post.slug.current} post={post} />
+                  ))}
+                </div>
+              </div>
+              <div className="section-divider" style={{ margin: "40px 0 0" }} />
+            </ScrollReveal>
+          );
+        })}
+
         {/* ── All Articles section ── */}
         <div style={{ padding: "40px 0 60px" }}>
-
           <ScrollReveal direction="up" delay={0}>
             <div className="section-header-row">
               <div>
@@ -300,7 +399,6 @@ export default async function Home() {
               </div>
             )}
           </ScrollReveal>
-
         </div>
       </div>
 
@@ -308,15 +406,12 @@ export default async function Home() {
       <ScrollReveal direction="up" delay={0}>
         <div style={{ padding: "0 clamp(12px, 4vw, 24px) 60px" }}>
           <div className="cta-banner" style={{ maxWidth: "1200px", margin: "0 auto" }}>
-
-            {/* Decorative glow */}
             <div style={{
               position: "absolute", top: "-60px", right: "-60px",
               width: "240px", height: "240px", borderRadius: "50%",
               background: "radial-gradient(circle, rgba(255,77,0,0.12), transparent 70%)",
               pointerEvents: "none",
             }} />
-
             <div className="cta-text">
               <h3 style={{
                 fontSize: "clamp(16px, 4vw, 26px)",
@@ -347,27 +442,20 @@ export default async function Home() {
                 ))}
               </div>
             </div>
-
             <div className="cta-actions" style={{ display: "flex", gap: "12px", flexWrap: "wrap", flexShrink: 0 }}>
-              <Link
-                href="https://www.youtube.com/@TechSuperStarOfficial"
-                target="_blank"
-                className="cta-btn-primary"
-              >
+              <Link href="https://www.youtube.com/@TechSuperStarOfficial" target="_blank" className="cta-btn-primary">
                 ▶ Subscribe on YouTube
               </Link>
               <Link href="/contact" className="cta-btn-secondary">
                 Contact Us →
               </Link>
             </div>
-
           </div>
         </div>
       </ScrollReveal>
 
       {/* ── Footer ── */}
       <Footer />
-
     </div>
   );
 }
