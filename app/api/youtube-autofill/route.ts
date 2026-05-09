@@ -184,7 +184,17 @@ Respond ONLY with this JSON structure:
     });
 
     const rawText = completion.choices[0]?.message?.content || "";
-    const clean = rawText.replace(/```json|```/g, "").trim();
+    // Clean the response: remove markdown fences and control characters
+    const clean = rawText
+      .replace(/```json|```/g, "")
+      .replace(/[\x00-\x1F\x7F]/g, (c) => {
+        // Keep newlines and tabs inside strings but escape them
+        if (c === "\n") return "\\n";
+        if (c === "\r") return "\\r";
+        if (c === "\t") return "\\t";
+        return "";
+      })
+      .trim();
     const generated = JSON.parse(clean);
 
     const portableTextBody = textToPortableText(generated.body);
