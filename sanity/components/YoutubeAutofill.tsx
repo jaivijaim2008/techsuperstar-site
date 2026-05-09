@@ -92,8 +92,7 @@ export function YoutubeAutofill(props: StringInputProps) {
       if (data.category) {
         try {
           // Always capitalize first letter to match your Sanity slugs (Phones, Laptops etc.)
-          const categorySlug =
-            data.category.charAt(0).toUpperCase() + data.category.slice(1).toLowerCase();
+          const categorySlug = data.category.toLowerCase();
 
           const categoryDoc = await client.fetch(
             `*[_type == "category" && slug.current == $slug][0]{ _id }`,
