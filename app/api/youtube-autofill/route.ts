@@ -143,70 +143,77 @@ export async function POST(req: NextRequest) {
     // 3. Generate everything with Groq
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-    const prompt = `You are an expert Tamil tech blogger writing detailed English blog posts. Based on this YouTube video transcript, write a DETAILED, ATTRACTIVE, and LONG blog post review.
+    const prompt = `You are an expert Tamil tech blogger writing detailed English blog posts. Based on this YouTube video transcript, write a DETAILED, ATTRACTIVE, and LONG blog post.
 
 VIDEO TITLE: ${meta.title}
 CONTENT: ${contentSource}
 
+STEP 1 — DETECT VIDEO TYPE:
+First analyze the title and content to detect what type of video this is:
+- "single_review" → reviewing ONE product (e.g. "OnePlus 15R Review")
+- "comparison" → comparing TWO or more products (e.g. "iPhone vs Samsung", "Vivo X300 Pro vs Xiaomi 17 Ultra")
+- "top_list" → listing multiple products (e.g. "Top 5 Phones", "Best Earbuds 2025")
+- "accessories" → earbuds, headphones, chargers, cables, cases, etc.
+- "news" → announcements, leaks, upcoming phones
+- "other" → anything else
+
+STEP 2 — GENERATE SMART SPECS based on video type:
+
+For "single_review" phones/laptops/tablets → use these spec labels:
+["Display", "Processor", "RAM", "Storage", "Camera", "Battery", "OS", "Price"]
+
+For "comparison" → use format "Product A vs Product B" for each label:
+Example: { "label": "Battery", "value": "Vivo X300 Pro: 4200mAh | Xiaomi 17 Ultra: 4500mAh" }
+Use labels: ["Display", "Processor", "RAM", "Storage", "Camera", "Battery", "OS", "Price"]
+
+For "top_list" → list each product with its key spec:
+Example: { "label": "iPhone 16 Pro", "value": "A18 Pro chip, 48MP camera, starts at ₹1,19,900" }
+
+For "accessories" (earbuds/headphones) → use these labels:
+["Driver Size", "Connectivity", "Battery Life", "ANC", "Water Resistance", "Codec Support", "Weight", "Price"]
+
+For "accessories" (chargers/cables) → use these labels:
+["Wattage", "Connector Type", "Cable Length", "Compatibility", "Fast Charging", "Price"]
+
+For "news" → use these labels:
+["Expected Price", "Launch Date", "Key Features", "Chipset", "Camera", "Battery", "Availability"]
+
+For "other" → generate the most relevant spec labels based on content (maximum 8 labels)
+
+STEP 3 — GENERATE SMART BODY SECTIONS based on video type:
+
+For "single_review" → use sections: Introduction, Design & Build, Display, Performance, Camera, Battery Life, Final Verdict
+For "comparison" → use sections: Introduction, Design Comparison, Display Comparison, Performance Comparison, Camera Comparison, Battery Comparison, Which One to Buy?
+For "top_list" → use sections: Introduction, then one section per product, then Final Recommendations
+For "accessories" → use sections: Introduction, Design & Build, Sound Quality (or Performance), Features, Battery Life, Value for Money, Final Verdict
+For "news" → use sections: Introduction, Key Highlights, Expected Specs, Price & Availability, Should You Wait?
+For "other" → generate the most relevant sections based on content
+
 IMPORTANT RULES:
-- Title must be catchy and include relevant emojis (like the YouTube title style)
-- Each section "content" must be 4-6 detailed sentences with specific numbers and facts
-- Each section "bullets" must have 3-5 short punchy bullet points highlighting key facts
-- Use ALL information from the transcript — do not make up facts
+- Title must be catchy with relevant emojis matching the YouTube title style
+- Each section "content" must be 4-6 detailed sentences with specific numbers and facts from the transcript
+- Each section "bullets" must have 3-5 short punchy bullet points
+- For comparison videos, always mention BOTH products in every section
+- NEVER put N/A for specs — extract real values from transcript. Only use N/A if truly not mentioned at all
+- Do not make up facts — use only information from the transcript
 
 Return ONLY a valid JSON object (no markdown, no explanation):
 
 {
-  "title": "Catchy title with relevant emojis matching the video topic",
+  "video_type": "single_review | comparison | top_list | accessories | news | other",
+  "title": "Catchy title with relevant emojis",
   "slug": "url-friendly-slug-no-emojis",
-  "excerpt": "2 engaging sentences summarizing the review for the blog card",
+  "excerpt": "2 engaging sentences summarizing the content for the blog card",
   "category": "one of: Phones, Laptops, Tablets, Gaming, Accessories, Reviews",
   "body": [
     {
-      "heading": "Introduction",
-      "content": "4-6 sentences: hook the reader, introduce the device, mention price segment, target audience, and what makes it stand out in 2025.",
-      "bullets": ["Key highlight 1", "Key highlight 2", "Key highlight 3"]
-    },
-    {
-      "heading": "Design & Build Quality",
-      "content": "4-6 sentences about materials, dimensions, weight, color options, button placement, ports, and in-hand feel.",
-      "bullets": ["Design point 1", "Design point 2", "Design point 3"]
-    },
-    {
-      "heading": "Display",
-      "content": "4-6 sentences about exact screen size, panel type, refresh rate, brightness in nits, resolution, and real-world viewing experience.",
-      "bullets": ["Display spec 1", "Display spec 2", "Display spec 3"]
-    },
-    {
-      "heading": "Performance",
-      "content": "4-6 sentences about chipset name, RAM options, gaming FPS numbers, heating, and multitasking experience.",
-      "bullets": ["Performance point 1", "Performance point 2", "Performance point 3"]
-    },
-    {
-      "heading": "Camera",
-      "content": "4-6 sentences about megapixels, aperture, video quality, night mode, selfie camera, and real-world photo quality verdict.",
-      "bullets": ["Camera spec 1", "Camera spec 2", "Camera spec 3"]
-    },
-    {
-      "heading": "Battery Life",
-      "content": "4-6 sentences about battery mAh, screen-on time, charging wattage, time to full charge, and battery verdict.",
-      "bullets": ["Battery point 1", "Battery point 2", "Battery point 3"]
-    },
-    {
-      "heading": "Final Verdict",
-      "content": "4-6 sentences: clear buy or skip recommendation, who should buy it, value for money, and a score out of 10.",
-      "bullets": ["Verdict point 1", "Verdict point 2", "Verdict point 3"]
+      "heading": "Section heading based on video type",
+      "content": "4-6 detailed sentences with specific facts and numbers from transcript",
+      "bullets": ["Punchy bullet point 1", "Punchy bullet point 2", "Punchy bullet point 3"]
     }
   ],
   "specs": [
-    { "label": "Display", "value": "exact spec from transcript or N/A" },
-    { "label": "Processor", "value": "exact spec from transcript or N/A" },
-    { "label": "RAM", "value": "exact spec from transcript or N/A" },
-    { "label": "Storage", "value": "exact spec from transcript or N/A" },
-    { "label": "Camera", "value": "exact spec from transcript or N/A" },
-    { "label": "Battery", "value": "exact spec from transcript or N/A" },
-    { "label": "OS", "value": "exact spec from transcript or N/A" },
-    { "label": "Price", "value": "exact spec from transcript or N/A" }
+    { "label": "Spec label based on video type", "value": "Exact value from transcript" }
   ],
   "pros": ["Detailed pro 1", "Detailed pro 2", "Detailed pro 3", "Detailed pro 4"],
   "cons": ["Detailed con 1", "Detailed con 2", "Detailed con 3"]
@@ -235,6 +242,7 @@ Return ONLY a valid JSON object (no markdown, no explanation):
         slug: generated.slug || slugify(meta.title),
         excerpt: generated.excerpt || "",
         category: generated.category || "Reviews",
+        video_type: generated.video_type || "single_review",
         publishedAt: meta.publishedAt,
         thumbnail: meta.thumbnail,
         thumbnailBase64: meta.thumbnailBase64,
