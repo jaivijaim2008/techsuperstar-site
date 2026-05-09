@@ -25,33 +25,25 @@ function extractVideoId(url: string): string | null {
 async function fetchTranscript(videoId: string): Promise<string> {
   const pageRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
     headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
       "Accept-Language": "en-US,en;q=0.9",
     },
   });
-
   if (!pageRes.ok) throw new Error("Failed to fetch YouTube page");
 
   const html = await pageRes.text();
-
   const captionsMatch = html.match(/"captionTracks":\s*(\[[\s\S]*?\])/);
-  if (!captionsMatch) throw new Error("No captions found for this video");
+  if (!captionsMatch) throw new Error("No captions found");
 
   const tracks = JSON.parse(captionsMatch[1]);
-  const track =
-    tracks.find((t: { languageCode: string }) => t.languageCode === "en") ||
-    tracks[0];
-
+  const track = tracks.find((t: { languageCode: string }) => t.languageCode === "en") || tracks[0];
   if (!track?.baseUrl) throw new Error("No caption track URL found");
 
   const captionUrl = track.baseUrl.replace(/\\u0026/g, "&");
-
   const transcriptRes = await fetch(captionUrl);
-  if (!transcriptRes.ok) throw new Error("Failed to fetch transcript XML");
+  if (!transcriptRes.ok) throw new Error("Failed to fetch transcript");
 
   const xml = await transcriptRes.text();
-
   const textMatches = xml.match(/<text[^>]*>([\s\S]*?)<\/text>/g) || [];
   const transcript = textMatches
     .map((tag) =>
@@ -82,34 +74,32 @@ function textToPortableText(text: string): object[] {
     let style = "normal";
     let cleanText = trimmed;
 
-    if (trimmed.startsWith("### ")) {
-      style = "h3";
-      cleanText = trimmed.slice(4);
-    } else if (trimmed.startsWith("## ")) {
-      style = "h2";
-      cleanText = trimmed.slice(3);
-    } else if (trimmed.startsWith("# ")) {
-      style = "h1";
-      cleanText = trimmed.slice(2);
-    }
+    if (trimmed.startsWith("### ")) { style = "h3"; cleanText = trimmed.slice(4); }
+    else if (trimmed.startsWith("## ")) { style = "h2"; cleanText = trimmed.slice(3); }
+    else if (trimmed.startsWith("# ")) { style = "h1"; cleanText = trimmed.slice(2); }
 
     blocks.push({
       _type: "block",
       _key: Math.random().toString(36).slice(2, 10),
       style,
       markDefs: [],
-      children: [
-        {
-          _type: "span",
-          _key: Math.random().toString(36).slice(2, 10),
-          text: cleanText,
-          marks: [],
-        },
-      ],
+      children: [{
+        _type: "span",
+        _key: Math.random().toString(36).slice(2, 10),
+        text: cleanText,
+        marks: [],
+      }],
     });
   }
-
   return blocks;
+}
+
+function extractJSON(text: string): object {
+  const start = text.indexOf("{");
+  const end = text.lastIndexOf("}");
+  if (start === -1 || end === -1) throw new Error("No JSON found in AI response");
+  const jsonStr = text.slice(start, end + 1);
+  return JSON.parse(jsonStr);
 }
 
 export async function POST(req: NextRequest) {
@@ -124,32 +114,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid YouTube URL" }, { status: 400, headers: corsHeaders });
     }
 
-    // 1. Fetch YouTube metadata from your existing route
+    // 1. Fetch YouTube metadata
     const metaRes = await fetch(
       `https://techsuperstar-site.vercel.app/api/youtube-meta?url=${encodeURIComponent(youtubeUrl)}`
     );
     const meta = await metaRes.json();
     if (!metaRes.ok || meta.error) {
-      return NextResponse.json(
-        { error: `YouTube meta fetch failed: ${meta.error}` },
-        { status: 422, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: `YouTube meta failed: ${meta.error}` }, { status: 422, headers: corsHeaders });
     }
 
-    // 2. Fetch transcript (falls back to description if no captions)
+    // 2. Fetch transcript
     let transcript = "";
     try {
       transcript = await fetchTranscript(videoId);
     } catch (err) {
-      console.warn("Transcript fetch failed, using description:", err);
+      console.warn("Transcript failed, using description:", err);
       transcript = meta.description || "";
     }
 
     const contentSource = transcript
       ? `VIDEO TRANSCRIPT:\n${transcript.slice(0, 6000)}`
-      : `VIDEO DESCRIPTION (no transcript available):\n${meta.description}`;
+      : `VIDEO DESCRIPTION:\n${meta.description}`;
 
-    // 3. Send to Groq (Llama 3.3 70B)
+    // 3. Send to Groq
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
       max_tokens: 4000,
@@ -157,9 +144,8 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: "system",
-          content: `You are a tech blog writer for TechSuperStar, a Tamil tech YouTube channel with 2M+ subscribers. 
-You write engaging, honest English tech reviews. 
-Always respond with ONLY a valid JSON object — no markdown fences, no extra text, no explanation.`,
+          content: `You are a tech blog writer for TechSuperStar, a Tamil tech YouTube channel with 2M+ subscribers.
+You MUST respond with ONLY a raw JSON object. No explanation, no markdown, no code fences, no text before or after the JSON.`,
         },
         {
           role: "user",
@@ -169,33 +155,26 @@ TAGS: ${(meta.tags || []).slice(0, 15).join(", ")}
 
 ${contentSource}
 
-Generate a complete English blog post based on the above.
-Respond ONLY with this JSON structure:
-
+Return ONLY this JSON object, nothing else:
 {
-  "title": "Blog title with emojis matching TechSuperStar style e.g. 'AirPods Pro 3 😱 Best or Worst 🤯 Honest Review ⭐️ TechSuperStar ⭐️'",
-  "slug": "lowercase-hyphenated-slug-no-emojis-no-special-chars",
-  "category": "exactly one of: Phones, Laptops, Tablets, Gaming, Reviews, Accessories",
-  "excerpt": "2-3 sentence summary for article cards. Hook the reader and mention the product clearly.",
-  "body": "Full blog post in plain text. Use ## for section headings, ### for sub-headings. Cover every major point from the transcript. Minimum 700 words. Write in an engaging honest review style."
+  "title": "title with emojis like TechSuperStar style",
+  "slug": "lowercase-hyphenated-no-emojis",
+  "category": "one of: Phones, Laptops, Tablets, Gaming, Reviews, Accessories",
+  "excerpt": "2-3 sentence summary",
+  "body": "full blog post minimum 700 words using ## for headings"
 }`,
         },
       ],
     });
 
     const rawText = completion.choices[0]?.message?.content || "";
-    // Clean the response: remove markdown fences and control characters
-    const clean = rawText
-      .replace(/```json|```/g, "")
-      .replace(/[\x00-\x1F\x7F]/g, (c) => {
-        // Keep newlines and tabs inside strings but escape them
-        if (c === "\n") return "\\n";
-        if (c === "\r") return "\\r";
-        if (c === "\t") return "\\t";
-        return "";
-      })
-      .trim();
-    const generated = JSON.parse(clean);
+    const generated = extractJSON(rawText) as {
+      title: string;
+      slug: string;
+      category: string;
+      excerpt: string;
+      body: string;
+    };
 
     const portableTextBody = textToPortableText(generated.body);
 
