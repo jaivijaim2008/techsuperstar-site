@@ -136,7 +136,7 @@ export default function Sidebar({ posts }: { posts: any[] }) {
 
           <div style={{ display: "flex", justifyContent: "center", gap: "20px", marginBottom: "16px", position: "relative", zIndex: 1, flexWrap: "wrap" }}>
             {[
-              { val: "2.06M", label: "Subscribers" },
+              { val: "2.08M", label: "Subscribers" },
               { val: "3.2M",  label: "Views" },
             ].map((s) => (
               <div key={s.label} style={{ textAlign: "center" }}>

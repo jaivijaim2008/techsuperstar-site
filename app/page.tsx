@@ -346,9 +346,9 @@ export default async function Home({
               </p>
               <div className="cta-stats-row" style={{ display: "flex", gap: "24px", marginTop: "18px", flexWrap: "wrap" }}>
                 {[
-                  { label: "Subscribers", value: "2.06M" },
+                  { label: "Subscribers", value: "2.08M" },
                   { label: "Total Views",  value: "3.2M"  },
-                  { label: "Likes",        value: "203K"  },
+                  
                 ].map((stat) => (
                   <div key={stat.label}>
                     <div className="cta-stat-value">{stat.value}</div>
