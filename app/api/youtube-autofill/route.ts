@@ -225,7 +225,7 @@ Return ONLY a valid JSON object (no markdown, no explanation):
         "X-Title": "TechSuperStar",
       },
       body: JSON.stringify({
-        model: "mistralai/mistral-7b-instruct:free",
+        model: "google/gemma-3-27b-it:free",
         messages: [{ role: "user", content: prompt }],
         temperature: 0.6,
         max_tokens: 6000,
