@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { StringInputProps, useClient, set, unset } from "sanity";
+import { StringInputProps, useClient, useFormValue, set, unset } from "sanity";
 
 const BASE_URL = "https://techsuperstar-site.vercel.app";
 
@@ -20,10 +20,16 @@ export function YoutubeAutofill(props: StringInputProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isDone, setIsDone] = useState(false);
   const client = useClient({ apiVersion: "2024-01-01" });
+  const docId = useFormValue(["_id"]) as string; // ✅ correct way to get document ID
 
   const handleAutofill = async () => {
     if (!value) {
       setStatus("❌ Please paste a YouTube URL first.");
+      return;
+    }
+
+    if (!docId) {
+      setStatus("❌ No document ID found. Please save the document first.");
       return;
     }
 
@@ -43,12 +49,7 @@ export function YoutubeAutofill(props: StringInputProps) {
 
       setStatus("✍️ Filling in all fields...");
 
-      // Get current document ID from the form
-const docId = (props as unknown as { document?: { _id?: string }; id?: string }).document?._id 
-  || (props as unknown as { id?: string }).id;
-if (!docId) throw new Error("No document ID found");
-
-      // Build the patch
+      // Build the patch using the correct document ID
       const patch = client.patch(docId);
 
       // Title
@@ -66,7 +67,7 @@ if (!docId) throw new Error("No document ID found");
       // Body
       if (data.body?.length) patch.set({ body: data.body });
 
-      // ── NEW: Specs ──
+      // Specs
       if (data.specs?.length) {
         patch.set({
           specs: data.specs.map((s: { label: string; value: string }) => ({
@@ -78,12 +79,12 @@ if (!docId) throw new Error("No document ID found");
         });
       }
 
-      // ── NEW: Pros ──
+      // Pros
       if (data.pros?.length) {
         patch.set({ pros: data.pros });
       }
 
-      // ── NEW: Cons ──
+      // Cons
       if (data.cons?.length) {
         patch.set({ cons: data.cons });
       }
