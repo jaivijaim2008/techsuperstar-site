@@ -181,9 +181,12 @@ export default function AboutPage() {
         }
 
         @media (max-width: 768px) {
-          .value-grid { grid-template-columns: 1fr; }
-          .mission-card { padding: 24px; }
+          .value-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+          .mission-card { padding: 20px 16px; }
           .achievement-item { flex-direction: column; gap: 12px; }
+        }
+        @media (max-width: 480px) {
+          .value-grid { grid-template-columns: 1fr; }
         }
       `}</style>
 
@@ -319,7 +322,7 @@ export default function AboutPage() {
 
             <div style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
               gap: 24,
             }}>
               <div className="mission-card">
