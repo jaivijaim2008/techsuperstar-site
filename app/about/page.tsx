@@ -47,9 +47,9 @@ export default function AboutPage() {
           background: #0d0d0d;
           border: 1px solid rgba(255,77,0,0.12);
           border-radius: 18px;
-          padding: 24px 16px;
+          padding: 18px 12px;
           text-align: center;
-          flex: 1; min-width: 120px;
+          flex: 1; min-width: 80px; max-width: 140px;
           transition: all 0.3s ease;
           position: relative; overflow: hidden;
           animation: countUp 0.6s ease both;
@@ -140,8 +140,10 @@ export default function AboutPage() {
         @media (max-width: 600px) {
           .cta-btns { flex-direction: column !important; align-items: stretch !important; }
           .cta-btns a { justify-content: center; }
-          .stats-row { flex-direction: column !important; }
+          .stats-row { flex-direction: row !important; flex-wrap: wrap !important; justify-content: center !important; gap: 8px !important; }
+          .stat-card { min-width: 70px !important; max-width: calc(50% - 8px) !important; padding: 14px 10px !important; }
           .social-grid { grid-template-columns: 1fr !important; }
+          .story-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
 
