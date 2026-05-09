@@ -109,17 +109,20 @@ export default function PostCard({ post }: any) {
         }
 
         .${uid}-title {
-          font-size: 15px;
-          font-weight: 700;
-          line-height: 1.6;
-          margin: 0 0 8px;
-          font-family: 'Georgia', serif;
-          color: #ffffff;
-          transition: all 0.35s ease;
-          display: block;
-          word-break: break-word;
-          overflow-wrap: anywhere;
-        }
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.6;
+  margin: 0 0 8px;
+  font-family: 'Georgia', serif;
+  color: #ffffff;
+  transition: all 0.35s ease;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
         .${uid}:hover .${uid}-title {
           background: linear-gradient(90deg, #fff, ${color}, #fff);
           background-size: 200% auto;
