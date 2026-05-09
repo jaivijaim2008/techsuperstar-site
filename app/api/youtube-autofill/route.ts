@@ -69,6 +69,48 @@ async function fetchTranscript(videoId: string): Promise<string> {
     .slice(0, 8000);
 }
 
+// Convert a section into Sanity Portable Text blocks (paragraph + bullet list)
+function makeSectionBlocks(heading: string, content: string, bullets: string[]) {
+  const blocks = [];
+
+  // H2 heading block
+  blocks.push({
+    _type: "block",
+    _key: Math.random().toString(36).slice(2),
+    style: "h2",
+    children: [{ _type: "span", _key: Math.random().toString(36).slice(2), text: heading, marks: [] }],
+    markDefs: [],
+  });
+
+  // Paragraph block
+  if (content) {
+    blocks.push({
+      _type: "block",
+      _key: Math.random().toString(36).slice(2),
+      style: "normal",
+      children: [{ _type: "span", _key: Math.random().toString(36).slice(2), text: content, marks: [] }],
+      markDefs: [],
+    });
+  }
+
+  // Bullet list blocks
+  if (bullets && bullets.length > 0) {
+    for (const bullet of bullets) {
+      blocks.push({
+        _type: "block",
+        _key: Math.random().toString(36).slice(2),
+        style: "normal",
+        listItem: "bullet",
+        level: 1,
+        children: [{ _type: "span", _key: Math.random().toString(36).slice(2), text: bullet, marks: [] }],
+        markDefs: [],
+      });
+    }
+  }
+
+  return blocks;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { url } = await req.json();
@@ -101,47 +143,79 @@ export async function POST(req: NextRequest) {
     // 3. Generate everything with Groq
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-    const prompt = `You are an expert Tamil tech blogger writing in English. Based on this YouTube video transcript, write a DETAILED and LONG blog post review.
+    const prompt = `You are an expert Tamil tech blogger writing detailed English blog posts. Based on this YouTube video transcript, write a DETAILED, ATTRACTIVE, and LONG blog post review.
 
 VIDEO TITLE: ${meta.title}
 CONTENT: ${contentSource}
 
-IMPORTANT: Each section's "content" must be AT LEAST 4-6 sentences long with specific details, numbers, and comparisons. Do NOT write short summaries. Use all the information from the transcript to write rich, detailed content.
+IMPORTANT RULES:
+- Title must be catchy and include relevant emojis (like the YouTube title style)
+- Each section "content" must be 4-6 detailed sentences with specific numbers and facts
+- Each section "bullets" must have 3-5 short punchy bullet points highlighting key facts
+- Use ALL information from the transcript — do not make up facts
 
-Return ONLY a valid JSON object (no markdown, no explanation) with these exact keys:
+Return ONLY a valid JSON object (no markdown, no explanation):
 
 {
-  "title": "Clean blog title without emojis",
-  "slug": "url-friendly-slug",
-  "excerpt": "2-sentence summary for the blog card",
+  "title": "Catchy title with relevant emojis matching the video topic",
+  "slug": "url-friendly-slug-no-emojis",
+  "excerpt": "2 engaging sentences summarizing the review for the blog card",
   "category": "one of: Phones, Laptops, Tablets, Gaming, Accessories, Reviews",
   "body": [
-    { "heading": "Introduction", "content": "Write 4-6 sentences introducing the device, its market positioning, target audience, price segment, and what makes it special or unique compared to competitors." },
-    { "heading": "Design & Build", "content": "Write 4-6 sentences about the physical design, materials used, dimensions, weight, color options, button placement, ports, and overall in-hand feel and comfort." },
-    { "heading": "Display", "content": "Write 4-6 sentences about display size, panel type (OLED/AMOLED/LCD), refresh rate, peak brightness, color accuracy, resolution, and real-world viewing experience including sunlight visibility." },
-    { "heading": "Performance", "content": "Write 4-6 sentences about the processor model, RAM, storage options, real-world performance in daily tasks, gaming experience, multitasking capability, heating issues, and any benchmark results mentioned." },
-    { "heading": "Camera", "content": "Write 4-6 sentences about the main camera specs (megapixels, aperture, sensor size), photo quality in different lighting conditions, video recording capabilities, night mode performance, selfie camera quality, and overall camera verdict." },
-    { "heading": "Battery Life", "content": "Write 4-6 sentences about battery capacity in mAh, screen-on time in real usage, wired charging speed in watts, wireless charging support, battery drain during gaming, and overall battery rating." },
-    { "heading": "Verdict", "content": "Write 4-6 sentences giving a final verdict, summarizing the best and worst aspects, who should buy this device, value for money assessment, and a clear buy or skip recommendation." }
+    {
+      "heading": "Introduction",
+      "content": "4-6 sentences: hook the reader, introduce the device, mention price segment, target audience, and what makes it stand out in 2025.",
+      "bullets": ["Key highlight 1", "Key highlight 2", "Key highlight 3"]
+    },
+    {
+      "heading": "Design & Build Quality",
+      "content": "4-6 sentences about materials, dimensions, weight, color options, button placement, ports, and in-hand feel.",
+      "bullets": ["Design point 1", "Design point 2", "Design point 3"]
+    },
+    {
+      "heading": "Display",
+      "content": "4-6 sentences about exact screen size, panel type, refresh rate, brightness in nits, resolution, and real-world viewing experience.",
+      "bullets": ["Display spec 1", "Display spec 2", "Display spec 3"]
+    },
+    {
+      "heading": "Performance",
+      "content": "4-6 sentences about chipset name, RAM options, gaming FPS numbers, heating, and multitasking experience.",
+      "bullets": ["Performance point 1", "Performance point 2", "Performance point 3"]
+    },
+    {
+      "heading": "Camera",
+      "content": "4-6 sentences about megapixels, aperture, video quality, night mode, selfie camera, and real-world photo quality verdict.",
+      "bullets": ["Camera spec 1", "Camera spec 2", "Camera spec 3"]
+    },
+    {
+      "heading": "Battery Life",
+      "content": "4-6 sentences about battery mAh, screen-on time, charging wattage, time to full charge, and battery verdict.",
+      "bullets": ["Battery point 1", "Battery point 2", "Battery point 3"]
+    },
+    {
+      "heading": "Final Verdict",
+      "content": "4-6 sentences: clear buy or skip recommendation, who should buy it, value for money, and a score out of 10.",
+      "bullets": ["Verdict point 1", "Verdict point 2", "Verdict point 3"]
+    }
   ],
   "specs": [
-    { "label": "Display", "value": "exact spec extracted from transcript or N/A" },
-    { "label": "Processor", "value": "exact spec extracted from transcript or N/A" },
-    { "label": "RAM", "value": "exact spec extracted from transcript or N/A" },
-    { "label": "Storage", "value": "exact spec extracted from transcript or N/A" },
-    { "label": "Camera", "value": "exact spec extracted from transcript or N/A" },
-    { "label": "Battery", "value": "exact spec extracted from transcript or N/A" },
-    { "label": "OS", "value": "exact spec extracted from transcript or N/A" },
-    { "label": "Price", "value": "exact spec extracted from transcript or N/A" }
+    { "label": "Display", "value": "exact spec from transcript or N/A" },
+    { "label": "Processor", "value": "exact spec from transcript or N/A" },
+    { "label": "RAM", "value": "exact spec from transcript or N/A" },
+    { "label": "Storage", "value": "exact spec from transcript or N/A" },
+    { "label": "Camera", "value": "exact spec from transcript or N/A" },
+    { "label": "Battery", "value": "exact spec from transcript or N/A" },
+    { "label": "OS", "value": "exact spec from transcript or N/A" },
+    { "label": "Price", "value": "exact spec from transcript or N/A" }
   ],
-  "pros": ["detailed pro 1", "detailed pro 2", "detailed pro 3", "detailed pro 4"],
-  "cons": ["detailed con 1", "detailed con 2", "detailed con 3"]
+  "pros": ["Detailed pro 1", "Detailed pro 2", "Detailed pro 3", "Detailed pro 4"],
+  "cons": ["Detailed con 1", "Detailed con 2", "Detailed con 3"]
 }`;
 
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
       messages: [{ role: "user", content: prompt }],
-      temperature: 0.5,
+      temperature: 0.6,
       max_tokens: 6000,
     });
 
@@ -149,24 +223,10 @@ Return ONLY a valid JSON object (no markdown, no explanation) with these exact k
     const jsonStr = extractJSON(rawText);
     const generated = JSON.parse(jsonStr);
 
-    // 4. Convert body sections to Sanity Portable Text blocks
+    // 4. Convert body sections to Sanity Portable Text blocks (with bullet points)
     const bodyBlocks = (generated.body || []).flatMap(
-      (section: { heading: string; content: string }) => [
-        {
-          _type: "block",
-          _key: Math.random().toString(36).slice(2),
-          style: "h2",
-          children: [{ _type: "span", _key: Math.random().toString(36).slice(2), text: section.heading, marks: [] }],
-          markDefs: [],
-        },
-        {
-          _type: "block",
-          _key: Math.random().toString(36).slice(2),
-          style: "normal",
-          children: [{ _type: "span", _key: Math.random().toString(36).slice(2), text: section.content, marks: [] }],
-          markDefs: [],
-        },
-      ]
+      (section: { heading: string; content: string; bullets?: string[] }) =>
+        makeSectionBlocks(section.heading, section.content, section.bullets || [])
     );
 
     return NextResponse.json(
