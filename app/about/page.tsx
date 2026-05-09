@@ -2,369 +2,363 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";
 import Link from "next/link";
-import { FaYoutube, FaInstagram, FaXTwitter } from "react-icons/fa6";
+import { FaYoutube, FaInstagram } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
+
 export const dynamic = "force-dynamic";
+
 export default function AboutPage() {
   return (
     <div style={{ background: "#060606", minHeight: "100vh", fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif", overflowX: "hidden" }}>
       <Navbar />
 
       <style suppressHydrationWarning>{`
-        @keyframes shimmerText {
+        @keyframes shimmer {
           0%   { background-position: 0% center; }
           100% { background-position: 200% center; }
         }
         @keyframes gridPan {
           from { background-position: 0 0; }
-          to   { background-position: 50px 50px; }
+          to   { background-position: 60px 60px; }
         }
-        @keyframes badgePulse {
-          0%,100% { box-shadow: 0 0 0 0 rgba(255,77,0,0.3); }
-          50%     { box-shadow: 0 0 0 8px rgba(255,77,0,0); }
-        }
-        @keyframes logoPulse {
-          0%,100% { box-shadow: 0 0 8px rgba(255,77,0,0.4), 0 0 16px rgba(255,77,0,0.2); }
-          50%     { box-shadow: 0 0 20px rgba(255,77,0,0.9), 0 0 40px rgba(255,77,0,0.4); }
-        }
-        @keyframes orbFloat1 {
-          0%,100% { transform: translateY(0); }
-          50%     { transform: translateY(-20px); }
+        @keyframes orbFloat {
+          0%,100% { transform: translateY(0px) scale(1); }
+          50%     { transform: translateY(-18px) scale(1.04); }
         }
         @keyframes orbFloat2 {
-          0%,100% { transform: translateY(0); }
-          50%     { transform: translateY(15px); }
+          0%,100% { transform: translateY(0px); }
+          50%     { transform: translateY(14px); }
+        }
+        @keyframes pulse-ring {
+          0%   { box-shadow: 0 0 0 0 rgba(255,77,0,0.5), 0 0 20px rgba(255,77,0,0.3); }
+          70%  { box-shadow: 0 0 0 14px rgba(255,77,0,0), 0 0 20px rgba(255,77,0,0.3); }
+          100% { box-shadow: 0 0 0 0 rgba(255,77,0,0), 0 0 20px rgba(255,77,0,0.3); }
         }
         @keyframes dotBlink {
-          0%,100% { opacity: 1; transform: scale(1); }
-          50%     { opacity: 0.4; transform: scale(0.6); }
+          0%,100% { opacity: 1; }
+          50%     { opacity: 0.3; }
         }
-        @keyframes ytGlow {
-          0%,100% { box-shadow: 0 0 0 0 rgba(255,0,0,0.3); }
-          50%     { box-shadow: 0 0 0 10px rgba(255,0,0,0); }
-        }
-
-        .about-card {
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,77,0,0.1);
-          border-radius: 20px;
-          padding: clamp(24px, 4vw, 40px);
-          margin-bottom: 20px;
-          position: relative;
-          overflow: hidden;
-          transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        .about-card:hover {
-          border-color: rgba(255,77,0,0.25);
-          box-shadow: 0 0 40px rgba(255,77,0,0.06);
-        }
-        .about-card::before {
-          content: '';
-          position: absolute;
-          top: -60px; right: -60px;
-          width: 160px; height: 160px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(255,77,0,0.05), transparent 70%);
-          pointer-events: none;
+        @keyframes countUp {
+          from { opacity: 0; transform: translateY(12px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
 
-        .section-heading {
-          color: #ff4d00;
-          font-size: 10px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 2.5px;
-          margin: 0 0 14px;
-          font-family: var(--font-dm-sans), sans-serif;
-          display: flex;
-          align-items: center;
-          gap: 8px;
+        .stat-card {
+          background: #0d0d0d;
+          border: 1px solid rgba(255,77,0,0.12);
+          border-radius: 18px;
+          padding: 24px 16px;
+          text-align: center;
+          flex: 1; min-width: 120px;
+          transition: all 0.3s ease;
+          position: relative; overflow: hidden;
+          animation: countUp 0.6s ease both;
         }
-        .section-heading::before {
+        .stat-card::after {
           content: '';
-          width: 4px; height: 16px;
-          background: #ff4d00;
-          border-radius: 2px;
-          display: inline-block;
+          position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+          background: linear-gradient(90deg, transparent, #ff4d00, transparent);
+          opacity: 0; transition: opacity 0.3s;
         }
+        .stat-card:hover { border-color: rgba(255,77,0,0.4); transform: translateY(-6px); box-shadow: 0 20px 48px rgba(255,77,0,0.12); }
+        .stat-card:hover::after { opacity: 1; }
+
+        .story-grid {
+          display: grid; grid-template-columns: 1fr; gap: 32px; align-items: center;
+        }
+        @media (min-width: 760px) { .story-grid { grid-template-columns: 1fr 1fr; } }
 
         .cover-card {
-          background: rgba(255,255,255,0.02);
+          background: #0d0d0d;
           border: 1px solid rgba(255,255,255,0.05);
-          border-radius: 14px;
-          padding: 20px;
-          transition: all 0.3s ease;
+          border-radius: 16px; padding: 22px;
+          transition: all 0.3s ease; position: relative; overflow: hidden;
         }
-        .cover-card:hover {
-          background: rgba(255,77,0,0.05);
-          border-color: rgba(255,77,0,0.25);
-          transform: translateY(-4px);
-          box-shadow: 0 12px 30px rgba(255,77,0,0.08);
+        .cover-card::before {
+          content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+          background: linear-gradient(90deg, #ff4d00, #ff8800);
+          transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease;
+        }
+        .cover-card:hover { border-color: rgba(255,77,0,0.3); transform: translateY(-5px); box-shadow: 0 16px 40px rgba(255,77,0,0.08); }
+        .cover-card:hover::before { transform: scaleX(1); }
+
+        .timeline-item {
+          display: flex; gap: 20px; padding-bottom: 32px; position: relative;
+        }
+        .timeline-item:not(:last-child)::after {
+          content: ''; position: absolute; left: 19px; top: 44px;
+          width: 2px; bottom: 0;
+          background: linear-gradient(180deg, rgba(255,77,0,0.25), transparent);
+        }
+        .timeline-dot {
+          width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+          background: rgba(255,77,0,0.08); border: 2px solid rgba(255,77,0,0.25);
+          display: flex; align-items: center; justify-content: center;
+          font-size: 16px; position: relative; z-index: 1;
         }
 
-        .social-row-btn {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          border-radius: 12px;
-          padding: 14px 20px;
-          text-decoration: none;
-          font-size: 13px;
-          font-weight: 600;
-          font-family: var(--font-dm-sans), sans-serif;
-          transition: all 0.25s ease;
-          flex: 1;
-          min-width: 140px;
+        .social-card {
+          display: flex; align-items: center; gap: 14px;
+          border-radius: 16px; padding: 18px 20px;
+          text-decoration: none; transition: all 0.25s ease;
         }
-        .social-row-btn:hover {
-          transform: translateY(-3px);
-          filter: brightness(1.3);
-          box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        .social-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.4); }
+
+        .eyebrow {
+          display: inline-flex; align-items: center; gap: 10px;
+          color: #ff4d00; font-size: 10px; font-weight: 700;
+          letter-spacing: 3px; text-transform: uppercase; margin-bottom: 14px;
         }
 
-        .yt-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 10px;
-          background: linear-gradient(135deg, #ff4d00, #ff7300, #ff9900, #ff7300, #ff4d00);
-          background-size: 200% auto;
-          color: #fff;
-          padding: 14px 36px;
-          border-radius: 50px;
-          text-decoration: none;
-          font-weight: 700;
-          font-size: 14px;
-          font-family: var(--font-dm-sans), sans-serif;
-          box-shadow: 0 4px 24px rgba(255,77,0,0.4);
-          transition: all 0.3s ease;
-          letter-spacing: 0.3px;
-        }
-        .yt-btn:hover {
-          transform: translateY(-3px) scale(1.04);
-          box-shadow: 0 10px 40px rgba(255,77,0,0.6);
-        }
-
-        .contact-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          background: rgba(255,77,0,0.08);
-          border: 1px solid rgba(255,77,0,0.25);
-          color: #ff4d00;
-          padding: 12px 28px;
-          border-radius: 50px;
-          text-decoration: none;
-          font-size: 13px;
-          font-weight: 700;
-          font-family: var(--font-dm-sans), sans-serif;
-          transition: all 0.25s ease;
-        }
-        .contact-btn:hover {
-          background: rgba(255,77,0,0.15);
-          border-color: rgba(255,77,0,0.5);
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(255,77,0,0.2);
-        }
-
-        .stat-pill {
-          background: rgba(255,77,0,0.08);
+        .cta-box {
+          background: linear-gradient(135deg, #140800, #0a0400, #140800);
           border: 1px solid rgba(255,77,0,0.2);
-          border-radius: 50px;
-          padding: 10px 24px;
-          text-align: center;
-          flex: 1;
-          min-width: 100px;
+          border-radius: 24px;
+          padding: clamp(36px,6vw,60px) clamp(24px,5vw,52px);
+          text-align: center; position: relative; overflow: hidden;
         }
+        .btn-primary {
+          display: inline-flex; align-items: center; gap: 9px;
+          background: linear-gradient(135deg, #ff4d00, #ff7a00);
+          color: #fff; padding: 14px 30px; border-radius: 12px;
+          text-decoration: none; font-weight: 700; font-size: 14px;
+          box-shadow: 0 4px 20px rgba(255,77,0,0.4);
+          transition: all 0.25s ease; min-height: 48px;
+          font-family: var(--font-dm-sans), sans-serif;
+        }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 36px rgba(255,77,0,0.55); }
+        .btn-secondary {
+          display: inline-flex; align-items: center; gap: 9px;
+          background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+          color: #888; padding: 14px 30px; border-radius: 12px;
+          text-decoration: none; font-weight: 600; font-size: 14px;
+          transition: all 0.25s ease; min-height: 48px;
+          font-family: var(--font-dm-sans), sans-serif;
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.08); color: #fff; transform: translateY(-3px); }
 
-        @media (max-width: 640px) {
-          .social-row { flex-direction: column !important; }
-          .stats-row { flex-direction: column !important; gap: 10px !important; }
+        @media (max-width: 600px) {
+          .cta-btns { flex-direction: column !important; align-items: stretch !important; }
+          .cta-btns a { justify-content: center; }
+          .stats-row { flex-direction: column !important; }
+          .social-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
 
-      {/* Hero */}
+      {/* ── HERO ── */}
       <div style={{
         position: "relative", overflow: "hidden",
-        background: "linear-gradient(160deg, #060606 0%, #0f0600 50%, #060606 100%)",
-        padding: "70px 1.5rem 60px",
-        borderBottom: "1px solid rgba(255,77,0,0.1)",
+        background: "linear-gradient(160deg, #060606 0%, #100500 55%, #060606 100%)",
+        padding: "80px 1.5rem 70px",
+        borderBottom: "1px solid rgba(255,77,0,0.08)",
         textAlign: "center",
       }}>
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,77,0,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,77,0,0.025) 1px, transparent 1px)", backgroundSize: "55px 55px", animation: "gridPan 20s linear infinite", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", width: 320, height: 320, top: "-80px", left: "5%", borderRadius: "50%", background: "rgba(255,77,0,0.06)", filter: "blur(70px)", animation: "orbFloat1 9s ease-in-out infinite", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", width: 220, height: 220, bottom: "-40px", right: "8%", borderRadius: "50%", background: "rgba(255,100,0,0.04)", filter: "blur(55px)", animation: "orbFloat2 11s ease-in-out infinite", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", backgroundImage: "linear-gradient(rgba(255,77,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,77,0,0.03) 1px, transparent 1px)", backgroundSize: "60px 60px", animation: "gridPan 18s linear infinite" }} />
+        <div style={{ position: "absolute", width: 360, height: 360, top: "-120px", left: "0%", borderRadius: "50%", background: "rgba(255,77,0,0.07)", filter: "blur(90px)", animation: "orbFloat 10s ease-in-out infinite", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", width: 260, height: 260, bottom: "-80px", right: "3%", borderRadius: "50%", background: "rgba(255,100,0,0.05)", filter: "blur(70px)", animation: "orbFloat2 13s ease-in-out infinite", pointerEvents: "none" }} />
 
-        <div style={{ position: "relative", zIndex: 1, maxWidth: "680px", margin: "0 auto" }}>
-          <div style={{
-            width: "80px", height: "80px", borderRadius: "50%",
-            overflow: "hidden", border: "2px solid #ff4d00",
-            margin: "0 auto 24px",
-            animation: "logoPulse 2.5s ease-in-out infinite",
-          }}>
+        <div style={{ position: "relative", zIndex: 1, maxWidth: "700px", margin: "0 auto" }}>
+          <div style={{ width: 88, height: 88, borderRadius: "50%", overflow: "hidden", border: "3px solid #ff4d00", margin: "0 auto 28px", animation: "pulse-ring 2.5s ease-in-out infinite" }}>
             <img src="/favicon.jpg" alt="TechSuperStar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           </div>
 
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: "8px",
-            background: "rgba(255,77,0,0.08)", border: "1px solid rgba(255,77,0,0.28)",
-            color: "#ff6622", fontSize: "10px", fontWeight: "700",
-            padding: "6px 18px", borderRadius: "50px",
-            letterSpacing: "2.5px", textTransform: "uppercase",
-            marginBottom: "24px",
-            animation: "badgePulse 2.5s ease infinite",
-          }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,77,0,0.08)", border: "1px solid rgba(255,77,0,0.28)", color: "#ff6622", fontSize: "10px", fontWeight: 700, padding: "6px 18px", borderRadius: "50px", letterSpacing: "2.5px", textTransform: "uppercase", marginBottom: 24 }}>
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#ff4d00", display: "inline-block", animation: "dotBlink 1.5s ease-in-out infinite" }} />
-            About Us
+            Tamil Nadu&apos;s #1 Tech Channel
           </div>
 
-          <h1 style={{
-            fontSize: "clamp(2rem, 5vw, 3.5rem)",
-            fontWeight: "900", margin: "0 0 18px",
-            fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif",
-            letterSpacing: "-1px", lineHeight: 1.15,
-            background: "linear-gradient(135deg, #ffffff 0%, #ff4d00 50%, #ffaa44 100%)",
-            backgroundSize: "200% auto",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            animation: "shimmerText 4s linear infinite",
-          }}>
+          <h1 style={{ fontSize: "clamp(2.2rem,6vw,4rem)", fontWeight: 900, margin: "0 0 20px", fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif", letterSpacing: "-1.5px", lineHeight: 1.1, background: "linear-gradient(135deg, #fff 20%, #ff4d00 55%, #ffbb66 80%, #fff 100%)", backgroundSize: "200% auto", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", animation: "shimmer 5s linear infinite" }}>
             We are TechSuperStar
           </h1>
 
-          <p style={{ color: "#555", fontSize: "clamp(13px, 2vw, 16px)", lineHeight: "1.75", margin: "0 0 32px", fontFamily: "var(--font-dm-sans), sans-serif" }}>
-            Your ultimate source for <span style={{ color: "#ff6622", fontWeight: 600 }}>honest tech reviews</span>, buying guides, and the latest news — all in Tamil.
+          <p style={{ color: "#555", fontSize: "clamp(13px,2vw,16px)", lineHeight: 1.8, margin: "0 0 40px" }}>
+            Honest tech reviews, real buying advice, and the latest gadget news —{" "}
+            <span style={{ color: "#ff6622", fontWeight: 600 }}>all in Tamil</span>. Trusted by millions.
           </p>
 
-          <div className="stats-row" style={{ display: "flex", justifyContent: "center", gap: "14px", flexWrap: "wrap" }}>
+          <div className="stats-row" style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
             {[
-              { value: "2.06M+", label: "Subscribers" },
-              { value: "3.2M+",  label: "Total Views" },
-              { value: "203K",   label: "Likes" },
-            ].map((stat) => (
-              <div key={stat.label} className="stat-pill">
-                <div style={{ color: "#ff4d00", fontSize: "20px", fontWeight: "900", fontFamily: "var(--font-playfair), serif", lineHeight: 1.1 }}>{stat.value}</div>
-                <div style={{ color: "#444", fontSize: "10px", fontWeight: "700", letterSpacing: "1.5px", textTransform: "uppercase", marginTop: "4px" }}>{stat.label}</div>
+              { value: "2.08M+", label: "Subscribers", icon: "📺" },
+              { value: "3.2M+",  label: "Total Views",  icon: "👁️" },
+              { value: "500+",   label: "Videos",       icon: "🎬" },
+              { value: "#1",     label: "Tamil Tech",   icon: "🏆" },
+            ].map((s) => (
+              <div key={s.label} className="stat-card">
+                <div style={{ fontSize: 20, marginBottom: 8 }}>{s.icon}</div>
+                <div style={{ color: "#ff4d00", fontSize: "clamp(18px,3vw,26px)", fontWeight: 900, fontFamily: "var(--font-playfair), serif", lineHeight: 1 }}>{s.value}</div>
+                <div style={{ color: "#444", fontSize: 10, fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", marginTop: 6 }}>{s.label}</div>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div style={{ maxWidth: "860px", margin: "0 auto", padding: "52px 1.5rem 80px" }}>
+      {/* ── CONTENT ── */}
+      <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "60px 1.5rem 80px" }}>
 
+        {/* WHO WE ARE */}
         <ScrollReveal direction="up">
-          <div className="about-card">
-            <div className="section-heading">Who We Are</div>
-            <h2 style={{ color: "#fff", fontSize: "clamp(18px, 3vw, 24px)", fontWeight: "900", fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif", margin: "0 0 16px" }}>
-              Tamil Tech, Honest Reviews
-            </h2>
-            <p style={{ color: "#666", fontSize: "15px", lineHeight: "1.85", margin: "0 0 14px", fontFamily: "var(--font-dm-sans), sans-serif" }}>
-              TechSuperStar is a Tamil tech YouTube channel and blog dedicated to bringing you the most honest and detailed tech reviews in Tamil Nadu and across India.
-            </p>
-            <p style={{ color: "#666", fontSize: "15px", lineHeight: "1.85", margin: 0, fontFamily: "var(--font-dm-sans), sans-serif" }}>
-              From budget smartphones to high-end laptops, gaming gear to accessories — we cover it all so you can make the <span style={{ color: "#ff6622", fontWeight: 600 }}>best buying decisions</span> without wasting your hard-earned money.
-            </p>
+          <div style={{ marginBottom: 64 }}>
+            <div className="story-grid">
+              <div>
+                <div className="eyebrow">
+                  <span style={{ width: 28, height: 2, background: "#ff4d00", borderRadius: 2, display: "inline-block" }} />
+                  Who We Are
+                </div>
+                <h2 style={{ color: "#fff", fontSize: "clamp(22px,4vw,34px)", fontWeight: 900, fontFamily: "var(--font-playfair), serif", margin: "0 0 20px", lineHeight: 1.2 }}>
+                  Tamil Tech,<br /><span style={{ color: "#ff4d00" }}>Honest Reviews</span>
+                </h2>
+                <p style={{ color: "#666", fontSize: 15, lineHeight: 1.85, margin: "0 0 16px" }}>
+                  TechSuperStar is Tamil Nadu&apos;s most trusted tech YouTube channel and blog. We bring you the most detailed, unbiased tech reviews in your language — Tamil.
+                </p>
+                <p style={{ color: "#666", fontSize: 15, lineHeight: 1.85, margin: 0 }}>
+                  From ₹8,000 budget phones to ₹2 lakh flagship laptops — we test everything so you don&apos;t waste a single rupee on the wrong device.
+                </p>
+              </div>
+
+              <div style={{ background: "linear-gradient(135deg, #150800, #0c0400)", border: "1px solid rgba(255,77,0,0.2)", borderRadius: 20, padding: 32, position: "relative", overflow: "hidden" }}>
+                <div style={{ position: "absolute", top: -50, right: -50, width: 180, height: 180, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,77,0,0.15), transparent 70%)", pointerEvents: "none" }} />
+                <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
+                  <div style={{ width: 64, height: 64, borderRadius: "50%", overflow: "hidden", border: "2px solid #ff4d00", boxShadow: "0 0 20px rgba(255,77,0,0.4)", flexShrink: 0 }}>
+                    <img src="/favicon.jpg" alt="TechSuperStar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  </div>
+                  <div>
+                    <div style={{ color: "#fff", fontWeight: 800, fontSize: 17, fontFamily: "var(--font-playfair), serif" }}>Tech<span style={{ color: "#ff4d00" }}>SuperStar</span></div>
+                    <div style={{ color: "#444", fontSize: 10, letterSpacing: "1.5px", textTransform: "uppercase", fontWeight: 600, marginTop: 3 }}>Tamil Tech Reviews</div>
+                  </div>
+                </div>
+                <p style={{ color: "#888", fontSize: 14, lineHeight: 1.75, borderLeft: "3px solid #ff4d00", paddingLeft: 16, margin: "0 0 20px", fontStyle: "italic" }}>
+                  &ldquo;Our goal is simple — help every Tamil-speaking person make the best tech decision for their budget, without any bias.&rdquo;
+                </p>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {[
+                    { Icon: FaYoutube,   label: "YouTube",   color: "#ff4444", bg: "rgba(255,68,68,0.1)",   border: "rgba(255,68,68,0.2)",   href: "https://www.youtube.com/@TechSuperStarOfficial" },
+                    { Icon: FaInstagram, label: "Instagram", color: "#e1306c", bg: "rgba(225,48,108,0.1)", border: "rgba(225,48,108,0.2)", href: "https://www.instagram.com/techsuperstarofficial/" },
+                    { Icon: FaXTwitter,  label: "Twitter",   color: "#aaa",    bg: "rgba(255,255,255,0.05)", border: "rgba(255,255,255,0.1)", href: "https://x.com/Tech_SuperStar" },
+                  ].map(({ Icon, label, color, bg, border, href }) => (
+                    <Link key={label} href={href} target="_blank" style={{ display: "flex", alignItems: "center", gap: 6, background: bg, border: `1px solid ${border}`, color, padding: "7px 12px", borderRadius: 8, fontSize: 11, fontWeight: 600, textDecoration: "none", transition: "all 0.2s" }}>
+                      <Icon size={13} /> {label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </ScrollReveal>
 
+        {/* WHAT WE COVER */}
         <ScrollReveal direction="up" delay={50}>
-          <div className="about-card">
-            <div className="section-heading">What We Cover</div>
-            <h2 style={{ color: "#fff", fontSize: "clamp(18px, 3vw, 24px)", fontWeight: "900", fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif", margin: "0 0 24px" }}>
-              Every Category. Every Budget.
-            </h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "14px" }}>
+          <div style={{ marginBottom: 64 }}>
+            <div style={{ marginBottom: 32, textAlign: "center" }}>
+              <div className="eyebrow" style={{ justifyContent: "center" }}>
+                <span style={{ width: 28, height: 2, background: "#ff4d00", borderRadius: 2, display: "inline-block" }} />
+                What We Cover
+              </div>
+              <h2 style={{ color: "#fff", fontSize: "clamp(22px,4vw,34px)", fontWeight: 900, fontFamily: "var(--font-playfair), serif", margin: "0 0 12px" }}>Every Category. Every Budget.</h2>
+              <p style={{ color: "#555", fontSize: 14, lineHeight: 1.7, maxWidth: 480, margin: "0 auto" }}>From your first smartphone to your dream laptop — we&apos;ve got a review for every gadget you&apos;re eyeing.</p>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14 }}>
               {[
-                { icon: "📱", title: "Phones",      desc: "Budget to flagship smartphone reviews" },
-                { icon: "💻", title: "Laptops",     desc: "Gaming and work laptop buying guides" },
-                { icon: "📟", title: "Tablets",     desc: "Tablet reviews and comparisons" },
-                { icon: "🎮", title: "Gaming",      desc: "Gaming hardware and accessories" },
-                { icon: "⭐", title: "Reviews",     desc: "In-depth honest product reviews" },
-                { icon: "🎧", title: "Accessories", desc: "Earbuds, chargers and more" },
+                { icon: "📱", title: "Phones",      desc: "Budget to flagship — find the perfect phone for your money." },
+                { icon: "💻", title: "Laptops",     desc: "Work, gaming, and student laptops reviewed for every budget." },
+                { icon: "📟", title: "Tablets",     desc: "iPad vs Android — which tablet is actually worth buying?" },
+                { icon: "🎮", title: "Gaming",      desc: "Gaming phones, consoles, and gear for Tamil gamers." },
+                { icon: "🔄", title: "Comparisons", desc: "Side-by-side battles to help you pick the winner." },
+                { icon: "🎧", title: "Accessories", desc: "Earbuds, chargers, cases — the accessories that matter." },
               ].map((item) => (
                 <div key={item.title} className="cover-card">
-                  <div style={{ fontSize: "28px", marginBottom: "10px" }}>{item.icon}</div>
-                  <div style={{ color: "#fff", fontSize: "14px", fontWeight: "700", marginBottom: "6px", fontFamily: "var(--font-dm-sans), sans-serif" }}>{item.title}</div>
-                  <div style={{ color: "#444", fontSize: "12px", lineHeight: "1.6", fontFamily: "var(--font-dm-sans), sans-serif" }}>{item.desc}</div>
+                  <div style={{ fontSize: 28, marginBottom: 12 }}>{item.icon}</div>
+                  <div style={{ color: "#fff", fontSize: 14, fontWeight: 800, marginBottom: 7, fontFamily: "var(--font-playfair), serif" }}>{item.title}</div>
+                  <div style={{ color: "#555", fontSize: 12, lineHeight: 1.65 }}>{item.desc}</div>
                 </div>
               ))}
             </div>
           </div>
         </ScrollReveal>
 
+        {/* JOURNEY TIMELINE */}
         <ScrollReveal direction="up" delay={50}>
-          <div className="about-card" style={{
-            background: "linear-gradient(135deg, #1a0800 0%, #0e0500 50%, #1a0800 100%)",
-            border: "1px solid rgba(255,77,0,0.2)",
-            textAlign: "center",
-          }}>
-            <div style={{
-              width: "72px", height: "72px", borderRadius: "50%",
-              background: "rgba(255,0,0,0.1)", border: "2px solid rgba(255,0,0,0.3)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              margin: "0 auto 20px",
-              animation: "ytGlow 2.5s ease-in-out infinite",
-            }}>
-              <FaYoutube size={36} color="#FF0000" />
+          <div style={{ marginBottom: 64 }}>
+            <div style={{ marginBottom: 32 }}>
+              <div className="eyebrow">
+                <span style={{ width: 28, height: 2, background: "#ff4d00", borderRadius: 2, display: "inline-block" }} />
+                Our Journey
+              </div>
+              <h2 style={{ color: "#fff", fontSize: "clamp(22px,4vw,34px)", fontWeight: 900, fontFamily: "var(--font-playfair), serif", margin: 0 }}>How We Got Here</h2>
             </div>
-
-            <div className="section-heading" style={{ justifyContent: "center" }}>YouTube Channel</div>
-
-            <h2 style={{
-              color: "#fff", fontSize: "clamp(18px, 3vw, 26px)", fontWeight: "900",
-              fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif",
-              margin: "0 0 14px",
-            }}>
-              Watch on YouTube
-            </h2>
-            <p style={{ color: "#555", fontSize: "14px", lineHeight: "1.75", margin: "0 auto 28px", maxWidth: "480px", fontFamily: "var(--font-dm-sans), sans-serif" }}>
-              Subscribe to our YouTube channel for video reviews, unboxings, and tech news in Tamil. New videos every week!
-            </p>
-
-            <Link href="https://www.youtube.com/@TechSuperStarOfficial" target="_blank" className="yt-btn">
-              <FaYoutube size={18} /> Subscribe Now →
-            </Link>
+            {[
+              { year: "2018", icon: "🎬", title: "First Video",       desc: "Started with a budget phone review in Tamil. Just a camera, a phone, and a passion for tech." },
+              { year: "2020", icon: "📈", title: "100K Subscribers",  desc: "Crossed 100K subs during the pandemic — people needed honest buying advice more than ever." },
+              { year: "2022", icon: "🏆", title: "1M Milestone",      desc: "Became one of Tamil Nadu's largest tech channels. Every review honest, every rupee respected." },
+              { year: "2024", icon: "🌐", title: "Website Launch",    desc: "Launched TechSuperStar.in so our community could read reviews anytime, anywhere." },
+              { year: "2025", icon: "🚀", title: "2M+ Subscribers",   desc: "Over 2 million Tamil tech lovers now trust us for their buying decisions. Just the beginning." },
+            ].map((item, i) => (
+              <div key={i} className="timeline-item">
+                <div className="timeline-dot">{item.icon}</div>
+                <div style={{ flex: 1, paddingTop: 6 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                    <span style={{ color: "#ff4d00", fontSize: 11, fontWeight: 700, letterSpacing: 1, background: "rgba(255,77,0,0.1)", border: "1px solid rgba(255,77,0,0.2)", padding: "3px 10px", borderRadius: 50 }}>{item.year}</span>
+                    <span style={{ color: "#fff", fontSize: 15, fontWeight: 800, fontFamily: "var(--font-playfair), serif" }}>{item.title}</span>
+                  </div>
+                  <p style={{ color: "#555", fontSize: 13, lineHeight: 1.7, margin: 0 }}>{item.desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </ScrollReveal>
 
+        {/* CONNECT */}
         <ScrollReveal direction="up" delay={50}>
-          <div className="about-card" style={{ textAlign: "center" }}>
-            <div className="section-heading" style={{ justifyContent: "center" }}>Connect With Us</div>
-            <h2 style={{
-              color: "#fff", fontSize: "clamp(18px, 3vw, 24px)", fontWeight: "900",
-              fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif",
-              margin: "0 0 12px",
-            }}>
-              Get In Touch
-            </h2>
-            <p style={{ color: "#555", fontSize: "14px", lineHeight: "1.75", margin: "0 auto 28px", maxWidth: "420px", fontFamily: "var(--font-dm-sans), sans-serif" }}>
-              For business inquiries, collaborations, or just to say hi — reach out to us on any platform!
-            </p>
-
-            <div className="social-row" style={{ display: "flex", justifyContent: "center", gap: "12px", flexWrap: "wrap", marginBottom: "20px" }}>
+          <div style={{ marginBottom: 64 }}>
+            <div style={{ marginBottom: 28, textAlign: "center" }}>
+              <div className="eyebrow" style={{ justifyContent: "center" }}>
+                <span style={{ width: 28, height: 2, background: "#ff4d00", borderRadius: 2, display: "inline-block" }} />
+                Find Us Online
+              </div>
+              <h2 style={{ color: "#fff", fontSize: "clamp(22px,4vw,34px)", fontWeight: 900, fontFamily: "var(--font-playfair), serif", margin: 0 }}>Connect With Us</h2>
+            </div>
+            <div className="social-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
               {[
-                { label: "YouTube",     icon: <FaYoutube size={18} />,   url: "https://www.youtube.com/@TechSuperStarOfficial",   color: "#ff4444", bg: "rgba(255,0,0,0.08)",     border: "rgba(255,0,0,0.25)" },
-                { label: "Instagram",   icon: <FaInstagram size={18} />, url: "https://www.instagram.com/techsuperstarofficial/", color: "#e1306c", bg: "rgba(225,48,108,0.08)",  border: "rgba(225,48,108,0.25)" },
-                { label: "Twitter / X", icon: <FaXTwitter size={18} />,  url: "https://x.com/Tech_SuperStar",                    color: "#aaa",    bg: "rgba(255,255,255,0.04)", border: "rgba(255,255,255,0.12)" },
-              ].map((s) => (
-                <Link key={s.label} href={s.url} target="_blank"
-                  className="social-row-btn"
-                  style={{
-                    background: s.bg,
-                    border: `1px solid ${s.border}`,
-                    color: s.color,
-                  }}
-                >
-                  {s.icon}
-                  {s.label}
-                  <span style={{ marginLeft: "auto", fontSize: 11, opacity: 0.5 }}>→</span>
+                { Icon: FaYoutube,   label: "YouTube",     sub: "2.08M Subscribers",      href: "https://www.youtube.com/@TechSuperStarOfficial",   iconColor: "#ff4444", bg: "rgba(255,68,68,0.08)",   border: "rgba(255,68,68,0.18)" },
+                { Icon: FaInstagram, label: "Instagram",   sub: "@techsuperstarofficial", href: "https://www.instagram.com/techsuperstarofficial/", iconColor: "#e1306c", bg: "rgba(225,48,108,0.08)", border: "rgba(225,48,108,0.18)" },
+                { Icon: FaXTwitter,  label: "Twitter / X", sub: "@Tech_SuperStar",         href: "https://x.com/Tech_SuperStar",                      iconColor: "#eee",    bg: "rgba(255,255,255,0.04)", border: "rgba(255,255,255,0.08)" },
+              ].map(({ Icon, label, sub, href, iconColor, bg, border }) => (
+                <Link key={label} href={href} target="_blank" className="social-card" style={{ background: "#0d0d0d", border: `1px solid ${border}` }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <Icon size={20} color={iconColor} />
+                  </div>
+                  <div>
+                    <div style={{ color: "#fff", fontSize: 14, fontWeight: 700, marginBottom: 3 }}>{label}</div>
+                    <div style={{ color: "#444", fontSize: 11 }}>{sub}</div>
+                  </div>
+                  <span style={{ marginLeft: "auto", color: "#333", fontSize: 16 }}>→</span>
                 </Link>
               ))}
             </div>
+          </div>
+        </ScrollReveal>
 
-            <Link href="/contact" className="contact-btn">
-              Send a Message →
-            </Link>
+        {/* CTA */}
+        <ScrollReveal direction="up" delay={50}>
+          <div className="cta-box">
+            <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 500, height: 220, borderRadius: "50%", background: "radial-gradient(ellipse, rgba(255,77,0,0.1), transparent 70%)", pointerEvents: "none" }} />
+            <div style={{ position: "relative" }}>
+              <div style={{ fontSize: 40, marginBottom: 16 }}>🚀</div>
+              <h3 style={{ color: "#fff", fontSize: "clamp(20px,4vw,32px)", fontWeight: 900, fontFamily: "var(--font-playfair), serif", margin: "0 0 12px" }}>
+                Ready to Stay Ahead of the Curve?
+              </h3>
+              <p style={{ color: "#555", fontSize: 14, lineHeight: 1.75, maxWidth: 440, margin: "0 auto 32px" }}>
+                Subscribe to our YouTube channel and never miss a review, unboxing, or buying guide — all in Tamil. It&apos;s free.
+              </p>
+              <div className="cta-btns" style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
+                <Link href="https://www.youtube.com/@TechSuperStarOfficial" target="_blank" className="btn-primary">
+                  <FaYoutube size={18} /> Subscribe on YouTube
+                </Link>
+                <Link href="/contact" className="btn-secondary">
+                  Contact Us →
+                </Link>
+              </div>
+            </div>
           </div>
         </ScrollReveal>
 
