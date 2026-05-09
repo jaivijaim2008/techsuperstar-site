@@ -7,7 +7,7 @@ const categoryColors: Record<string, { color: string; glow: string }> = {
   laptops:     { color: "#0066ff", glow: "rgba(0,102,255,0.3)" },
   tablets:     { color: "#00cc66", glow: "rgba(0,204,102,0.3)" },
   gaming:      { color: "#aa00ff", glow: "rgba(170,0,255,0.3)" },
-  reviews:     { color: "#FFD700", glow: "rgba(255,215,0,0.35)" },
+  comparisons: { color: "#FFD700", glow: "rgba(255,215,0,0.35)" },
   accessories: { color: "#00ccff", glow: "rgba(0,204,255,0.3)" },
 };
 
