@@ -35,7 +35,7 @@ export function YoutubeAutofill(props: StringInputProps) {
 
     setIsLoading(true);
     setIsDone(false);
-    setStatus("⏳ Fetching video data and generating blog with Groq AI...");
+    setStatus("⏳ Fetching video data and generating blog with AI...");
 
     try {
       const res = await fetch(`${BASE_URL}/api/youtube-autofill`, {
