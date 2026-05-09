@@ -3,6 +3,16 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
+
 function extractVideoId(url: string): string | null {
   const match = url.match(
     /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/
@@ -23,7 +33,7 @@ async function fetchTranscript(videoId: string): Promise<string> {
 
   const html = await pageRes.text();
 
-  const captionsMatch = html.match(/"captionTracks":\s*(\[.*?\])/s);
+  const captionsMatch = html.match(/"captionTracks":\s*(\[[\s\S]*?\])/);
   if (!captionsMatch) throw new Error("No captions found for this video");
 
   const tracks = JSON.parse(captionsMatch[1]);
@@ -104,23 +114,23 @@ export async function POST(req: NextRequest) {
   try {
     const { youtubeUrl } = await req.json();
     if (!youtubeUrl) {
-      return NextResponse.json({ error: "YouTube URL is required" }, { status: 400 });
+      return NextResponse.json({ error: "YouTube URL is required" }, { status: 400, headers: corsHeaders });
     }
 
     const videoId = extractVideoId(youtubeUrl);
     if (!videoId) {
-      return NextResponse.json({ error: "Invalid YouTube URL" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid YouTube URL" }, { status: 400, headers: corsHeaders });
     }
 
     // 1. Fetch YouTube metadata from your existing route
     const metaRes = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/youtube-meta?url=${encodeURIComponent(youtubeUrl)}`
+      `https://techsuperstar-site.vercel.app/api/youtube-meta?url=${encodeURIComponent(youtubeUrl)}`
     );
     const meta = await metaRes.json();
     if (!metaRes.ok || meta.error) {
       return NextResponse.json(
         { error: `YouTube meta fetch failed: ${meta.error}` },
-        { status: 422 }
+        { status: 422, headers: corsHeaders }
       );
     }
 
@@ -177,12 +187,13 @@ Respond ONLY with a valid JSON object — no markdown fences, no extra text, no 
       thumbnail: meta.thumbnail,
       thumbnailBase64: meta.thumbnailBase64,
       thumbnailMimeType: meta.thumbnailMimeType,
-    });
+    }, { headers: corsHeaders });
+
   } catch (error) {
     console.error("YouTube autofill error:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Something went wrong" },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

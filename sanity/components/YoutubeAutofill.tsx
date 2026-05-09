@@ -20,8 +20,8 @@ export function YoutubeAutofill(props: StringInputProps) {
     setStatus("⏳ Fetching transcript & generating blog with Gemini AI...");
 
     try {
-      // Call the new Gemini-powered autofill route
-      const res = await fetch("/api/youtube-autofill", {
+      // Using absolute Vercel URL so it works from hosted Sanity Studio (sanity.io)
+      const res = await fetch("https://techsuperstar-site.vercel.app/api/youtube-autofill", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ youtubeUrl: value }),
@@ -54,7 +54,6 @@ export function YoutubeAutofill(props: StringInputProps) {
 
       setStatus("💾 Saving to Sanity...");
 
-      // Patch all fields into the Sanity document
       const draftId = documentId.startsWith("drafts.") ? documentId : `drafts.${documentId}`;
 
       await client
@@ -70,7 +69,7 @@ export function YoutubeAutofill(props: StringInputProps) {
         .commit({ visibility: "async" });
 
       setIsDone(true);
-      setStatus(`✅ Done! Title, slug, excerpt, date, thumbnail and body filled in. Set the Category manually.`);
+      setStatus("✅ Done! Title, slug, excerpt, date, thumbnail and body filled in. Set the Category manually.");
     } catch (err) {
       console.error("Autofill error:", err);
       setIsError(true);
@@ -116,13 +115,7 @@ export function YoutubeAutofill(props: StringInputProps) {
         {loading ? "⏳ Generating..." : isDone ? "✅ Done!" : "⚡ Auto-fill from YouTube"}
       </button>
       {status && (
-        <p
-          style={{
-            color: isError ? "#ff6b6b" : isDone ? "#4caf50" : "#aaa",
-            fontSize: "12px",
-            margin: 0,
-          }}
-        >
+        <p style={{ color: isError ? "#ff6b6b" : isDone ? "#4caf50" : "#aaa", fontSize: "12px", margin: 0 }}>
           {status}
         </p>
       )}
