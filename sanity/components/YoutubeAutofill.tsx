@@ -20,7 +20,7 @@ export function YoutubeAutofill(props: StringInputProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isDone, setIsDone] = useState(false);
   const client = useClient({ apiVersion: "2024-01-01" });
-  const docId = useFormValue(["_id"]) as string; // ✅ correct way to get document ID
+  const docId = useFormValue(["_id"]) as string;
 
   const handleAutofill = async () => {
     if (!value) {
@@ -49,7 +49,6 @@ export function YoutubeAutofill(props: StringInputProps) {
 
       setStatus("✍️ Filling in all fields...");
 
-      // Build the patch using the correct document ID
       const patch = client.patch(docId);
 
       // Title
@@ -89,6 +88,34 @@ export function YoutubeAutofill(props: StringInputProps) {
         patch.set({ cons: data.cons });
       }
 
+      // Category - auto-detect and link reference
+      if (data.category) {
+        try {
+          // Always capitalize first letter to match your Sanity slugs (Phones, Laptops etc.)
+          const categorySlug =
+            data.category.charAt(0).toUpperCase() + data.category.slice(1).toLowerCase();
+
+          const categoryDoc = await client.fetch(
+            `*[_type == "category" && slug.current == $slug][0]{ _id }`,
+            { slug: categorySlug }
+          );
+
+          if (categoryDoc?._id) {
+            patch.set({
+              categories: [
+                {
+                  _type: "reference",
+                  _key: Math.random().toString(36).slice(2),
+                  _ref: categoryDoc._id,
+                },
+              ],
+            });
+          }
+        } catch (catErr) {
+          console.warn("Category patch failed:", catErr);
+        }
+      }
+
       // Upload thumbnail as mainImage
       if (data.thumbnailBase64 && data.thumbnailMimeType) {
         setStatus("🖼️ Uploading thumbnail...");
@@ -116,7 +143,7 @@ export function YoutubeAutofill(props: StringInputProps) {
 
       await patch.commit();
 
-      setStatus("✅ Done! All fields filled — title, slug, excerpt, body, specs, pros & cons.");
+      setStatus("✅ Done! All fields filled — title, slug, excerpt, body, specs, pros, cons & category.");
       setIsDone(true);
     } catch (err) {
       console.error(err);
@@ -181,7 +208,7 @@ export function YoutubeAutofill(props: StringInputProps) {
       {/* What gets filled */}
       {!isDone && !isLoading && (
         <p style={{ margin: 0, fontSize: "12px", color: "#888" }}>
-          Fills: Title · Slug · Excerpt · Date · Body · Specs Table · Pros · Cons · Thumbnail
+          Fills: Title · Slug · Excerpt · Date · Body · Specs Table · Pros · Cons · Thumbnail · Category
         </p>
       )}
     </div>
