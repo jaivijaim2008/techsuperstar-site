@@ -1,7 +1,7 @@
 import { defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
 import { visionTool } from "@sanity/vision";
-import { YoutubeAutofill } from "./sanity/components/YoutubeAutofill";
+import { postType } from "./sanity/schemaTypes/postType";
 
 export default defineConfig({
   name: "default",
@@ -39,40 +39,7 @@ export default defineConfig({
           { name: "description", title: "Description", type: "text" },
         ],
       },
-      {
-        name: "post",
-        title: "Post",
-        type: "document",
-        fields: [
-          { name: "title", title: "Title", type: "string" },
-          { name: "slug", title: "Slug", type: "slug", options: { source: "title" } },
-          { name: "author", title: "Author", type: "string" },
-          { name: "mainImage", title: "Main Image", type: "image", options: { hotspot: true } },
-          {
-            name: "categories",
-            title: "Categories",
-            type: "array",
-            of: [{ type: "reference", to: [{ type: "category" }] }],
-          },
-          { name: "publishedAt", title: "Published At", type: "datetime" },
-          { name: "excerpt", title: "Excerpt", type: "text", description: "Short summary shown under the article title on cards (1-2 sentences)." },
-          {
-            name: "youtubeUrl",
-            title: "YouTube Video URL",
-            type: "string",
-            description: "Paste YouTube URL then click Auto-fill to extract title, slug, body and date automatically.",
-            components: {
-              input: YoutubeAutofill,
-            },
-          },
-          {
-            name: "body",
-            title: "Body",
-            type: "array",
-            of: [{ type: "block" }, { type: "image", options: { hotspot: true } }],
-          },
-        ],
-      },
+      postType, // ✅ uses postType.ts which has specs, pros, cons
     ],
   },
 });
