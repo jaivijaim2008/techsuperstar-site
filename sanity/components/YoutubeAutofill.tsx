@@ -17,7 +17,7 @@ export function YoutubeAutofill(props: StringInputProps) {
     setLoading(true);
     setIsError(false);
     setIsDone(false);
-    setStatus("⏳ Fetching transcript & generating blog with Gemini AI...");
+    setStatus("⏳ Fetching transcript & generating blog with Groq AI...");
 
     try {
       // Using absolute Vercel URL so it works from hosted Sanity Studio (sanity.io)
