@@ -45,12 +45,12 @@ const categoryInfo: Record<string, {
     rgb: "168,85,247",
     description: "Gaming hardware, reviews and news" 
   },
-  reviews: { 
-    icon: <FaStar size={48} />, 
-    color: "#f59e0b", 
-    rgb: "245,158,11",
-    description: "Honest Takes on Tech" 
-  },
+  comparisons: { 
+  icon: <FaStar size={48} />, 
+  color: "#f59e0b", 
+  rgb: "245,158,11",
+  description: "Side by side product comparisons" 
+},
   accessories: { 
     icon: <FaHeadphones size={48} />, 
     color: "#06b6d4", 
