@@ -12,7 +12,7 @@ export default function CtaStats() {
   }, []);
 
   return (
-    <div style={{ display: "flex", gap: "24px", marginTop: "18px", flexWrap: "wrap" }}>
+    <div style={{ display: "flex", gap: "24px", marginTop: "18px", flexWrap: "wrap", justifyContent: "center" }}>
       <div>
         <div className="cta-stat-value">{subscribers}</div>
         <div className="cta-stat-label">Subscribers</div>
