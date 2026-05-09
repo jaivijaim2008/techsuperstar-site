@@ -155,11 +155,14 @@ function ProsAndCons({ pros, cons }: { pros?: string[]; cons?: string[] }) {
   );
 }
 
-export default async function PostPage({ params }: { params: { slug: string } }) {
-  const post: Post | null = await getPost(params.slug);
+// ✅ Fixed: params is now awaited (Next.js 15 requirement)
+export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+
+  const post: Post | null = await getPost(slug);
   if (!post) notFound();
 
-  const relatedPosts = await getRelatedPosts(params.slug, post.categories || []);
+  const relatedPosts = await getRelatedPosts(slug, post.categories || []);
   const embedUrl = post.youtubeUrl ? getYouTubeEmbedUrl(post.youtubeUrl) : null;
 
   return (
@@ -243,7 +246,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
           ) : null}
 
           {/* Share */}
-          <ShareButtons title={post.title} slug={params.slug} />
+          <ShareButtons title={post.title} slug={slug} />
 
         </ScrollReveal>
 
