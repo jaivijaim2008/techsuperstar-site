@@ -48,9 +48,14 @@ const ptComponents = {
     h1: ({ children }: { children?: React.ReactNode }) => (
       <h1 className="text-2xl sm:text-3xl font-black mt-8 mb-4 text-white leading-tight">{children}</h1>
     ),
-    h2: ({ children }: { children?: React.ReactNode }) => (
-      <h2 className="text-xl sm:text-2xl font-bold mt-6 sm:mt-8 mb-3 text-white border-l-4 border-orange-500 pl-4">{children}</h2>
-    ),
+    h2: ({ children }: { children?: React.ReactNode }) => {
+  const text = typeof children === "string" ? children : 
+    Array.isArray(children) ? children.join("") : "";
+  const id = text.toLowerCase().replace(/[^a-z0-9\s]/g, "").replace(/\s+/g, "-").slice(0, 60);
+  return (
+    <h2 id={id} className="text-xl sm:text-2xl font-bold mt-6 sm:mt-8 mb-3 text-white border-l-4 border-orange-500 pl-4 scroll-mt-20">{children}</h2>
+  );
+},
     h3: ({ children }: { children?: React.ReactNode }) => (
       <h3 className="text-lg sm:text-xl font-bold mt-5 mb-2 text-orange-400">{children}</h3>
     ),
