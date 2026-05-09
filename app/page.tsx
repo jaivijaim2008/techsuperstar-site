@@ -8,6 +8,7 @@ import ScrollReveal from "@/components/ScrollReveal";
 import { getPosts } from "@/lib/query";
 import TagsBar from "@/components/TagsBar";
 import Link from "next/link";
+import CtaStats from "@/components/CtaStats";
 
 export const dynamic = "force-dynamic";
 
@@ -344,18 +345,7 @@ export default async function Home({
               }}>
                 Subscribe to our YouTube channel and never miss a review, unboxing or buying guide — all in Tamil.
               </p>
-              <div className="cta-stats-row" style={{ display: "flex", gap: "24px", marginTop: "18px", flexWrap: "wrap" }}>
-                {[
-                  { label: "Subscribers", value: "2.08M" },
-                  { label: "Total Views",  value: "3.2M"  },
-                  
-                ].map((stat) => (
-                  <div key={stat.label}>
-                    <div className="cta-stat-value">{stat.value}</div>
-                    <div className="cta-stat-label">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
+              <CtaStats />
             </div>
             <div className="cta-actions" style={{ display: "flex", gap: "12px", flexWrap: "wrap", flexShrink: 0 }}>
               <Link href="https://www.youtube.com/@TechSuperStarOfficial" target="_blank" className="cta-btn-primary">
