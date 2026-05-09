@@ -225,7 +225,7 @@ Return ONLY a valid JSON object (no markdown, no explanation):
         "X-Title": "TechSuperStar",
       },
       body: JSON.stringify({
-        model: "meta-llama/llama-3.3-70b-instruct:free",
+        model: "deepseek/deepseek-r1:free",
         messages: [{ role: "user", content: prompt }],
         temperature: 0.6,
         max_tokens: 6000,
