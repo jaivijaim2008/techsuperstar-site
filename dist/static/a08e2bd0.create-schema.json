@@ -119,6 +119,11 @@
         "type": "datetime"
       },
       {
+        "description": "Short summary shown under the article title on cards (1-2 sentences).",
+        "name": "excerpt",
+        "type": "text"
+      },
+      {
         "description": "Paste YouTube URL then click Auto-fill to extract title, slug, body and date automatically.",
         "name": "youtubeUrl",
         "type": "string",
