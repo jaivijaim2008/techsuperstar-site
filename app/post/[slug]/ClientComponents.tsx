@@ -258,7 +258,7 @@ export function CommentsSection({ postId, initialComments }: { postId: string; i
         <div style={{ background: "#111", border: "1px solid rgba(255,77,0,0.15)", borderRadius: "16px", padding: "28px" }}>
           <h4 style={{ color: "#fff", fontSize: "16px", fontWeight: "700", margin: "0 0 20px" }}>Leave a Comment</h4>
           <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "12px" }}>
               <div>
                 <label style={{ color: "#555", fontSize: "11px", fontWeight: "600", letterSpacing: "1px", textTransform: "uppercase", display: "block", marginBottom: "6px" }}>Name *</label>
                 <input placeholder="Your name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
