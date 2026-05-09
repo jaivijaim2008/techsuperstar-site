@@ -101,10 +101,12 @@ export async function POST(req: NextRequest) {
     // 3. Generate everything with Groq
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-    const prompt = `You are a tech blogger. Based on this YouTube video transcript/description, generate a complete blog post.
+    const prompt = `You are an expert Tamil tech blogger writing in English. Based on this YouTube video transcript, write a DETAILED and LONG blog post review.
 
 VIDEO TITLE: ${meta.title}
 CONTENT: ${contentSource}
+
+IMPORTANT: Each section's "content" must be AT LEAST 4-6 sentences long with specific details, numbers, and comparisons. Do NOT write short summaries. Use all the information from the transcript to write rich, detailed content.
 
 Return ONLY a valid JSON object (no markdown, no explanation) with these exact keys:
 
@@ -114,33 +116,33 @@ Return ONLY a valid JSON object (no markdown, no explanation) with these exact k
   "excerpt": "2-sentence summary for the blog card",
   "category": "one of: Phones, Laptops, Tablets, Gaming, Accessories, Reviews",
   "body": [
-    { "heading": "Introduction", "content": "paragraph text here" },
-    { "heading": "Design & Build", "content": "paragraph text here" },
-    { "heading": "Display", "content": "paragraph text here" },
-    { "heading": "Performance", "content": "paragraph text here" },
-    { "heading": "Camera", "content": "paragraph text here" },
-    { "heading": "Battery Life", "content": "paragraph text here" },
-    { "heading": "Verdict", "content": "paragraph text here" }
+    { "heading": "Introduction", "content": "Write 4-6 sentences introducing the device, its market positioning, target audience, price segment, and what makes it special or unique compared to competitors." },
+    { "heading": "Design & Build", "content": "Write 4-6 sentences about the physical design, materials used, dimensions, weight, color options, button placement, ports, and overall in-hand feel and comfort." },
+    { "heading": "Display", "content": "Write 4-6 sentences about display size, panel type (OLED/AMOLED/LCD), refresh rate, peak brightness, color accuracy, resolution, and real-world viewing experience including sunlight visibility." },
+    { "heading": "Performance", "content": "Write 4-6 sentences about the processor model, RAM, storage options, real-world performance in daily tasks, gaming experience, multitasking capability, heating issues, and any benchmark results mentioned." },
+    { "heading": "Camera", "content": "Write 4-6 sentences about the main camera specs (megapixels, aperture, sensor size), photo quality in different lighting conditions, video recording capabilities, night mode performance, selfie camera quality, and overall camera verdict." },
+    { "heading": "Battery Life", "content": "Write 4-6 sentences about battery capacity in mAh, screen-on time in real usage, wired charging speed in watts, wireless charging support, battery drain during gaming, and overall battery rating." },
+    { "heading": "Verdict", "content": "Write 4-6 sentences giving a final verdict, summarizing the best and worst aspects, who should buy this device, value for money assessment, and a clear buy or skip recommendation." }
   ],
   "specs": [
-    { "label": "Display", "value": "extracted from content or N/A" },
-    { "label": "Processor", "value": "extracted from content or N/A" },
-    { "label": "RAM", "value": "extracted from content or N/A" },
-    { "label": "Storage", "value": "extracted from content or N/A" },
-    { "label": "Camera", "value": "extracted from content or N/A" },
-    { "label": "Battery", "value": "extracted from content or N/A" },
-    { "label": "OS", "value": "extracted from content or N/A" },
-    { "label": "Price", "value": "extracted from content or N/A" }
+    { "label": "Display", "value": "exact spec extracted from transcript or N/A" },
+    { "label": "Processor", "value": "exact spec extracted from transcript or N/A" },
+    { "label": "RAM", "value": "exact spec extracted from transcript or N/A" },
+    { "label": "Storage", "value": "exact spec extracted from transcript or N/A" },
+    { "label": "Camera", "value": "exact spec extracted from transcript or N/A" },
+    { "label": "Battery", "value": "exact spec extracted from transcript or N/A" },
+    { "label": "OS", "value": "exact spec extracted from transcript or N/A" },
+    { "label": "Price", "value": "exact spec extracted from transcript or N/A" }
   ],
-  "pros": ["pro 1", "pro 2", "pro 3", "pro 4"],
-  "cons": ["con 1", "con 2", "con 3"]
+  "pros": ["detailed pro 1", "detailed pro 2", "detailed pro 3", "detailed pro 4"],
+  "cons": ["detailed con 1", "detailed con 2", "detailed con 3"]
 }`;
 
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.5,
-      max_tokens: 3000,
+      max_tokens: 6000,
     });
 
     const rawText = completion.choices[0]?.message?.content || "";
