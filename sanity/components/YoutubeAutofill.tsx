@@ -1,122 +1,185 @@
 "use client";
 import { useState } from "react";
-import { StringInputProps, useFormValue, useClient } from "sanity";
+import { StringInputProps, useClient, set, unset } from "sanity";
+
+const BASE_URL = "https://techsuperstar-site.vercel.app";
+
+function slugify(text: string) {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .trim()
+    .slice(0, 80);
+}
 
 export function YoutubeAutofill(props: StringInputProps) {
-  const { value, elementProps } = props;
-  const [loading, setLoading] = useState(false);
+  const { value = "", onChange, elementProps } = props;
   const [status, setStatus] = useState("");
-  const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isDone, setIsDone] = useState(false);
-
   const client = useClient({ apiVersion: "2024-01-01" });
-  const documentId = useFormValue(["_id"]) as string;
 
   const handleAutofill = async () => {
-    if (!value) return;
-    setLoading(true);
-    setIsError(false);
+    if (!value) {
+      setStatus("❌ Please paste a YouTube URL first.");
+      return;
+    }
+
+    setIsLoading(true);
     setIsDone(false);
-    setStatus("⏳ Fetching transcript & generating blog with Groq AI...");
+    setStatus("⏳ Fetching video data and generating blog with Groq AI...");
 
     try {
-      // Using absolute Vercel URL so it works from hosted Sanity Studio (sanity.io)
-      const res = await fetch("https://techsuperstar-site.vercel.app/api/youtube-autofill", {
+      const res = await fetch(`${BASE_URL}/api/youtube-autofill`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ youtubeUrl: value }),
+        body: JSON.stringify({ url: value }),
       });
 
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "API request failed");
 
-      if (!res.ok || data.error) {
-        throw new Error(data.error || "Failed to generate content");
+      setStatus("✍️ Filling in all fields...");
+
+      // Get current document ID from the form
+      const docId = (props as unknown as { id?: string }).id;
+      if (!docId) throw new Error("No document ID found");
+
+      // Build the patch
+      const patch = client.patch(docId);
+
+      // Title
+      if (data.title) patch.set({ title: data.title });
+
+      // Slug
+      if (data.slug) patch.set({ slug: { _type: "slug", current: slugify(data.slug) } });
+
+      // Excerpt
+      if (data.excerpt) patch.set({ excerpt: data.excerpt });
+
+      // Published date
+      if (data.publishedAt) patch.set({ publishedAt: data.publishedAt });
+
+      // Body
+      if (data.body?.length) patch.set({ body: data.body });
+
+      // ── NEW: Specs ──
+      if (data.specs?.length) {
+        patch.set({
+          specs: data.specs.map((s: { label: string; value: string }) => ({
+            _type: "object",
+            _key: Math.random().toString(36).slice(2),
+            label: s.label,
+            value: s.value,
+          })),
+        });
       }
 
-      setStatus("🖼️ Uploading thumbnail...");
+      // ── NEW: Pros ──
+      if (data.pros?.length) {
+        patch.set({ pros: data.pros });
+      }
 
-      // Upload thumbnail to Sanity if available
-      let mainImage = undefined;
-      if (data.thumbnailBase64) {
+      // ── NEW: Cons ──
+      if (data.cons?.length) {
+        patch.set({ cons: data.cons });
+      }
+
+      // Upload thumbnail as mainImage
+      if (data.thumbnailBase64 && data.thumbnailMimeType) {
+        setStatus("🖼️ Uploading thumbnail...");
         try {
-          const byteArray = Uint8Array.from(atob(data.thumbnailBase64), (c) => c.charCodeAt(0));
-          const blob = new Blob([byteArray], { type: data.thumbnailMimeType || "image/jpeg" });
-          const file = new File([blob], "thumbnail.jpg", { type: data.thumbnailMimeType || "image/jpeg" });
-          const asset = await client.assets.upload("image", file, { filename: "thumbnail.jpg" });
-          mainImage = {
-            _type: "image",
-            asset: { _type: "reference", _ref: asset._id },
-          };
+          const byteChars = atob(data.thumbnailBase64);
+          const byteArr = new Uint8Array(byteChars.length);
+          for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
+          const blob = new Blob([byteArr], { type: data.thumbnailMimeType });
+
+          const imageAsset = await client.assets.upload("image", blob, {
+            filename: `${slugify(data.title || "thumbnail")}.jpg`,
+          });
+
+          patch.set({
+            mainImage: {
+              _type: "image",
+              asset: { _type: "reference", _ref: imageAsset._id },
+              alt: data.title || "",
+            },
+          });
         } catch (imgErr) {
           console.warn("Thumbnail upload failed:", imgErr);
         }
       }
 
-      setStatus("💾 Saving to Sanity...");
+      await patch.commit();
 
-      const draftId = documentId.startsWith("drafts.") ? documentId : `drafts.${documentId}`;
-
-      await client
-        .patch(draftId)
-        .set({
-          title: data.title,
-          slug: { _type: "slug", current: data.slug },
-          excerpt: data.excerpt,
-          publishedAt: data.publishedAt,
-          body: data.body,
-          ...(mainImage && { mainImage }),
-        })
-        .commit({ visibility: "async" });
-
+      setStatus("✅ Done! All fields filled — title, slug, excerpt, body, specs, pros & cons.");
       setIsDone(true);
-      setStatus("✅ Done! Title, slug, excerpt, date, thumbnail and body filled in. Set the Category manually.");
     } catch (err) {
-      console.error("Autofill error:", err);
-      setIsError(true);
-      setStatus("❌ " + (err instanceof Error ? err.message : String(err)));
+      console.error(err);
+      setStatus(`❌ Error: ${err instanceof Error ? err.message : "Something went wrong"}`);
+    } finally {
+      setIsLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+      {/* URL Input */}
       <input
         {...elementProps}
-        placeholder="Paste YouTube URL here..."
+        value={value}
+        placeholder="https://youtu.be/..."
+        onChange={(e) => onChange(e.target.value ? set(e.target.value) : unset())}
         style={{
-          width: "100%",
           padding: "10px 14px",
-          background: "#1a1a1a",
-          border: "1px solid #444",
-          borderRadius: "8px",
-          color: "#fff",
+          borderRadius: "6px",
+          border: "1px solid #ccc",
           fontSize: "14px",
+          width: "100%",
           boxSizing: "border-box",
         }}
       />
+
+      {/* Auto-fill Button */}
       <button
-        type="button"
         onClick={handleAutofill}
-        disabled={loading || !value}
+        disabled={isLoading}
         style={{
-          background: loading || !value ? "#333" : isDone ? "#1a7a3c" : "#ff4d00",
-          color: "#fff",
+          padding: "10px 20px",
+          borderRadius: "6px",
           border: "none",
-          padding: "10px 24px",
-          borderRadius: "8px",
-          cursor: loading || !value ? "not-allowed" : "pointer",
-          fontSize: "13px",
+          background: isDone ? "#16a34a" : isLoading ? "#94a3b8" : "#ff4d00",
+          color: "#fff",
           fontWeight: "700",
-          width: "fit-content",
-          transition: "background 0.2s",
+          fontSize: "14px",
+          cursor: isLoading ? "not-allowed" : "pointer",
+          transition: "background 0.3s",
+          alignSelf: "flex-start",
         }}
       >
-        {loading ? "⏳ Generating..." : isDone ? "✅ Done!" : "⚡ Auto-fill from YouTube"}
+        {isLoading ? "⏳ Generating..." : isDone ? "✅ Done!" : "⚡ Auto-fill from YouTube"}
       </button>
+
+      {/* Status Message */}
       {status && (
-        <p style={{ color: isError ? "#ff6b6b" : isDone ? "#4caf50" : "#aaa", fontSize: "12px", margin: 0 }}>
+        <p
+          style={{
+            margin: 0,
+            fontSize: "13px",
+            color: status.startsWith("❌") ? "#dc2626" : "#555",
+            fontStyle: "italic",
+          }}
+        >
           {status}
+        </p>
+      )}
+
+      {/* What gets filled */}
+      {!isDone && !isLoading && (
+        <p style={{ margin: 0, fontSize: "12px", color: "#888" }}>
+          Fills: Title · Slug · Excerpt · Date · Body · Specs Table · Pros · Cons · Thumbnail
         </p>
       )}
     </div>

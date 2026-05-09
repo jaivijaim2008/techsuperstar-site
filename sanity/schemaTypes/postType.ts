@@ -43,7 +43,6 @@ export const postType = defineType({
       name: "publishedAt",
       type: "datetime",
     }),
-    // ── NEW: Excerpt field ──
     defineField({
       name: "excerpt",
       title: "Excerpt",
@@ -56,7 +55,7 @@ export const postType = defineType({
       title: "YouTube Video URL",
       type: "string",
       description:
-        "Paste the full YouTube URL then click ⚡ Auto-fill to extract title, slug, body and date automatically.",
+        "Paste the full YouTube URL then click ⚡ Auto-fill to extract everything automatically.",
       components: {
         input: YoutubeAutofill,
       },
@@ -64,6 +63,41 @@ export const postType = defineType({
     defineField({
       name: "body",
       type: "blockContent",
+    }),
+    // ── NEW: Specs Table ──
+    defineField({
+      name: "specs",
+      title: "Specifications",
+      type: "array",
+      description: "Auto-filled by AI from video transcript. Edit if needed.",
+      of: [
+        defineArrayMember({
+          type: "object",
+          fields: [
+            defineField({ name: "label", type: "string", title: "Spec Name" }),
+            defineField({ name: "value", type: "string", title: "Spec Value" }),
+          ],
+          preview: {
+            select: { title: "label", subtitle: "value" },
+          },
+        }),
+      ],
+    }),
+    // ── NEW: Pros ──
+    defineField({
+      name: "pros",
+      title: "Pros",
+      type: "array",
+      description: "Auto-filled by AI. Each item is one pro point.",
+      of: [defineArrayMember({ type: "string" })],
+    }),
+    // ── NEW: Cons ──
+    defineField({
+      name: "cons",
+      title: "Cons",
+      type: "array",
+      description: "Auto-filled by AI. Each item is one con point.",
+      of: [defineArrayMember({ type: "string" })],
     }),
   ],
   preview: {

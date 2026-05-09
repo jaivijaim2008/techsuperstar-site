@@ -93,6 +93,9 @@ export async function getPost(slug: string) {
           youtubeUrl,
           body,
           excerpt,
+          specs,
+          pros,
+          cons,
           "comments": *[_type == "comment" && references(^._id) && approved == true] | order(createdAt asc) {
             _id, name, message, createdAt
           }

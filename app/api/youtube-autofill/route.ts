@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY!,
-});
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
@@ -17,183 +13,181 @@ export async function OPTIONS() {
 
 function extractVideoId(url: string): string | null {
   const match = url.match(
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s?]+)/
   );
   return match?.[1] ?? null;
 }
 
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .trim()
+    .slice(0, 80);
+}
+
+function extractJSON(text: string): string {
+  const start = text.indexOf("{");
+  const end = text.lastIndexOf("}");
+  if (start === -1 || end === -1) throw new Error("No JSON found in response");
+  return text.slice(start, end + 1);
+}
+
 async function fetchTranscript(videoId: string): Promise<string> {
-  const pageRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+  const res = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
     headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
       "Accept-Language": "en-US,en;q=0.9",
     },
   });
-  if (!pageRes.ok) throw new Error("Failed to fetch YouTube page");
+  const html = await res.text();
 
-  const html = await pageRes.text();
   const captionsMatch = html.match(/"captionTracks":\s*(\[[\s\S]*?\])/);
-  if (!captionsMatch) throw new Error("No captions found");
+  if (!captionsMatch) return "";
 
   const tracks = JSON.parse(captionsMatch[1]);
-  const track = tracks.find((t: { languageCode: string }) => t.languageCode === "en") || tracks[0];
-  if (!track?.baseUrl) throw new Error("No caption track URL found");
+  const track =
+    tracks.find((t: { languageCode: string }) => t.languageCode === "en") ||
+    tracks[0];
+  if (!track?.baseUrl) return "";
 
-  const captionUrl = track.baseUrl.replace(/\\u0026/g, "&");
-  const transcriptRes = await fetch(captionUrl);
-  if (!transcriptRes.ok) throw new Error("Failed to fetch transcript");
+  const xmlRes = await fetch(track.baseUrl);
+  const xml = await xmlRes.text();
 
-  const xml = await transcriptRes.text();
-  const textMatches = xml.match(/<text[^>]*>([\s\S]*?)<\/text>/g) || [];
-  const transcript = textMatches
-    .map((tag) =>
-      tag
-        .replace(/<[^>]+>/g, "")
-        .replace(/&amp;/g, "&")
-        .replace(/&lt;/g, "<")
-        .replace(/&gt;/g, ">")
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'")
-        .trim()
-    )
-    .filter(Boolean)
-    .join(" ");
-
-  if (!transcript) throw new Error("Transcript is empty");
-  return transcript;
-}
-
-function textToPortableText(text: string): object[] {
-  const lines = text.split("\n").filter((l) => l.trim());
-  const blocks: object[] = [];
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-
-    let style = "normal";
-    let cleanText = trimmed;
-
-    if (trimmed.startsWith("### ")) { style = "h3"; cleanText = trimmed.slice(4); }
-    else if (trimmed.startsWith("## ")) { style = "h2"; cleanText = trimmed.slice(3); }
-    else if (trimmed.startsWith("# ")) { style = "h1"; cleanText = trimmed.slice(2); }
-
-    blocks.push({
-      _type: "block",
-      _key: Math.random().toString(36).slice(2, 10),
-      style,
-      markDefs: [],
-      children: [{
-        _type: "span",
-        _key: Math.random().toString(36).slice(2, 10),
-        text: cleanText,
-        marks: [],
-      }],
-    });
-  }
-  return blocks;
-}
-
-function extractJSON(text: string): object {
-  const start = text.indexOf("{");
-  const end = text.lastIndexOf("}");
-  if (start === -1 || end === -1) throw new Error("No JSON found in AI response");
-  const jsonStr = text.slice(start, end + 1);
-  return JSON.parse(jsonStr);
+  return xml
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 8000);
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const { youtubeUrl } = await req.json();
-    if (!youtubeUrl) {
-      return NextResponse.json({ error: "YouTube URL is required" }, { status: 400, headers: corsHeaders });
+    const { url } = await req.json();
+    if (!url) {
+      return NextResponse.json({ error: "No URL provided" }, { status: 400, headers: corsHeaders });
     }
 
-    const videoId = extractVideoId(youtubeUrl);
+    const videoId = extractVideoId(url);
     if (!videoId) {
       return NextResponse.json({ error: "Invalid YouTube URL" }, { status: 400, headers: corsHeaders });
     }
 
     // 1. Fetch YouTube metadata
-    const metaRes = await fetch(
-      `https://techsuperstar-site.vercel.app/api/youtube-meta?url=${encodeURIComponent(youtubeUrl)}`
-    );
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const metaRes = await fetch(`${baseUrl}/api/youtube-meta?url=${encodeURIComponent(url)}`);
     const meta = await metaRes.json();
-    if (!metaRes.ok || meta.error) {
-      return NextResponse.json({ error: `YouTube meta failed: ${meta.error}` }, { status: 422, headers: corsHeaders });
+
+    if (meta.error) {
+      return NextResponse.json({ error: meta.error }, { status: 400, headers: corsHeaders });
     }
 
     // 2. Fetch transcript
-    let transcript = "";
-    try {
-      transcript = await fetchTranscript(videoId);
-    } catch (err) {
-      console.warn("Transcript failed, using description:", err);
-      transcript = meta.description || "";
+    const transcript = await fetchTranscript(videoId);
+    const contentSource = transcript || meta.description || "";
+
+    if (!contentSource) {
+      return NextResponse.json({ error: "No content available for this video" }, { status: 400, headers: corsHeaders });
     }
 
-    const contentSource = transcript
-      ? `VIDEO TRANSCRIPT:\n${transcript.slice(0, 6000)}`
-      : `VIDEO DESCRIPTION:\n${meta.description}`;
+    // 3. Generate everything with Groq
+    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-    // 3. Send to Groq
+    const prompt = `You are a tech blogger. Based on this YouTube video transcript/description, generate a complete blog post.
+
+VIDEO TITLE: ${meta.title}
+CONTENT: ${contentSource}
+
+Return ONLY a valid JSON object (no markdown, no explanation) with these exact keys:
+
+{
+  "title": "Clean blog title without emojis",
+  "slug": "url-friendly-slug",
+  "excerpt": "2-sentence summary for the blog card",
+  "category": "one of: Phones, Laptops, Tablets, Gaming, Accessories, Reviews",
+  "body": [
+    { "heading": "Introduction", "content": "paragraph text here" },
+    { "heading": "Design & Build", "content": "paragraph text here" },
+    { "heading": "Display", "content": "paragraph text here" },
+    { "heading": "Performance", "content": "paragraph text here" },
+    { "heading": "Camera", "content": "paragraph text here" },
+    { "heading": "Battery Life", "content": "paragraph text here" },
+    { "heading": "Verdict", "content": "paragraph text here" }
+  ],
+  "specs": [
+    { "label": "Display", "value": "extracted from content or N/A" },
+    { "label": "Processor", "value": "extracted from content or N/A" },
+    { "label": "RAM", "value": "extracted from content or N/A" },
+    { "label": "Storage", "value": "extracted from content or N/A" },
+    { "label": "Camera", "value": "extracted from content or N/A" },
+    { "label": "Battery", "value": "extracted from content or N/A" },
+    { "label": "OS", "value": "extracted from content or N/A" },
+    { "label": "Price", "value": "extracted from content or N/A" }
+  ],
+  "pros": ["pro 1", "pro 2", "pro 3", "pro 4"],
+  "cons": ["con 1", "con 2", "con 3"]
+}`;
+
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
-      max_tokens: 4000,
-      temperature: 0.7,
-      messages: [
-        {
-          role: "system",
-          content: `You are a tech blog writer for TechSuperStar, a Tamil tech YouTube channel with 2M+ subscribers.
-You MUST respond with ONLY a raw JSON object. No explanation, no markdown, no code fences, no text before or after the JSON.`,
-        },
-        {
-          role: "user",
-          content: `VIDEO TITLE: ${meta.title}
-PUBLISHED DATE: ${meta.publishedAt}
-TAGS: ${(meta.tags || []).slice(0, 15).join(", ")}
-
-${contentSource}
-
-Return ONLY this JSON object, nothing else:
-{
-  "title": "title with emojis like TechSuperStar style",
-  "slug": "lowercase-hyphenated-no-emojis",
-  "category": "one of: Phones, Laptops, Tablets, Gaming, Reviews, Accessories",
-  "excerpt": "2-3 sentence summary",
-  "body": "full blog post minimum 700 words using ## for headings"
-}`,
-        },
-      ],
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.5,
+      max_tokens: 3000,
     });
 
     const rawText = completion.choices[0]?.message?.content || "";
-    const generated = extractJSON(rawText) as {
-      title: string;
-      slug: string;
-      category: string;
-      excerpt: string;
-      body: string;
-    };
+    const jsonStr = extractJSON(rawText);
+    const generated = JSON.parse(jsonStr);
 
-    const portableTextBody = textToPortableText(generated.body);
+    // 4. Convert body sections to Sanity Portable Text blocks
+    const bodyBlocks = (generated.body || []).flatMap(
+      (section: { heading: string; content: string }) => [
+        {
+          _type: "block",
+          _key: Math.random().toString(36).slice(2),
+          style: "h2",
+          children: [{ _type: "span", _key: Math.random().toString(36).slice(2), text: section.heading, marks: [] }],
+          markDefs: [],
+        },
+        {
+          _type: "block",
+          _key: Math.random().toString(36).slice(2),
+          style: "normal",
+          children: [{ _type: "span", _key: Math.random().toString(36).slice(2), text: section.content, marks: [] }],
+          markDefs: [],
+        },
+      ]
+    );
 
-    return NextResponse.json({
-      title: generated.title,
-      slug: generated.slug,
-      category: generated.category,
-      excerpt: generated.excerpt,
-      publishedAt: meta.publishedAt,
-      body: portableTextBody,
-      thumbnail: meta.thumbnail,
-      thumbnailBase64: meta.thumbnailBase64,
-      thumbnailMimeType: meta.thumbnailMimeType,
-    }, { headers: corsHeaders });
-
-  } catch (error) {
-    console.error("YouTube autofill error:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Something went wrong" },
+      {
+        title: generated.title || meta.title,
+        slug: generated.slug || slugify(meta.title),
+        excerpt: generated.excerpt || "",
+        category: generated.category || "Reviews",
+        publishedAt: meta.publishedAt,
+        thumbnail: meta.thumbnail,
+        thumbnailBase64: meta.thumbnailBase64,
+        thumbnailMimeType: meta.thumbnailMimeType,
+        body: bodyBlocks,
+        specs: generated.specs || [],
+        pros: generated.pros || [],
+        cons: generated.cons || [],
+      },
+      { headers: corsHeaders }
+    );
+  } catch (err) {
+    console.error("Autofill error:", err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Something went wrong" },
       { status: 500, headers: corsHeaders }
     );
   }
