@@ -225,7 +225,7 @@ Return ONLY a valid JSON object (no markdown, no explanation):
         "X-Title": "TechSuperStar",
       },
       body: JSON.stringify({
-        model: "google/gemma-3-27b-it:free",
+        model: "openrouter/auto",
         messages: [{ role: "user", content: prompt }],
         temperature: 0.6,
         max_tokens: 6000,
