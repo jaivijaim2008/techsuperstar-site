@@ -17,7 +17,7 @@ const TAGS = [
   { name: "Laptops",     filter: "laptops",     icon: MdLaptop        },
   { name: "Tablets",     filter: "tablets",     icon: MdTablet        },
   { name: "Gaming",      filter: "gaming",      icon: MdSportsEsports },
-  { name: "Reviews",     filter: "reviews",     icon: MdStar          },
+  { name: "Comparisons", filter: "comparisons", icon: MdStar          },
   { name: "Accessories", filter: "accessories", icon: MdHeadphones    },
 ];
 
@@ -81,7 +81,7 @@ export default function TagsBar() {
               ? tag.filter === currentFilter
               : false;
 
-            const href = tag.filter ? `/?filter=${tag.filter}` : "/";
+            const href = tag.filter ? `/category/${tag.filter}` : "/articles";
             const Icon = tag.icon;
 
             return (

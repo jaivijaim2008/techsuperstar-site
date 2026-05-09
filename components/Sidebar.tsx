@@ -18,7 +18,7 @@ const CATEGORIES = [
   { name: "Laptops",     href: "/category/laptops" },
   { name: "Tablets",     href: "/category/tablets" },
   { name: "Gaming",      href: "/category/gaming" },
-  { name: "Reviews",     href: "/category/reviews" },
+  { name: "Comparisons", href: "/category/comparisons" },
   { name: "Accessories", href: "/category/accessories" },
 ];
 

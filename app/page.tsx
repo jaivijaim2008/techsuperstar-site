@@ -16,7 +16,7 @@ const CATEGORY_SECTIONS = [
   { key: "laptops",     label: "Latest Laptops", href: "/category/laptops"     },
   { key: "gaming",      label: "Gaming Gear",    href: "/category/gaming"      },
   { key: "tablets",     label: "Latest Tablets", href: "/category/tablets"     },
-  { key: "reviews",     label: "Reviews",        href: "/category/reviews"     },
+  { key: "comparisons", label: "Comparisons",    href: "/category/comparisons" },
   { key: "accessories", label: "Accessories",    href: "/category/accessories" },
 ];
 
@@ -274,7 +274,7 @@ export default async function Home({
                   <div className="cat-section">
                     <div className="cat-section-header">
                       <div className="cat-section-title">{cat.label}</div>
-                      <Link href={`/?filter=${cat.key}`} className="cat-view-all">
+                      <Link href={cat.href} className="cat-view-all">
                         View All →
                       </Link>
                     </div>
