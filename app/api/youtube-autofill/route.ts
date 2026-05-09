@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY!,
+});
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -144,22 +146,31 @@ export async function POST(req: NextRequest) {
     }
 
     const contentSource = transcript
-      ? `VIDEO TRANSCRIPT:\n${transcript.slice(0, 8000)}`
+      ? `VIDEO TRANSCRIPT:\n${transcript.slice(0, 6000)}`
       : `VIDEO DESCRIPTION (no transcript available):\n${meta.description}`;
 
-    // 3. Send to Gemini 2.0 Flash
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
-    const prompt = `You are a tech blog writer for TechSuperStar, a Tamil tech YouTube channel with 2M+ subscribers.
-
-VIDEO TITLE: ${meta.title}
+    // 3. Send to Groq (Llama 3.3 70B)
+    const completion = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      max_tokens: 4000,
+      temperature: 0.7,
+      messages: [
+        {
+          role: "system",
+          content: `You are a tech blog writer for TechSuperStar, a Tamil tech YouTube channel with 2M+ subscribers. 
+You write engaging, honest English tech reviews. 
+Always respond with ONLY a valid JSON object — no markdown fences, no extra text, no explanation.`,
+        },
+        {
+          role: "user",
+          content: `VIDEO TITLE: ${meta.title}
 PUBLISHED DATE: ${meta.publishedAt}
 TAGS: ${(meta.tags || []).slice(0, 15).join(", ")}
 
 ${contentSource}
 
-Based on the above, generate a complete English blog post.
-Respond ONLY with a valid JSON object — no markdown fences, no extra text, no explanation.
+Generate a complete English blog post based on the above.
+Respond ONLY with this JSON structure:
 
 {
   "title": "Blog title with emojis matching TechSuperStar style e.g. 'AirPods Pro 3 😱 Best or Worst 🤯 Honest Review ⭐️ TechSuperStar ⭐️'",
@@ -167,11 +178,12 @@ Respond ONLY with a valid JSON object — no markdown fences, no extra text, no 
   "category": "exactly one of: Phones, Laptops, Tablets, Gaming, Reviews, Accessories",
   "excerpt": "2-3 sentence summary for article cards. Hook the reader and mention the product clearly.",
   "body": "Full blog post in plain text. Use ## for section headings, ### for sub-headings. Cover every major point from the transcript. Minimum 700 words. Write in an engaging honest review style."
-}`;
+}`,
+        },
+      ],
+    });
 
-    const result = await model.generateContent(prompt);
-    const rawText = result.response.text();
-
+    const rawText = completion.choices[0]?.message?.content || "";
     const clean = rawText.replace(/```json|```/g, "").trim();
     const generated = JSON.parse(clean);
 
