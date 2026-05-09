@@ -44,8 +44,9 @@ export function YoutubeAutofill(props: StringInputProps) {
       setStatus("✍️ Filling in all fields...");
 
       // Get current document ID from the form
-      const docId = (props as unknown as { id?: string }).id;
-      if (!docId) throw new Error("No document ID found");
+const docId = (props as unknown as { document?: { _id?: string }; id?: string }).document?._id 
+  || (props as unknown as { id?: string }).id;
+if (!docId) throw new Error("No document ID found");
 
       // Build the patch
       const patch = client.patch(docId);
