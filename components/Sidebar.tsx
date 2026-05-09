@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 function timeAgo(dateStr: string) {
   if (!dateStr) return "";
@@ -62,11 +63,53 @@ function SidebarSection({ title, children }: { title: string; children: React.Re
   );
 }
 
+function LiveSubscriberCount() {
+  const [subscribers, setSubscribers] = useState("2.08M");
+
+  useEffect(() => {
+    fetch("/api/youtube-stats")
+      .then((r) => r.json())
+      .then((data) => { if (data.subscribers) setSubscribers(data.subscribers); })
+      .catch(() => {});
+  }, []);
+
+  return (
+    <div style={{
+      display: "flex",
+      justifyContent: "center",
+      marginBottom: "16px",
+      position: "relative",
+      zIndex: 1,
+    }}>
+      <div style={{ textAlign: "center" }}>
+        <div style={{
+          fontSize: "22px",
+          fontWeight: "800",
+          color: "#ff4d00",
+          fontFamily: "var(--font-playfair), 'Playfair Display', serif",
+          lineHeight: 1,
+        }}>
+          {subscribers}
+        </div>
+        <div style={{
+          fontSize: "10px",
+          color: "#555",
+          letterSpacing: "1px",
+          textTransform: "uppercase",
+          fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+          marginTop: "4px",
+        }}>
+          Subscribers
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Sidebar({ posts }: { posts: any[] }) {
   return (
     <>
       <style suppressHydrationWarning>{`
-        
         .sidebar-yt-btn:hover {
           transform: translateY(-2px);
           box-shadow: 0 8px 24px rgba(255,77,0,0.5) !important;
@@ -125,6 +168,7 @@ export default function Sidebar({ posts }: { posts: any[] }) {
           }}>
             Tech<span style={{ color: "#ff4d00" }}>SuperStar</span>
           </div>
+
           <div style={{
             fontSize: "10px", color: "#555",
             letterSpacing: "1.5px", textTransform: "uppercase",
@@ -134,30 +178,7 @@ export default function Sidebar({ posts }: { posts: any[] }) {
             Tamil Tech Reviews
           </div>
 
-          <div style={{ display: "flex", justifyContent: "center", gap: "20px", marginBottom: "16px", position: "relative", zIndex: 1, flexWrap: "wrap" }}>
-            {[
-              { val: "2.08M", label: "Subscribers" },
-              { val: "3.2M",  label: "Views" },
-            ].map((s) => (
-              <div key={s.label} style={{ textAlign: "center" }}>
-                <div style={{
-                  fontSize: "18px", fontWeight: "800", color: "#ff4d00",
-                  fontFamily: "var(--font-playfair), 'Playfair Display', serif",
-                  lineHeight: 1,
-                }}>
-                  {s.val}
-                </div>
-                <div style={{
-                  fontSize: "10px", color: "#555",
-                  letterSpacing: "1px", textTransform: "uppercase",
-                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                  marginTop: "3px",
-                }}>
-                  {s.label}
-                </div>
-              </div>
-            ))}
-          </div>
+          <LiveSubscriberCount />
 
           <a
             href="https://www.youtube.com/@TechSuperStarOfficial"
@@ -217,7 +238,7 @@ export default function Sidebar({ posts }: { posts: any[] }) {
           </div>
         </SidebarSection>
 
-        {/* Trending — 10 posts to fill desktop gap */}
+        {/* Trending */}
         <SidebarSection title="Trending Now">
           {posts.slice(0, 5).map((post: any, i: number) => (
             <Link
@@ -231,13 +252,12 @@ export default function Sidebar({ posts }: { posts: any[] }) {
                   display: "flex",
                   gap: "10px",
                   padding: "12px 14px",
-                  borderBottom: i < Math.min(posts.length, 10) - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                  borderBottom: i < Math.min(posts.length, 5) - 1 ? "1px solid rgba(255,255,255,0.04)" : "none",
                   alignItems: "flex-start",
                   cursor: "pointer",
                   transition: "background 0.2s ease",
                 }}
               >
-                {/* Number */}
                 <div style={{
                   fontFamily: "var(--font-playfair), 'Playfair Display', serif",
                   fontWeight: 900,
@@ -251,7 +271,6 @@ export default function Sidebar({ posts }: { posts: any[] }) {
                   {String(i + 1).padStart(2, "0")}
                 </div>
 
-                {/* Thumbnail */}
                 <div style={{
                   width: "56px", height: "46px",
                   borderRadius: "6px",
@@ -277,7 +296,6 @@ export default function Sidebar({ posts }: { posts: any[] }) {
                   )}
                 </div>
 
-                {/* Text */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   {post.categories?.[0] && (
                     <div style={{
