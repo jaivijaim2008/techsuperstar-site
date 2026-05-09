@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import Groq from "groq-sdk";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -140,9 +139,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No content available for this video" }, { status: 400, headers: corsHeaders });
     }
 
-    // 3. Generate everything with Groq
-    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-
+    // 3. Generate everything with OpenRouter
     const prompt = `You are an expert Tamil tech blogger writing detailed English blog posts. Based on this YouTube video transcript, write a DETAILED, ATTRACTIVE, and LONG blog post.
 
 VIDEO TITLE: ${meta.title}
@@ -219,13 +216,28 @@ Return ONLY a valid JSON object (no markdown, no explanation):
   "cons": ["Detailed con 1", "Detailed con 2", "Detailed con 3"]
 }`;
 
-    const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.6,
-      max_tokens: 6000,
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://techsuperstar-site.vercel.app",
+        "X-Title": "TechSuperStar",
+      },
+      body: JSON.stringify({
+        model: "meta-llama/llama-3.3-70b-instruct:free",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.6,
+        max_tokens: 6000,
+      }),
     });
 
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`OpenRouter error: ${errText}`);
+    }
+
+    const completion = await response.json();
     const rawText = completion.choices[0]?.message?.content || "";
     const jsonStr = extractJSON(rawText);
     const generated = JSON.parse(jsonStr);
