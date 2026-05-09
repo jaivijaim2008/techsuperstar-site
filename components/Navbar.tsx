@@ -222,7 +222,7 @@ export default function Navbar() {
             <div style={{ display: "flex", alignItems: "center", gap: "2px" }} className="desktop-nav">
               {categories.map((cat) => {
                 const Icon = cat.icon;
-                const href = cat.filter ? `/category/${cat.filter}` : "/articles";
+                const href = cat.filter ? `/?filter=${cat.filter}` : "/";
                 return (
                   <Link
                     key={cat.name}

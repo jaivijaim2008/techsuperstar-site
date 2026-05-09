@@ -81,7 +81,7 @@ export default function TagsBar() {
               ? tag.filter === currentFilter
               : false;
 
-            const href = tag.filter ? `/category/${tag.filter}` : "/articles";
+            const href = tag.filter ? `/?filter=${tag.filter}` : "/";
             const Icon = tag.icon;
 
             return (
