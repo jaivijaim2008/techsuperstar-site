@@ -6,6 +6,7 @@ import Link from "next/link";
 import { PortableText } from "@portabletext/react";
 import { ShareButtons, ReadingProgressBar, TableOfContents, CommentsSection } from "./ClientComponents";
 import { notFound } from "next/navigation";
+import AdsterraAd from "@/components/AdsterraAd";
 
 interface Spec { label: string; value: string }
 
@@ -272,7 +273,10 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           {(post.pros?.length || post.cons?.length) ? (
             <ProsAndCons pros={post.pros} cons={post.cons} />
           ) : null}
-          <ShareButtons title={post.title} slug={slug} />
+          {/* Adsterra Ads */}
+<AdsterraAd adKey="932242fddbeb385eb603aa51cd39fb8a" width={300} height={250} />
+
+<ShareButtons title={post.title} slug={slug} />
         </ScrollReveal>
 
         {/* Related Posts */}
@@ -310,7 +314,9 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           </section>
         )}
 
-        <CommentsSection postId={post._id} initialComments={post.comments || []} />
+        <AdsterraAd adKey="7a9bb5ef7a553be41bb24fdd3734233d" width={160} height={600} />
+
+<CommentsSection postId={post._id} initialComments={post.comments || []} />
       </div>
 
       <Footer />
