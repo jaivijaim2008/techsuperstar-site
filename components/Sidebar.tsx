@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 function timeAgo(dateStr: string) {
   if (!dateStr) return "";
@@ -15,13 +16,13 @@ function timeAgo(dateStr: string) {
 
 // Category colors - your custom colors
 const CATEGORY_COLORS: Record<string, { color: string; bg: string; border: string }> = {
-  phones: { color: "#ff4d00", bg: "rgba(255, 77, 0, 0.1)", border: "rgba(255, 77, 0, 0.3)" },           // Orange
-  laptops: { color: "#3b82f6", bg: "rgba(59, 130, 246, 0.1)", border: "rgba(59, 130, 246, 0.3)" },     // Blue
-  tablets: { color: "#10b981", bg: "rgba(16, 185, 129, 0.1)", border: "rgba(16, 185, 129, 0.3)" },     // Green
-  gaming: { color: "#a855f7", bg: "rgba(168, 85, 247, 0.1)", border: "rgba(168, 85, 247, 0.3)" },      // Purple
-  comparisons: { color: "#f59e0b", bg: "rgba(245, 158, 11, 0.1)", border: "rgba(245, 158, 11, 0.3)" },     // Amber
-  accessories: { color: "#06b6d4", bg: "rgba(6, 182, 212, 0.1)", border: "rgba(6, 182, 212, 0.3)" },   // Cyan
-  
+  phones: { color: "#ff4d00", bg: "rgba(255, 77, 0, 0.1)", border: "rgba(255, 77, 0, 0.3)" },
+  laptops: { color: "#3b82f6", bg: "rgba(59, 130, 246, 0.1)", border: "rgba(59, 130, 246, 0.3)" },
+  tablets: { color: "#10b981", bg: "rgba(16, 185, 129, 0.1)", border: "rgba(16, 185, 129, 0.3)" },
+  gaming: { color: "#a855f7", bg: "rgba(168, 85, 247, 0.1)", border: "rgba(168, 85, 247, 0.3)" },
+  reviews: { color: "#f59e0b", bg: "rgba(245, 158, 11, 0.1)", border: "rgba(245, 158, 11, 0.3)" },
+  accessories: { color: "#06b6d4", bg: "rgba(6, 182, 212, 0.1)", border: "rgba(6, 182, 212, 0.3)" },
+  comparisons: { color: "#FFD700", bg: "rgba(255, 215, 0, 0.1)", border: "rgba(255, 215, 0, 0.3)" },
 };
 
 function getCategoryColor(category: string) {
@@ -123,6 +124,23 @@ function LiveSubscriberCount() {
 }
 
 export default function Sidebar({ posts }: { posts: any[] }) {
+  const pathname = usePathname() || "";
+
+  // Determine active category
+  const getActiveCategory = () => {
+    if (!pathname) return null;
+    if (pathname === "/articles") return "All";
+    if (pathname.includes("/category/phones")) return "Phones";
+    if (pathname.includes("/category/laptops")) return "Laptops";
+    if (pathname.includes("/category/tablets")) return "Tablets";
+    if (pathname.includes("/category/gaming")) return "Gaming";
+    if (pathname.includes("/category/comparisons")) return "Comparisons";
+    if (pathname.includes("/category/accessories")) return "Accessories";
+    return null;
+  };
+
+  const activeCategory = getActiveCategory();
+
   return (
     <>
       <style suppressHydrationWarning>{`
@@ -130,9 +148,15 @@ export default function Sidebar({ posts }: { posts: any[] }) {
           transform: translateY(-2px);
           box-shadow: 0 8px 24px rgba(255,77,0,0.5) !important;
         }
+        .cat-pill {
+          transition: all 0.3s ease;
+        }
         .cat-pill:hover {
           transform: translateY(-2px);
           opacity: 0.9;
+        }
+        .cat-pill.active {
+          transform: translateY(-2px);
         }
         .trending-row:hover {
           background: rgba(255,77,0,0.04) !important;
@@ -227,28 +251,36 @@ export default function Sidebar({ posts }: { posts: any[] }) {
         <SidebarSection title="Browse by Category">
           <div style={{ padding: "12px", display: "flex", flexWrap: "wrap", gap: "6px" }}>
             {CATEGORIES.map((cat) => {
-              // Keep "All" gray, color the rest
               const isAll = cat.name === "All";
+              const isActive = activeCategory === cat.name;
               const colors = isAll ? null : getCategoryColor(cat.name);
+
               return (
                 <Link
                   key={cat.name}
                   href={cat.href}
-                  className="cat-pill"
+                  className={`cat-pill${isActive ? " active" : ""}`}
                   style={{
                     fontSize: "11px",
                     fontWeight: "600",
-                    color: isAll ? "#666" : colors?.color,
-                    background: isAll ? "rgba(255,255,255,0.03)" : colors?.bg,
-                    border: isAll ? "1px solid rgba(255,255,255,0.07)" : `1px solid ${colors?.border}`,
+                    color: isActive ? "#fff" : isAll ? "#666" : colors?.color,
+                    background: isActive 
+                      ? (isAll ? "#ff4d00" : colors?.color)
+                      : (isAll ? "rgba(255,255,255,0.03)" : colors?.bg),
+                    border: isActive 
+                      ? `1px solid ${isAll ? "#ff4d00" : colors?.color}`
+                      : (isAll ? "1px solid rgba(255,255,255,0.07)" : `1px solid ${colors?.border}`),
                     borderRadius: "20px",
                     padding: "6px 13px",
                     textDecoration: "none",
                     fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                    transition: "all 0.2s ease",
+                    transition: "all 0.3s ease",
                     display: "inline-block",
                     minHeight: "32px",
                     lineHeight: "20px",
+                    boxShadow: isActive 
+                      ? `0 0 12px ${isAll ? "rgba(255,77,0,0.4)" : `${colors?.color}66`}`
+                      : "none",
                   }}
                 >
                   {cat.name}

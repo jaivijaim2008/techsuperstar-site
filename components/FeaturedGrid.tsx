@@ -31,10 +31,24 @@ function NumBadge({ n, size = "large" }: { n: number; size?: "large" | "small" }
 }
 
 function CatBadge({ cat }: { cat: string }) {
+  // Your custom colors
+  const categoryColors: Record<string, string> = {
+    phones: "#ff4d00",
+    laptops: "#3b82f6",
+    tablets: "#10b981",
+    gaming: "#a855f7",
+    comparisons: "#FFD700",
+    accessories: "#06b6d4",
+    reviews: "#f59e0b",
+  };
+
+  const normalized = cat?.toLowerCase().replace(/[^a-z]/g, "") || "phones";
+  const color = categoryColors[normalized] || "#ff4d00";
+
   return (
     <span style={{
       display: "inline-block",
-      background: "#ff4d00",
+      background: color,
       color: "#fff",
       fontSize: "9px",
       fontWeight: "800",
@@ -309,17 +323,14 @@ export default function FeaturedGrid({ posts }: { posts: any[] }) {
 
   const hero      = posts[0];
   const secondary = posts.slice(1, 4);
-  // ✅ FIX: Take exactly 6 bottom posts (posts 5–10) = 2 perfect rows of 3 on desktop
   const bottom    = posts.slice(4, 10);
 
-  // ── How many bottom posts are in the last incomplete row ──
-  const cols = 3; // desktop columns
-  const remainder = bottom.length % cols; // 0 = perfect, 1 or 2 = gap
+  const cols = 3;
+  const remainder = bottom.length % cols;
 
   return (
     <>
       <style suppressHydrationWarning>{`
-        /* Mobile: hero stacks on top, secondary below */
         .featured-top-grid {
           display: grid;
           grid-template-columns: 1fr;
@@ -331,7 +342,6 @@ export default function FeaturedGrid({ posts }: { posts: any[] }) {
         .featured-secondary-col {
           border-top: 1px solid rgba(255,255,255,0.06);
         }
-        /* Desktop: side by side */
         @media (min-width: 640px) {
           .featured-top-grid {
             grid-template-columns: 1fr 1fr;
@@ -345,7 +355,6 @@ export default function FeaturedGrid({ posts }: { posts: any[] }) {
           }
         }
 
-        /* ── Bottom grid ── */
         .featured-bottom-grid {
           display: grid;
           grid-template-columns: 1fr;
@@ -361,17 +370,14 @@ export default function FeaturedGrid({ posts }: { posts: any[] }) {
             grid-template-columns: repeat(3, 1fr);
           }
 
-          /* ✅ FIX: Last row has 1 orphan → stretch to full width */
           .featured-bottom-grid.remainder-1 > :last-child {
             grid-column: 1 / -1;
           }
 
-          /* ✅ FIX: Last row has 2 orphans → each takes 1.5 cols (split the 3 cols) */
           .featured-bottom-grid.remainder-2 > :nth-last-child(1),
           .featured-bottom-grid.remainder-2 > :nth-last-child(2) {
             grid-column: span 1;
           }
-          /* Make the 2 orphan cards wider by switching to a 2-col sub-layout */
           .featured-bottom-grid.remainder-2 > :nth-last-child(2) {
             grid-column: 1 / 2;
           }

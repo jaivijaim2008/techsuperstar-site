@@ -4,11 +4,11 @@ import { useState } from "react";
 
 const categoryColors: Record<string, { color: string; glow: string }> = {
   phones:      { color: "#ff4d00", glow: "rgba(255,77,0,0.3)" },
-  laptops:     { color: "#0066ff", glow: "rgba(0,102,255,0.3)" },
-  tablets:     { color: "#00cc66", glow: "rgba(0,204,102,0.3)" },
-  gaming:      { color: "#aa00ff", glow: "rgba(170,0,255,0.3)" },
-  comparisons: { color: "#FFD700", glow: "rgba(255,215,0,0.35)" },
-  accessories: { color: "#00ccff", glow: "rgba(0,204,255,0.3)" },
+  laptops:     { color: "#3b82f6", glow: "rgba(59,130,246,0.3)" },
+  tablets:     { color: "#10b981", glow: "rgba(16,185,129,0.3)" },
+  gaming:      { color: "#a855f7", glow: "rgba(168,85,247,0.3)" },
+  comparisons: { color: "#FFD700", glow: "rgba(255,215,0,0.3)" },
+  accessories: { color: "#06b6d4", glow: "rgba(6,182,212,0.3)" },
 };
 
 export default function PostCard({ post }: any) {
