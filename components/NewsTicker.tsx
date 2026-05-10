@@ -1,25 +1,61 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import Link from "next/link";
+
+interface TickerPost {
+  title: string;
+  slug: string;
+  category: string;
+}
+
+const categoryColors: Record<string, string> = {
+  phones: "#00b4d8",
+  laptops: "#7209b7",
+  tablets: "#4cc9f0",
+  gaming: "#f72585",
+  comparisons: "#f77f00",
+  accessories: "#06d6a0",
+  default: "#ff4d00",
+};
+
 export default function NewsTicker() {
-  // Fallback articles (no API call needed)
-  const items = [
-    "Vivo X300 Pro vs Xiaomi 17 Ultra: Best Camera Phone?",
-    "OnePlus Pad Go 2 Review",
-    "AMD RYZEN AI 300 PRO — Game Changer Laptop",
-    "Samsung vs Infinix Comparison",
-    "Next Level AI Features Coming Soon",
-  ];
+  const [items, setItems] = useState<TickerPost[]>([
+    { title: "Vivo X300 Pro vs Xiaomi 17 Ultra: Best Camera Phone?", slug: "vivo-x300-pro-vs-xiaomi-17-ultra-comparison-camera-battle", category: "comparisons" },
+    { title: "OnePlus Pad Go 2 Review", slug: "oneplus-pad-go-2-review-budget-tablet-upgrade", category: "tablets" },
+    { title: "AMD RYZEN AI 300 PRO — Game Changer Laptop", slug: "amd-ryzen-ai-300-pro-dell-latitude-14-review-performance-benchmarks", category: "laptops" },
+    { title: "Nothing Phone 4A vs 4A Pro Comparison", slug: "nothing-phone-4a-vs-4a-pro-comparison-price-hike", category: "comparisons" },
+    { title: "AirPods Pro 3 Honest Review", slug: "airpods-pro-3-honest-review-techsuperstar", category: "accessories" },
+  ]);
 
-  // Remove emojis from text
-  const cleanText = (text: string) => {
-    return text
-      .replace(/[🤯🥴😱⭐️🔥💎🎮📱💻⚡️🙆‍♂️🚀🔔📰🎨🔮👑😎😤🌟✨💰🎯🎁🏆]/g, "")
-      .replace(/\s+/g, " ")
-      .trim();
-  };
+  useEffect(() => {
+    const fetchLatest = async () => {
+      try {
+        const query = encodeURIComponent(
+          `*[_type == "post"] | order(publishedAt desc)[0..9]{title, "slug": slug.current, "category": categories[0]}`
+        );
+        const res = await fetch(
+          `https://ba3aow7c.api.sanity.io/v2023-01-01/data/query/production?query=${query}`
+        );
+        const data = await res.json();
+        if (data?.result?.length > 0) {
+          setItems(data.result.map((p: TickerPost) => ({
+            title: p.title,
+            slug: p.slug,
+            category: (p.category || "default").toLowerCase(),
+          })));
+        }
+      } catch {
+        // fallback to default items
+      }
+    };
+    fetchLatest();
+  }, []);
 
-  const displayItems = items.map(cleanText).slice(0, 5);
-  const doubled = [...displayItems, ...displayItems];
+  const cleanText = (text: string) =>
+    text.replace(/[\u{1F000}-\u{1FFFF}]/gu, "").replace(/\s+/g, " ").trim();
+
+  const doubled = [...items, ...items];
 
   return (
     <>
@@ -28,62 +64,78 @@ export default function NewsTicker() {
           0%   { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
-        
         @keyframes pulseLight {
-          0%, 100% { opacity: 1; }
-          50%       { opacity: 0.4; }
+          0%, 100% { opacity: 1; box-shadow: 0 0 4px rgba(255,255,255,0.6); }
+          50%       { opacity: 0.4; box-shadow: none; }
+        }
+        @keyframes labelGlow {
+          0%, 100% { box-shadow: inset 0 0 8px rgba(255,77,0,0.3); }
+          50%       { box-shadow: inset 0 0 16px rgba(255,77,0,0.6); }
         }
 
         .news-ticker-container {
-          background: linear-gradient(90deg, #ff4d00 0%, #e63d00 100%);
-          height: 40px;
+          background: linear-gradient(90deg, #0a0a0a 0%, #111 50%, #0a0a0a 100%);
+          height: 42px;
           display: flex;
           align-items: center;
           overflow: hidden;
           position: relative;
           z-index: 10;
-          box-shadow: 0 2px 8px rgba(255, 77, 0, 0.3);
+          border-bottom: 1px solid rgba(255,77,0,0.2);
+          box-shadow: 0 2px 20px rgba(0,0,0,0.5);
         }
 
         .ticker-label {
           flex-shrink: 0;
-          background: rgba(0, 0, 0, 0.2);
+          background: linear-gradient(135deg, #ff4d00, #cc3d00);
           color: #fff;
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 1.5px;
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: 2px;
           text-transform: uppercase;
-          padding: 0 14px;
+          padding: 0 16px;
           height: 100%;
           display: flex;
           align-items: center;
           gap: 8px;
-          border-right: 1px solid rgba(255, 255, 255, 0.15);
           white-space: nowrap;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'DM Sans', sans-serif;
+          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+          clip-path: polygon(0 0, 90% 0, 100% 50%, 90% 100%, 0 100%);
+          padding-right: 24px;
+          animation: labelGlow 2s ease-in-out infinite;
+          min-width: 110px;
         }
 
         .ticker-dot {
-          width: 6px;
-          height: 6px;
+          width: 7px;
+          height: 7px;
           border-radius: 50%;
           background: #fff;
           display: inline-block;
-          animation: pulseLight 1.5s ease-in-out infinite;
+          animation: pulseLight 1.2s ease-in-out infinite;
           flex-shrink: 0;
-          box-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
+        }
+
+        .ticker-divider {
+          width: 1px;
+          height: 24px;
+          background: rgba(255,77,0,0.3);
+          flex-shrink: 0;
         }
 
         .ticker-content {
           overflow: hidden;
           flex: 1;
           position: relative;
+          mask-image: linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%);
+          -webkit-mask-image: linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%);
         }
 
         .ticker-track {
           display: flex;
+          align-items: center;
           gap: 0;
-          animation: tickerScroll 35s linear infinite;
+          animation: tickerScroll 40s linear infinite;
           width: max-content;
           will-change: transform;
         }
@@ -92,113 +144,99 @@ export default function NewsTicker() {
           animation-play-state: paused;
         }
 
-        .ticker-item {
-          color: #fff;
-          font-size: 13px;
-          font-weight: 500;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'DM Sans', sans-serif;
-          white-space: nowrap;
-          padding: 0 3px;
-          opacity: 0.95;
+        .ticker-item-wrapper {
           display: flex;
           align-items: center;
+          gap: 8px;
+          padding: 0 6px;
+          text-decoration: none;
+          transition: opacity 0.2s;
+        }
+        .ticker-item-wrapper:hover {
+          opacity: 0.75;
+        }
+
+        .ticker-badge {
+          font-size: 9px;
+          font-weight: 800;
+          letter-spacing: 1.5px;
+          text-transform: uppercase;
+          padding: 2px 7px;
+          border-radius: 4px;
+          white-space: nowrap;
           flex-shrink: 0;
+          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+          border: 1px solid currentColor;
+          opacity: 0.9;
+        }
+
+        .ticker-item {
+          color: #ccc;
+          font-size: 13px;
+          font-weight: 500;
+          font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+          white-space: nowrap;
+          opacity: 0.95;
+        }
+        .ticker-item-wrapper:hover .ticker-item {
+          color: #fff;
         }
 
         .ticker-separator {
-          color: rgba(255, 255, 255, 0.4);
-          padding: 0 12px;
+          color: rgba(255,77,0,0.4);
+          padding: 0 14px;
           flex-shrink: 0;
-          font-weight: 300;
-          font-size: 11px;
+          font-size: 16px;
+          line-height: 1;
         }
 
-        .ticker-fade-right {
-          position: absolute;
-          right: 0;
-          top: 0;
-          bottom: 0;
-          width: 50px;
-          background: linear-gradient(to left, #ff4d00, transparent);
-          pointer-events: none;
-          z-index: 5;
-        }
-
-        /* Mobile optimization */
         @media (max-width: 640px) {
-          .news-ticker-container {
-            height: 36px;
-          }
-
-          .ticker-label {
-            padding: 0 10px;
-            font-size: 10px;
-            letter-spacing: 1px;
-          }
-
-          .ticker-item {
-            font-size: 12px;
-          }
-
-          .ticker-separator {
-            padding: 0 8px;
-          }
-
-          .ticker-dot {
-            width: 5px;
-            height: 5px;
-          }
-
-          .ticker-fade-right {
-            width: 40px;
-          }
+          .news-ticker-container { height: 36px; }
+          .ticker-label { font-size: 9px; padding: 0 12px 0 12px; padding-right: 20px; min-width: 95px; }
+          .ticker-item { font-size: 12px; }
+          .ticker-badge { font-size: 8px; padding: 1px 5px; }
         }
 
-        /* Tablet */
-        @media (min-width: 768px) {
-          .news-ticker-container {
-            height: 42px;
-          }
-
-          .ticker-item {
-            font-size: 14px;
-          }
-        }
-
-        /* Reduce motion */
         @media (prefers-reduced-motion: reduce) {
-          .ticker-track {
-            animation: none;
-          }
-
-          .ticker-dot {
-            animation: none;
-            opacity: 1;
-          }
+          .ticker-track { animation: none; }
+          .ticker-dot { animation: none; opacity: 1; }
         }
       `}</style>
 
       <div className="news-ticker-container">
-        {/* LIVE Label */}
+        {/* Label */}
         <div className="ticker-label">
           <span className="ticker-dot" />
           <span>Trending</span>
         </div>
 
+        <div className="ticker-divider" />
+
         {/* Scrolling Content */}
         <div className="ticker-content">
           <div className="ticker-track">
-            {doubled.map((item, i) => (
-              <span key={i} style={{ display: "flex", alignItems: "center" }}>
-                <span className="ticker-item">{item}</span>
-                <span className="ticker-separator">•</span>
-              </span>
-            ))}
+            {doubled.map((item, i) => {
+              const color = categoryColors[item.category] || categoryColors.default;
+              return (
+                <span key={i} style={{ display: "flex", alignItems: "center" }}>
+                  <Link
+                    href={`/post/${item.slug}`}
+                    className="ticker-item-wrapper"
+                  >
+                    <span
+                      className="ticker-badge"
+                      style={{ color, borderColor: color, background: `${color}18` }}
+                    >
+                      {item.category === "default" ? "TECH" : item.category.toUpperCase()}
+                    </span>
+                    <span className="ticker-item">{cleanText(item.title)}</span>
+                  </Link>
+                  <span className="ticker-separator">◆</span>
+                </span>
+              );
+            })}
           </div>
         </div>
-
-        {/* Fade Effect */}
-        <div className="ticker-fade-right" />
       </div>
     </>
   );
