@@ -178,20 +178,20 @@ export async function generateMetadata(
     title: title.includes("TechSuperStar") ? title : `${title} | TechSuperStar`,
     description,
     openGraph: {
-      title,
-      description,
-      url: `https://techsuperstar-site.vercel.app/post/${slug}`,
-      siteName: "TechSuperStar",
-      images: image ? [{ url: image, width: 1200, height: 630 }] : [],
-      type: "article",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      creator: "@Tech_SuperStar",
-      images: image ? [image] : [],
-    },
+  title,
+  description,
+  url: `https://techsuperstar-site.vercel.app/post/${slug}`,
+  siteName: "TechSuperStar",
+  images: image ? [{ url: `${image}?w=600&q=80`, width: 600, height: 315 }] : [],
+  type: "article",
+},
+twitter: {
+  card: "summary_large_image",
+  title,
+  description,
+  creator: "@Tech_SuperStar",
+  images: image ? [`${image}?w=600&q=80`] : [],
+},
   };
 }
 
