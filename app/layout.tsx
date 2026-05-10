@@ -19,7 +19,7 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: {
     default: "TechSuperStar - Tech Reviews & News in Tamil",
-    template: "%s | TechSuperStar",
+    template: "%s",
   },
   description: "TechSuperStar — Tamil Nadu's #1 tech review channel. Get honest smartphone reviews, laptop buying guides, gaming gear comparisons and the latest tech news in Tamil. 2M+ YouTube subscribers trust us.",
   keywords: [
