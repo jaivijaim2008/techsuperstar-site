@@ -86,6 +86,8 @@ export async function getPost(slug: string) {
         `*[_type == "post" && slug.current == $slug][0]{
           _id,
           title,
+          seoTitle,
+          seoDescription,
           "author": coalesce(author->name, author),
           "image": mainImage.asset->url,
           "categories": categories[]->title,

@@ -12,6 +12,8 @@ interface Spec { label: string; value: string }
 interface Post {
   _id: string;
   title: string;
+  seoTitle?: string;
+  seoDescription?: string;
   author: string;
   image: string;
   categories: string[];
@@ -49,13 +51,13 @@ const ptComponents = {
       <h1 className="text-2xl sm:text-3xl font-black mt-8 mb-4 text-white leading-tight">{children}</h1>
     ),
     h2: ({ children }: { children?: React.ReactNode }) => {
-  const text = typeof children === "string" ? children : 
-    Array.isArray(children) ? children.join("") : "";
-  const id = text.toLowerCase().replace(/[^a-z0-9\s]/g, "").replace(/\s+/g, "-").slice(0, 60);
-  return (
-    <h2 id={id} className="text-xl sm:text-2xl font-bold mt-6 sm:mt-8 mb-3 text-white border-l-4 border-orange-500 pl-4 scroll-mt-20">{children}</h2>
-  );
-},
+      const text = typeof children === "string" ? children :
+        Array.isArray(children) ? children.join("") : "";
+      const id = text.toLowerCase().replace(/[^a-z0-9\s]/g, "").replace(/\s+/g, "-").slice(0, 60);
+      return (
+        <h2 id={id} className="text-xl sm:text-2xl font-bold mt-6 sm:mt-8 mb-3 text-white border-l-4 border-orange-500 pl-4 scroll-mt-20">{children}</h2>
+      );
+    },
     h3: ({ children }: { children?: React.ReactNode }) => (
       <h3 className="text-lg sm:text-xl font-bold mt-5 mb-2 text-orange-400">{children}</h3>
     ),
@@ -160,6 +162,40 @@ function ProsAndCons({ pros, cons }: { pros?: string[]; cons?: string[] }) {
   );
 }
 
+// ── SEO Metadata ──
+export async function generateMetadata(
+  { params }: { params: Promise<{ slug: string }> }
+) {
+  const { slug } = await params;
+  const post = await getPost(slug);
+  if (!post) return {};
+
+  const title = post.seoTitle || post.title;
+  const description = post.seoDescription || post.excerpt;
+  const image = post.image;
+
+  return {
+    title: `${title} | TechSuperStar`,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `https://techsuperstar-site.vercel.app/post/${slug}`,
+      siteName: "TechSuperStar",
+      images: image ? [{ url: image, width: 1200, height: 630 }] : [],
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      creator: "@Tech_SuperStar",
+      images: image ? [image] : [],
+    },
+  };
+}
+
+// ── Page ──
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
@@ -177,13 +213,11 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       {/* Hero */}
       <div className="relative">
         {post.image && (
-          // ✅ Fix 1: Shorter hero on mobile
           <div className="absolute inset-0 h-[320px] sm:h-[520px]">
             <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-[#060606]" />
           </div>
         )}
-        {/* ✅ Fix 2: Less top padding on mobile */}
         <div className="relative max-w-4xl mx-auto px-4 pt-16 sm:pt-32 pb-8 sm:pb-12">
           {post.categories?.length > 0 && (
             <div className="flex gap-2 flex-wrap mb-4">
@@ -195,7 +229,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               ))}
             </div>
           )}
-          {/* ✅ Fix 3: Smaller title on mobile */}
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-black leading-tight mb-4 sm:mb-6 text-white drop-shadow-lg">
             {post.title}
           </h1>
@@ -214,8 +247,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 pb-16 sm:pb-20">
         <ScrollReveal>
-
-          {/* ✅ Fix 4: YouTube embed smaller on mobile */}
           {embedUrl && (
             <div className="mb-6 sm:mb-10 rounded-xl sm:rounded-2xl overflow-hidden aspect-video shadow-2xl shadow-orange-500/10 border border-white/10">
               <iframe src={embedUrl} className="w-full h-full"
@@ -223,18 +254,12 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                 allowFullScreen title={post.title} />
             </div>
           )}
-
-          {/* Excerpt */}
           {post.excerpt && (
             <div className="mb-6 sm:mb-8 px-4 sm:px-6 py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-orange-500/10 border border-orange-500/20">
               <p className="text-gray-200 text-base sm:text-lg leading-relaxed italic">{post.excerpt}</p>
             </div>
           )}
-
-          {/* Table of Contents */}
           <TableOfContents body={post.body as never[]} />
-
-          {/* Body */}
           <article className="prose max-w-none">
             {post.body && (
               <PortableText
@@ -243,18 +268,11 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               />
             )}
           </article>
-
-          {/* Specs Table */}
           {post.specs?.length ? <SpecsTable specs={post.specs} /> : null}
-
-          {/* Pros & Cons */}
           {(post.pros?.length || post.cons?.length) ? (
             <ProsAndCons pros={post.pros} cons={post.cons} />
           ) : null}
-
-          {/* Share */}
           <ShareButtons title={post.title} slug={slug} />
-
         </ScrollReveal>
 
         {/* Related Posts */}
@@ -292,9 +310,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           </section>
         )}
 
-        {/* Comments */}
         <CommentsSection postId={post._id} initialComments={post.comments || []} />
-
       </div>
 
       <Footer />

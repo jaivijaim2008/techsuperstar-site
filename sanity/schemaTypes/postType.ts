@@ -54,8 +54,7 @@ export const postType = defineType({
       name: "youtubeUrl",
       title: "YouTube Video URL",
       type: "string",
-      description:
-        "Paste the full YouTube URL then click ⚡ Auto-fill to extract everything automatically.",
+      description: "Paste the full YouTube URL then click ⚡ Auto-fill to extract everything automatically.",
       components: {
         input: YoutubeAutofill,
       },
@@ -64,7 +63,6 @@ export const postType = defineType({
       name: "body",
       type: "blockContent",
     }),
-    // ── NEW: Specs Table ──
     defineField({
       name: "specs",
       title: "Specifications",
@@ -83,7 +81,6 @@ export const postType = defineType({
         }),
       ],
     }),
-    // ── NEW: Pros ──
     defineField({
       name: "pros",
       title: "Pros",
@@ -91,13 +88,26 @@ export const postType = defineType({
       description: "Auto-filled by AI. Each item is one pro point.",
       of: [defineArrayMember({ type: "string" })],
     }),
-    // ── NEW: Cons ──
     defineField({
       name: "cons",
       title: "Cons",
       type: "array",
       description: "Auto-filled by AI. Each item is one con point.",
       of: [defineArrayMember({ type: "string" })],
+    }),
+    // ── SEO ──
+    defineField({
+      name: "seoTitle",
+      title: "SEO Title",
+      type: "string",
+      description: "Title shown in Google search (50-60 chars). Leave blank to use post title.",
+    }),
+    defineField({
+      name: "seoDescription",
+      title: "SEO Description",
+      type: "text",
+      rows: 3,
+      description: "Description shown in Google search (150-160 chars). Leave blank to use excerpt.",
     }),
   ],
   preview: {
