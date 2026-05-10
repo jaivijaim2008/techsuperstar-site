@@ -10,6 +10,7 @@ import {
   MdHeadphones,
   MdGridView,
 } from "react-icons/md";
+import { CATEGORY_COLORS } from "@/lib/category-colors";
 
 const TAGS = [
   { name: "All",         filter: null,          icon: MdGridView      },
@@ -62,16 +63,6 @@ export default function TagsBar() {
           font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
           min-height: 34px;
         }
-        .tag-pill:hover {
-          background: rgba(255,77,0,0.1);
-          border-color: rgba(255,77,0,0.35);
-          color: #ff4d00;
-        }
-        .tag-pill.active {
-          background: #ff4d00;
-          border-color: #ff4d00;
-          color: #fff;
-        }
       `}</style>
 
       <div className="tags-bar-wrap">
@@ -84,11 +75,49 @@ export default function TagsBar() {
             const href = tag.filter ? `/?filter=${tag.filter}` : "/";
             const Icon = tag.icon;
 
+            // Get the category color (fallback to orange for "All")
+            const categoryColor = tag.filter
+              ? CATEGORY_COLORS[tag.filter]
+              : null;
+
+            // Build inline active styles per category
+            const activeStyle = isActive && categoryColor
+              ? {
+                  background: categoryColor.color,
+                  borderColor: categoryColor.color,
+                  color: "#fff",
+                }
+              : isActive && !categoryColor
+              ? {
+                  // "All" button — keep orange
+                  background: "#ff4d00",
+                  borderColor: "#ff4d00",
+                  color: "#fff",
+                }
+              : {};
+
+            // Hover is handled via inline onMouseEnter/Leave
             return (
               <Link
                 key={tag.name}
                 href={href}
-                className={`tag-pill${isActive ? " active" : ""}`}
+                className="tag-pill"
+                style={activeStyle}
+                onMouseEnter={(e) => {
+                  if (isActive) return; // don't override active state
+                  const el = e.currentTarget;
+                  const c = categoryColor?.color || "#ff4d00";
+                  el.style.background = categoryColor?.bg || "rgba(255,77,0,0.1)";
+                  el.style.borderColor = categoryColor?.border || "rgba(255,77,0,0.35)";
+                  el.style.color = c;
+                }}
+                onMouseLeave={(e) => {
+                  if (isActive) return;
+                  const el = e.currentTarget;
+                  el.style.background = "rgba(255,255,255,0.03)";
+                  el.style.borderColor = "rgba(255,255,255,0.08)";
+                  el.style.color = "#888";
+                }}
               >
                 <Icon size={14} />
                 {tag.name}

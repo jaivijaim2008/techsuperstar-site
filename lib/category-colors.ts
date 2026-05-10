@@ -33,10 +33,10 @@ export const CATEGORY_COLORS: Record<string, { bg: string; color: string; border
     border: "rgba(6, 182, 212, 0.3)"
   },
   comparisons: {
-    color: "#ff4d00",      // Orange (default)
-    bg: "rgba(255, 77, 0, 0.1)",
-    border: "rgba(255, 77, 0, 0.3)"
-  }
+  color: "#eab308",        // Yellow to match sidebar
+  bg: "rgba(234, 179, 8, 0.1)",
+  border: "rgba(234, 179, 8, 0.3)"
+},
 };
 
 export function getCategoryColor(category: string) {
