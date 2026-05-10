@@ -19,9 +19,9 @@ const CATEGORY_COLORS: Record<string, { color: string; bg: string; border: strin
   laptops: { color: "#3b82f6", bg: "rgba(59, 130, 246, 0.1)", border: "rgba(59, 130, 246, 0.3)" },     // Blue
   tablets: { color: "#10b981", bg: "rgba(16, 185, 129, 0.1)", border: "rgba(16, 185, 129, 0.3)" },     // Green
   gaming: { color: "#a855f7", bg: "rgba(168, 85, 247, 0.1)", border: "rgba(168, 85, 247, 0.3)" },      // Purple
-  reviews: { color: "#f59e0b", bg: "rgba(245, 158, 11, 0.1)", border: "rgba(245, 158, 11, 0.3)" },     // Amber
+  comparisons: { color: "#f59e0b", bg: "rgba(245, 158, 11, 0.1)", border: "rgba(245, 158, 11, 0.3)" },     // Amber
   accessories: { color: "#06b6d4", bg: "rgba(6, 182, 212, 0.1)", border: "rgba(6, 182, 212, 0.3)" },   // Cyan
-  comparisons: { color: "#ff4d00", bg: "rgba(255, 77, 0, 0.1)", border: "rgba(255, 77, 0, 0.3)" },     // Orange
+  
 };
 
 function getCategoryColor(category: string) {
