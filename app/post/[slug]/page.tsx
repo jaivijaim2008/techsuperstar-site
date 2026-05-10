@@ -163,43 +163,36 @@ function ProsAndCons({ pros, cons }: { pros?: string[]; cons?: string[] }) {
   );
 }
 
-// ── SEO Metadata ──
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
   const post = await getPost(slug);
   if (!post) return {};
-
   const title = post.seoTitle || post.title;
   const description = post.seoDescription || post.excerpt;
   const image = post.image;
-
   return {
     title: title.includes("TechSuperStar") ? title : `${title} | TechSuperStar`,
     description,
     openGraph: {
-  title,
-  description,
-  url: `https://techsuperstar-site.vercel.app/post/${slug}`,
-  siteName: "TechSuperStar",
-  images: image ? [{ url: `${image}?w=600&q=80`, width: 600, height: 315 }] : [],
-  type: "article",
-},
-twitter: {
-  card: "summary_large_image",
-  title,
-  description,
-  creator: "@Tech_SuperStar",
-  images: image ? [`${image}?w=600&q=80`] : [],
-},
+      title, description,
+      url: `https://techsuperstar-site.vercel.app/post/${slug}`,
+      siteName: "TechSuperStar",
+      images: image ? [{ url: `${image}?w=600&q=80`, width: 600, height: 315 }] : [],
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title, description,
+      creator: "@Tech_SuperStar",
+      images: image ? [`${image}?w=600&q=80`] : [],
+    },
   };
 }
 
-// ── Page ──
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-
   const post: Post | null = await getPost(slug);
   if (!post) notFound();
 
@@ -211,7 +204,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       <ReadingProgressBar />
       <Navbar />
 
-      {/* Hero */}
       <div className="relative">
         {post.image && (
           <div className="absolute inset-0 h-[320px] sm:h-[520px]">
@@ -245,7 +237,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 pb-16 sm:pb-20">
         <ScrollReveal>
           {embedUrl && (
@@ -273,13 +264,22 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           {(post.pros?.length || post.cons?.length) ? (
             <ProsAndCons pros={post.pros} cons={post.cons} />
           ) : null}
-          {/* Adsterra Ads */}
-<AdsterraAd adKey="932242fddbeb385eb603aa51cd39fb8a" width={300} height={250} />
 
-<ShareButtons title={post.title} slug={slug} />
+          {/* Native Banner */}
+          <AdsterraAd
+            nativeSrc="https://pl29406987.profitablecpmratenetwork.com/dc833c55a3fdef945b15de662ae71a41/invoke.js"
+            nativeId="container-dc833c55a3fdef945b15de662ae71a41"
+          />
+
+          {/* Banner 300x250 */}
+          <AdsterraAd adKey="932242fddbeb385eb603aa51cd39fb8a" width={300} height={250} />
+
+          {/* Banner 728x90 */}
+          <AdsterraAd adKey="fb89288aebe3488559b878b5acfb5a87" width={728} height={90} />
+
+          <ShareButtons title={post.title} slug={slug} />
         </ScrollReveal>
 
-        {/* Related Posts */}
         {relatedPosts.length > 0 && (
           <section className="mt-14 sm:mt-20">
             <h2 className="text-xl sm:text-2xl font-black mb-6 sm:mb-8 text-white">
@@ -314,9 +314,10 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           </section>
         )}
 
+        {/* Banner 160x600 */}
         <AdsterraAd adKey="7a9bb5ef7a553be41bb24fdd3734233d" width={160} height={600} />
 
-<CommentsSection postId={post._id} initialComments={post.comments || []} />
+        <CommentsSection postId={post._id} initialComments={post.comments || []} />
       </div>
 
       <Footer />
