@@ -13,6 +13,22 @@ function timeAgo(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
 }
 
+// Category colors - your exact colors
+const CATEGORY_COLORS: Record<string, { color: string; bg: string; border: string }> = {
+  phones: { color: "#ff4d00", bg: "rgba(255, 77, 0, 0.1)", border: "rgba(255, 77, 0, 0.3)" },
+  laptops: { color: "#3b82f6", bg: "rgba(59, 130, 246, 0.1)", border: "rgba(59, 130, 246, 0.3)" },
+  tablets: { color: "#f59e0b", bg: "rgba(245, 158, 11, 0.1)", border: "rgba(245, 158, 11, 0.3)" },
+  gaming: { color: "#a855f7", bg: "rgba(168, 85, 247, 0.1)", border: "rgba(168, 85, 247, 0.3)" },
+  reviews: { color: "#f59e0b", bg: "rgba(245, 158, 11, 0.1)", border: "rgba(245, 158, 11, 0.3)" },
+  accessories: { color: "#06b6d4", bg: "rgba(6, 182, 212, 0.1)", border: "rgba(6, 182, 212, 0.3)" },
+  comparisons: { color: "#ff4d00", bg: "rgba(255, 77, 0, 0.1)", border: "rgba(255, 77, 0, 0.3)" },
+};
+
+function getCategoryColor(category: string) {
+  const normalized = category?.toLowerCase().replace(/[^a-z]/g, "") || "phones";
+  return CATEGORY_COLORS[normalized] || CATEGORY_COLORS.phones;
+}
+
 const CATEGORIES = [
   { name: "All",         href: "/articles" },
   { name: "Phones",      href: "/category/phones" },
@@ -115,9 +131,8 @@ export default function Sidebar({ posts }: { posts: any[] }) {
           box-shadow: 0 8px 24px rgba(255,77,0,0.5) !important;
         }
         .cat-pill:hover {
-          background: rgba(255,77,0,0.1) !important;
-          border-color: rgba(255,77,0,0.3) !important;
-          color: #ff4d00 !important;
+          transform: translateY(-2px);
+          opacity: 0.9;
         }
         .trending-row:hover {
           background: rgba(255,77,0,0.04) !important;
@@ -211,30 +226,33 @@ export default function Sidebar({ posts }: { posts: any[] }) {
         {/* Categories */}
         <SidebarSection title="Browse by Category">
           <div style={{ padding: "12px", display: "flex", flexWrap: "wrap", gap: "6px" }}>
-            {CATEGORIES.map((cat) => (
-              <Link
-                key={cat.name}
-                href={cat.href}
-                className="cat-pill"
-                style={{
-                  fontSize: "11px",
-                  fontWeight: "600",
-                  color: "#666",
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  borderRadius: "20px",
-                  padding: "6px 13px",
-                  textDecoration: "none",
-                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                  transition: "all 0.2s ease",
-                  display: "inline-block",
-                  minHeight: "32px",
-                  lineHeight: "20px",
-                }}
-              >
-                {cat.name}
-              </Link>
-            ))}
+            {CATEGORIES.map((cat) => {
+              const colors = getCategoryColor(cat.name);
+              return (
+                <Link
+                  key={cat.name}
+                  href={cat.href}
+                  className="cat-pill"
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: "600",
+                    color: colors.color,
+                    background: colors.bg,
+                    border: `1px solid ${colors.border}`,
+                    borderRadius: "20px",
+                    padding: "6px 13px",
+                    textDecoration: "none",
+                    fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                    transition: "all 0.2s ease",
+                    display: "inline-block",
+                    minHeight: "32px",
+                    lineHeight: "20px",
+                  }}
+                >
+                  {cat.name}
+                </Link>
+              );
+            })}
           </div>
         </SidebarSection>
 
@@ -298,15 +316,22 @@ export default function Sidebar({ posts }: { posts: any[] }) {
 
                 <div style={{ flex: 1, minWidth: 0 }}>
                   {post.categories?.[0] && (
-                    <div style={{
-                      fontSize: "9px", color: "#ff4d00",
-                      fontWeight: "700", textTransform: "uppercase",
-                      letterSpacing: "1px",
-                      fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                      marginBottom: "3px",
-                    }}>
-                      {post.categories[0]}
-                    </div>
+                    (() => {
+                      const colors = getCategoryColor(post.categories[0]);
+                      return (
+                        <div style={{
+                          fontSize: "9px",
+                          color: colors.color,
+                          fontWeight: "700",
+                          textTransform: "uppercase",
+                          letterSpacing: "1px",
+                          fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                          marginBottom: "3px",
+                        }}>
+                          {post.categories[0]}
+                        </div>
+                      );
+                    })()
                   )}
                   <div style={{
                     fontSize: "12px",
