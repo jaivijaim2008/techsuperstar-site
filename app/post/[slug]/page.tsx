@@ -7,7 +7,6 @@ import { PortableText } from "@portabletext/react";
 import { ShareButtons, ReadingProgressBar, TableOfContents, CommentsSection } from "./ClientComponents";
 import { notFound } from "next/navigation";
 
-
 interface Spec { label: string; value: string }
 
 interface Post {
@@ -265,18 +264,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             <ProsAndCons pros={post.pros} cons={post.cons} />
           ) : null}
 
-          {/* Native Banner */}
-          <AdsterraAd
-            nativeSrc="https://pl29406987.profitablecpmratenetwork.com/dc833c55a3fdef945b15de662ae71a41/invoke.js"
-            nativeId="container-dc833c55a3fdef945b15de662ae71a41"
-          />
-
-          {/* Banner 300x250 */}
-          <AdsterraAd adKey="932242fddbeb385eb603aa51cd39fb8a" width={300} height={250} />
-
-          {/* Banner 728x90 */}
-          <AdsterraAd adKey="fb89288aebe3488559b878b5acfb5a87" width={728} height={90} />
-
           <ShareButtons title={post.title} slug={slug} />
         </ScrollReveal>
 
@@ -313,9 +300,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             </div>
           </section>
         )}
-
-        {/* Banner 160x600 */}
-        <AdsterraAd adKey="7a9bb5ef7a553be41bb24fdd3734233d" width={160} height={600} />
 
         <CommentsSection postId={post._id} initialComments={post.comments || []} />
       </div>
