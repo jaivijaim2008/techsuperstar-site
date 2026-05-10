@@ -31,15 +31,10 @@ export default function NewsTicker() {
   useEffect(() => {
     const fetchLatest = async () => {
       try {
-        const query = encodeURIComponent(
-          `*[_type == "post"] | order(publishedAt desc)[0..9]{title, "slug": slug.current, "category": categories[0]}`
-        );
-        const res = await fetch(
-          `https://ba3aow7c.api.sanity.io/v2023-01-01/data/query/production?query=${query}`
-        );
+        const res = await fetch(`/api/trending`);
         const data = await res.json();
-        if (data?.result?.length > 0) {
-          setItems(data.result.map((p: TickerPost) => ({
+        if (data?.length > 0) {
+          setItems(data.map((p: TickerPost) => ({
             title: p.title,
             slug: p.slug,
             category: (p.category || "default").toLowerCase(),
@@ -204,7 +199,6 @@ export default function NewsTicker() {
       `}</style>
 
       <div className="news-ticker-container">
-        {/* Label */}
         <div className="ticker-label">
           <span className="ticker-dot" />
           <span>Trending</span>
@@ -212,17 +206,13 @@ export default function NewsTicker() {
 
         <div className="ticker-divider" />
 
-        {/* Scrolling Content */}
         <div className="ticker-content">
           <div className="ticker-track">
             {doubled.map((item, i) => {
               const color = categoryColors[item.category] || categoryColors.default;
               return (
                 <span key={i} style={{ display: "flex", alignItems: "center" }}>
-                  <Link
-                    href={`/post/${item.slug}`}
-                    className="ticker-item-wrapper"
-                  >
+                  <Link href={`/post/${item.slug}`} className="ticker-item-wrapper">
                     <span
                       className="ticker-badge"
                       style={{ color, borderColor: color, background: `${color}18` }}
