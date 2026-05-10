@@ -122,6 +122,19 @@
         ],
         "name": "cons",
         "type": "array"
+      },
+      {
+        "description": "Title shown in Google search (50-60 chars). Leave blank to use post title.",
+        "name": "seoTitle",
+        "type": "string",
+        "title": "SEO Title"
+      },
+      {
+        "rows": 3,
+        "description": "Description shown in Google search (150-160 chars). Leave blank to use excerpt.",
+        "name": "seoDescription",
+        "type": "text",
+        "title": "SEO Description"
       }
     ],
     "name": "post",
