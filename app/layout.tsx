@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import Script from "next/script";
+
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -71,12 +71,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
       <body suppressHydrationWarning className="min-h-screen bg-gray-900 text-white">
-        <Script
-          src="https://quge5.com/88/tag.min.js"
-          data-zone="238011"
-          strategy="afterInteractive"
-          data-cfasync="false"
-        />
+        
         {children}
       </body>
     </html>
