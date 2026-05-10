@@ -13,10 +13,10 @@ export const CATEGORY_COLORS: Record<string, { bg: string; color: string; border
     border: "rgba(59, 130, 246, 0.3)"
   },
   tablets: {
-    color: "#f59e0b",      // Your exact amber/gold
-    bg: "rgba(245, 158, 11, 0.1)",
-    border: "rgba(245, 158, 11, 0.3)"
-  },
+  color: "#22c55e",      // Green ✅
+  bg: "rgba(34, 197, 94, 0.1)",
+  border: "rgba(34, 197, 94, 0.3)"
+},
   gaming: {
     color: "#a855f7",      // Your exact purple
     bg: "rgba(168, 85, 247, 0.1)",
