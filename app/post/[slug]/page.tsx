@@ -6,7 +6,7 @@ import Link from "next/link";
 import { PortableText } from "@portabletext/react";
 import { ShareButtons, ReadingProgressBar, TableOfContents, CommentsSection } from "./ClientComponents";
 import { notFound } from "next/navigation";
-import AdsterraAd from "@/components/AdsterraAd";
+
 
 interface Spec { label: string; value: string }
 
