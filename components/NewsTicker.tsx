@@ -10,12 +10,12 @@ interface TickerPost {
 }
 
 const categoryColors: Record<string, string> = {
-  phones: "#00b4d8",
-  laptops: "#7209b7",
+  phones: "#ff4d00",
+  laptops: "#3b82f6",
   tablets: "#10b981",
-  gaming: "#f72585",
-  comparisons: "#f77f00",
-  accessories: "#06d6a0",
+  gaming: "#a855f7",
+  comparisons: "#FFD700",
+  accessories: "#06b6d4",
   default: "#ff4d00",
 };
 
