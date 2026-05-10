@@ -175,7 +175,7 @@ export async function generateMetadata(
   const image = post.image;
 
   return {
-    title: `${title} | TechSuperStar`,
+    title: title.includes("TechSuperStar") ? title : `${title} | TechSuperStar`,
     description,
     openGraph: {
       title,
