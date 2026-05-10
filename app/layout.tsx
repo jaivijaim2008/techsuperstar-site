@@ -63,6 +63,7 @@ export default function RootLayout({
   return (
     <html lang="ta-IN" className={`${dmSans.variable} ${playfair.variable}`}>
       <head>
+        <meta name="monetag" content="78145c028e6f326949b70470d2774ea0" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
         <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
