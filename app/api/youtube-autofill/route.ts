@@ -227,7 +227,7 @@ RULES:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b",
+        model: "llama3.1-8b",
         messages: [{ role: "user", content: prompt }],
         max_tokens: 4000,
         temperature: 0.6,
