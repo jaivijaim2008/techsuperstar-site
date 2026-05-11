@@ -227,11 +227,10 @@ RULES:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        version: "e5582ad2d673ddbe5e1829e4c7eb4504c4506231",
+        version: "01ab2e83b7c3b93c333f6787dae3931a1c4b887379150494bbb6411953814107",
         input: {
           prompt: prompt,
-          temperature: 0.6,
-          max_new_tokens: 6000,
+          max_tokens: 6000,
         },
       }),
     });
@@ -242,7 +241,16 @@ RULES:
     }
 
     const completion = await response.json();
-    const rawText = (completion.output || []).join("") || "";
+    
+    // Handle different response formats
+    let rawText = "";
+    if (completion.output && Array.isArray(completion.output)) {
+      rawText = completion.output.join("");
+    } else if (completion.output && typeof completion.output === "string") {
+      rawText = completion.output;
+    } else if (completion.output) {
+      rawText = JSON.stringify(completion.output);
+    }
 
     let generated: any = {};
     try {
