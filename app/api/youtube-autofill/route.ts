@@ -35,7 +35,6 @@ function extractAndRepairJSON(text: string): string {
   const end = jsonStr.lastIndexOf("}");
   if (end !== -1) jsonStr = jsonStr.slice(0, end + 1);
 
-  // Count open braces/brackets to repair truncated JSON
   let openBraces = 0;
   let openBrackets = 0;
   let inString = false;
@@ -89,7 +88,7 @@ async function fetchTranscript(videoId: string): Promise<string> {
     .replace(/&quot;/g, '"')
     .replace(/\s+/g, " ")
     .trim()
-    .slice(0, 5000); // Reduced to avoid JSON cutoff
+    .slice(0, 3000);
 }
 
 function makeSectionBlocks(heading: string, content: string, bullets: string[]) {
@@ -220,38 +219,28 @@ RULES:
   "cons": ["Con 1", "Con 2", "Con 3"]
 }`;
 
-    const response = await fetch("https://api.replicate.com/v1/predictions", {
+    // Cerebras API - Free, fast, generous limits
+    const response = await fetch("https://api.cerebras.ai/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Token ${process.env.REPLICATE_API_TOKEN}`,
+        "Authorization": `Bearer ${process.env.CEREBRAS_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        version: "13c3cdee13ee059ab779f0291254dcf444ca42aac0d876ee37245c9da7bde126",
-        input: {
-          prompt: prompt,
-          max_tokens: 6000,
-          temperature: 0.6,
-        },
+        model: "llama-3.3-70b",
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: 4000,
+        temperature: 0.6,
       }),
     });
 
     if (!response.ok) {
       const errText = await response.text();
-      throw new Error(`Replicate error: ${errText}`);
+      throw new Error(`Cerebras error: ${errText}`);
     }
 
     const completion = await response.json();
-    
-    // Handle different response formats
-    let rawText = "";
-    if (completion.output && Array.isArray(completion.output)) {
-      rawText = completion.output.join("");
-    } else if (completion.output && typeof completion.output === "string") {
-      rawText = completion.output;
-    } else if (completion.output) {
-      rawText = JSON.stringify(completion.output);
-    }
+    const rawText = completion.choices?.[0]?.message?.content || "";
 
     let generated: any = {};
     try {
