@@ -220,16 +220,13 @@ RULES:
   "cons": ["Con 1", "Con 2", "Con 3"]
 }`;
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const response = await fetch("https://api-inference.huggingface.co/models/meta-llama/Llama-2-70b-chat-hf/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Authorization": `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://techsuperstar-site.vercel.app",
-        "X-Title": "TechSuperStar",
       },
       body: JSON.stringify({
-        model: "openrouter/auto",
         messages: [{ role: "user", content: prompt }],
         temperature: 0.6,
         max_tokens: 6000,
@@ -238,7 +235,7 @@ RULES:
 
     if (!response.ok) {
       const errText = await response.text();
-      throw new Error(`OpenRouter error: ${errText}`);
+      throw new Error(`Hugging Face error: ${errText}`);
     }
 
     const completion = await response.json();
