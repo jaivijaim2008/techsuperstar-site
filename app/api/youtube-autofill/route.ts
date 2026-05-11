@@ -220,28 +220,29 @@ RULES:
   "cons": ["Con 1", "Con 2", "Con 3"]
 }`;
 
-    const response = await fetch("https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1", {
+    const response = await fetch("https://api.replicate.com/v1/predictions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
+        "Authorization": `Token ${process.env.REPLICATE_API_TOKEN}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        inputs: prompt,
-        parameters: {
+        version: "e5582ad2d673ddbe5e1829e4c7eb4504c4506231",
+        input: {
+          prompt: prompt,
           temperature: 0.6,
-          max_length: 6000,
+          max_new_tokens: 6000,
         },
       }),
     });
 
     if (!response.ok) {
       const errText = await response.text();
-      throw new Error(`Hugging Face error: ${errText}`);
+      throw new Error(`Replicate error: ${errText}`);
     }
 
     const completion = await response.json();
-    const rawText = completion[0]?.generated_text || "";
+    const rawText = (completion.output || []).join("") || "";
 
     let generated: any = {};
     try {
