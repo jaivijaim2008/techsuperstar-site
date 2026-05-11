@@ -227,10 +227,11 @@ RULES:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        version: "01ab2e83b7c3b93c333f6787dae3931a1c4b887379150494bbb6411953814107",
+        version: "13c3cdee13ee059ab779f0291254dcf444ca42aac0d876ee37245c9da7bde126",
         input: {
           prompt: prompt,
           max_tokens: 6000,
+          temperature: 0.6,
         },
       }),
     });
