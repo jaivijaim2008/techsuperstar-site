@@ -220,16 +220,18 @@ RULES:
   "cons": ["Con 1", "Con 2", "Con 3"]
 }`;
 
-    const response = await fetch("https://api-inference.huggingface.co/models/meta-llama/Llama-2-70b-chat-hf/v1/chat/completions", {
+    const response = await fetch("https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.6,
-        max_tokens: 6000,
+        inputs: prompt,
+        parameters: {
+          temperature: 0.6,
+          max_length: 6000,
+        },
       }),
     });
 
@@ -239,7 +241,7 @@ RULES:
     }
 
     const completion = await response.json();
-    const rawText = completion.choices[0]?.message?.content || "";
+    const rawText = completion[0]?.generated_text || "";
 
     let generated: any = {};
     try {
