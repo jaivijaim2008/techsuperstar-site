@@ -28,12 +28,21 @@ function slugify(text: string): string {
 }
 
 function extractAndRepairJSON(text: string): string {
+  // remove markdown blocks
+  text = text
+    .replace(/```json/g, "")
+    .replace(/```/g, "")
+    .trim();
+
   const start = text.indexOf("{");
   if (start === -1) throw new Error("No JSON found in response");
 
   let jsonStr = text.slice(start);
+
   const end = jsonStr.lastIndexOf("}");
-  if (end !== -1) jsonStr = jsonStr.slice(0, end + 1);
+  if (end !== -1) {
+    jsonStr = jsonStr.slice(0, end + 1);
+  }
 
   let openBraces = 0;
   let openBrackets = 0;
@@ -41,18 +50,39 @@ function extractAndRepairJSON(text: string): string {
   let escape = false;
 
   for (const ch of jsonStr) {
-    if (escape) { escape = false; continue; }
-    if (ch === "\\" && inString) { escape = true; continue; }
-    if (ch === '"') { inString = !inString; continue; }
+    if (escape) {
+      escape = false;
+      continue;
+    }
+
+    if (ch === "\\" && inString) {
+      escape = true;
+      continue;
+    }
+
+    if (ch === '"') {
+      inString = !inString;
+      continue;
+    }
+
     if (inString) continue;
+
     if (ch === "{") openBraces++;
     if (ch === "}") openBraces--;
+
     if (ch === "[") openBrackets++;
     if (ch === "]") openBrackets--;
   }
 
-  while (openBrackets > 0) { jsonStr += "]"; openBrackets--; }
-  while (openBraces > 0) { jsonStr += "}"; openBraces--; }
+  while (openBrackets > 0) {
+    jsonStr += "]";
+    openBrackets--;
+  }
+
+  while (openBraces > 0) {
+    jsonStr += "}";
+    openBraces--;
+  }
 
   return jsonStr;
 }
@@ -65,15 +95,19 @@ async function fetchTranscript(videoId: string): Promise<string> {
       "Accept-Language": "en-US,en;q=0.9",
     },
   });
+
   const html = await res.text();
 
   const captionsMatch = html.match(/"captionTracks":\s*(\[[\s\S]*?\])/);
+
   if (!captionsMatch) return "";
 
   const tracks = JSON.parse(captionsMatch[1]);
+
   const track =
     tracks.find((t: { languageCode: string }) => t.languageCode === "en") ||
     tracks[0];
+
   if (!track?.baseUrl) return "";
 
   const xmlRes = await fetch(track.baseUrl);
@@ -88,17 +122,28 @@ async function fetchTranscript(videoId: string): Promise<string> {
     .replace(/&quot;/g, '"')
     .replace(/\s+/g, " ")
     .trim()
-    .slice(0, 3000);
+    .slice(0, 1500);
 }
 
-function makeSectionBlocks(heading: string, content: string, bullets: string[]) {
+function makeSectionBlocks(
+  heading: string,
+  content: string,
+  bullets: string[]
+) {
   const blocks = [];
 
   blocks.push({
     _type: "block",
     _key: Math.random().toString(36).slice(2),
     style: "h2",
-    children: [{ _type: "span", _key: Math.random().toString(36).slice(2), text: heading, marks: [] }],
+    children: [
+      {
+        _type: "span",
+        _key: Math.random().toString(36).slice(2),
+        text: heading,
+        marks: [],
+      },
+    ],
     markDefs: [],
   });
 
@@ -107,7 +152,14 @@ function makeSectionBlocks(heading: string, content: string, bullets: string[]) 
       _type: "block",
       _key: Math.random().toString(36).slice(2),
       style: "normal",
-      children: [{ _type: "span", _key: Math.random().toString(36).slice(2), text: content, marks: [] }],
+      children: [
+        {
+          _type: "span",
+          _key: Math.random().toString(36).slice(2),
+          text: content,
+          marks: [],
+        },
+      ],
       markDefs: [],
     });
   }
@@ -120,7 +172,14 @@ function makeSectionBlocks(heading: string, content: string, bullets: string[]) 
         style: "normal",
         listItem: "bullet",
         level: 1,
-        children: [{ _type: "span", _key: Math.random().toString(36).slice(2), text: bullet, marks: [] }],
+        children: [
+          {
+            _type: "span",
+            _key: Math.random().toString(36).slice(2),
+            text: bullet,
+            marks: [],
+          },
+        ],
         markDefs: [],
       });
     }
@@ -132,72 +191,63 @@ function makeSectionBlocks(heading: string, content: string, bullets: string[]) 
 export async function POST(req: NextRequest) {
   try {
     const { url } = await req.json();
+
     if (!url) {
-      return NextResponse.json({ error: "No URL provided" }, { status: 400, headers: corsHeaders });
+      return NextResponse.json(
+        { error: "No URL provided" },
+        { status: 400, headers: corsHeaders }
+      );
     }
 
     const videoId = extractVideoId(url);
+
     if (!videoId) {
-      return NextResponse.json({ error: "Invalid YouTube URL" }, { status: 400, headers: corsHeaders });
+      return NextResponse.json(
+        { error: "Invalid YouTube URL" },
+        { status: 400, headers: corsHeaders }
+      );
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-    const metaRes = await fetch(`${baseUrl}/api/youtube-meta?url=${encodeURIComponent(url)}`);
+    const baseUrl =
+      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+
+    const metaRes = await fetch(
+      `${baseUrl}/api/youtube-meta?url=${encodeURIComponent(url)}`
+    );
+
     const meta = await metaRes.json();
 
     if (meta.error) {
-      return NextResponse.json({ error: meta.error }, { status: 400, headers: corsHeaders });
+      return NextResponse.json(
+        { error: meta.error },
+        { status: 400, headers: corsHeaders }
+      );
     }
 
     const transcript = await fetchTranscript(videoId);
+
     const contentSource = transcript || meta.description || "";
 
     if (!contentSource) {
-      return NextResponse.json({ error: "No content available for this video" }, { status: 400, headers: corsHeaders });
+      return NextResponse.json(
+        { error: "No content available for this video" },
+        { status: 400, headers: corsHeaders }
+      );
     }
 
-    const prompt = `You are an expert Tamil tech blogger writing detailed English blog posts. Based on this YouTube video transcript, write a DETAILED blog post.
+    const prompt = `You are an expert Tamil tech blogger writing detailed English blog posts.
 
 VIDEO TITLE: ${meta.title}
-CONTENT: ${contentSource}
 
-DETECT VIDEO TYPE:
-- "single_review" → reviewing ONE product
-- "comparison" → comparing TWO or more products
-- "top_list" → listing multiple products
-- "accessories" → earbuds, headphones, chargers
-- "news" → announcements, leaks
-- "other" → anything else
+CONTENT:
+${contentSource}
 
-SPECS by type:
-- single_review: ["Display", "Processor", "RAM", "Storage", "Camera", "Battery", "OS", "Price"]
-- comparison: { "label": "Battery", "value": "Phone A: 4200mAh | Phone B: 4500mAh" }
-- top_list: { "label": "Product Name", "value": "key spec and price" }
-- accessories (earbuds): ["Driver Size", "Connectivity", "Battery Life", "ANC", "Water Resistance", "Codec Support", "Price"]
-- news: ["Expected Price", "Launch Date", "Key Features", "Chipset", "Camera", "Battery"]
-
-BODY SECTIONS by type:
-- single_review: Introduction, Design & Build, Display, Performance, Camera, Battery Life, Final Verdict
-- comparison: Introduction, Design Comparison, Display Comparison, Performance Comparison, Camera Comparison, Battery Comparison, Which One to Buy?
-- top_list: Introduction, one section per product, Final Recommendations
-- accessories: Introduction, Design & Build, Sound Quality, Features, Battery Life, Value for Money, Final Verdict
-- news: Introduction, Key Highlights, Expected Specs, Price & Availability, Should You Wait?
-
-CATEGORY RULES — pick exactly one:
-- "phones" → single phone review, phone news, phone leaks
-- "laptops" → laptop reviews or comparisons
-- "tablets" → tablet reviews or comparisons
-- "gaming" → gaming phones, consoles, gaming gear
-- "accessories" → earbuds, headphones, chargers, cables, cases
-- "comparisons" → any video comparing two or more products
-
-RULES:
-- Title must be catchy with emojis
-- Each "content" = 4-6 detailed sentences with real numbers from transcript
-- Each "bullets" = 3-5 short punchy points
-- Never use N/A unless truly not mentioned
-- Only use facts from the transcript
-- Return ONLY valid JSON, no markdown, no backticks
+IMPORTANT:
+- Return ONLY valid JSON
+- No markdown
+- No explanation
+- No backticks
+- No \`\`\`json
 
 {
   "video_type": "single_review",
@@ -215,24 +265,27 @@ RULES:
   "specs": [
     { "label": "Spec name", "value": "Spec value" }
   ],
-  "pros": ["Pro 1", "Pro 2", "Pro 3", "Pro 4"],
-  "cons": ["Con 1", "Con 2", "Con 3"]
+  "pros": ["Pro 1", "Pro 2", "Pro 3"],
+  "cons": ["Con 1", "Con 2"]
 }`;
 
-    // Cerebras API - Free, fast, generous limits
-    const response = await fetch("https://api.cerebras.ai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.CEREBRAS_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "llama3.1-8b",
-        messages: [{ role: "user", content: prompt }],
-        max_tokens: 4000,
-        temperature: 0.6,
-      }),
-    });
+    // Cerebras API
+    const response = await fetch(
+      "https://api.cerebras.ai/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.CEREBRAS_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "llama3.1-8b",
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: 1800,
+          temperature: 0.4,
+        }),
+      }
+    );
 
     if (!response.ok) {
       const errText = await response.text();
@@ -240,20 +293,48 @@ RULES:
     }
 
     const completion = await response.json();
-    const rawText = completion.choices?.[0]?.message?.content || "";
+
+    let rawText =
+      completion?.choices?.[0]?.message?.content || "";
+
+    rawText = rawText
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
 
     let generated: any = {};
+
     try {
       const jsonStr = extractAndRepairJSON(rawText);
+
       generated = JSON.parse(jsonStr);
     } catch (parseErr) {
+      console.error("RAW AI RESPONSE:", rawText);
       console.error("JSON parse failed:", parseErr);
-      throw new Error("AI returned invalid JSON. Please try again.");
+
+      return NextResponse.json(
+        {
+          error: "AI returned invalid JSON",
+          raw: rawText,
+        },
+        {
+          status: 500,
+          headers: corsHeaders,
+        }
+      );
     }
 
     const bodyBlocks = (generated.body || []).flatMap(
-      (section: { heading: string; content: string; bullets?: string[] }) =>
-        makeSectionBlocks(section.heading, section.content, section.bullets || [])
+      (section: {
+        heading: string;
+        content: string;
+        bullets?: string[];
+      }) =>
+        makeSectionBlocks(
+          section.heading,
+          section.content,
+          section.bullets || []
+        )
     );
 
     return NextResponse.json(
@@ -276,9 +357,18 @@ RULES:
     );
   } catch (err) {
     console.error("Autofill error:", err);
+
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Something went wrong" },
-      { status: 500, headers: corsHeaders }
+      {
+        error:
+          err instanceof Error
+            ? err.message
+            : "Something went wrong",
+      },
+      {
+        status: 500,
+        headers: corsHeaders,
+      }
     );
   }
 }
