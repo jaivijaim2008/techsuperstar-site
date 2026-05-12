@@ -46,18 +46,7 @@ function getYouTubeEmbedUrl(url: string) {
 }
 
 const ptComponents = {
-   types: {
-    sectionImage: ({ value }: { value: { imageUrl: string; alt: string } }) => (
-      <div className="my-6 rounded-xl overflow-hidden border border-white/10 shadow-lg">
-        <img
-          src={value.imageUrl}
-          alt={value.alt}
-          className="w-full h-48 sm:h-64 object-cover"
-          loading="lazy"
-        />
-      </div>
-    ),
-  },
+
   block: {
     h1: ({ children }: { children?: React.ReactNode }) => (
       <h1 className="text-2xl sm:text-3xl font-black mt-8 mb-4 text-white leading-tight">{children}</h1>

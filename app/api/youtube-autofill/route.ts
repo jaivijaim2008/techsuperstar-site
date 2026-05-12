@@ -121,28 +121,15 @@ async function fetchTranscript(videoId: string): Promise<string> {
   }
 }
 
-// ─── AI Image Generator ───────────────────────────────────────────────────────
 
-async function generateSectionImage(
-  heading: string,
-  deviceName: string
-): Promise<string> {
-
-  const query = encodeURIComponent(
-    `${deviceName} ${heading} smartphone`
-  );
-
-  return `https://picsum.photos/seed/${query}/1200/675`;
-}
 
 // ─── Block Builder ────────────────────────────────────────────────────────────
 
 function makeSectionBlocks(
   heading: string,
   content: string,
-  bullets: string[],
-  imageUrl?: string
-) {
+  bullets: string[]
+){
   const key = () => Math.random().toString(36).slice(2);
   const blocks = [];
 
@@ -153,15 +140,7 @@ function makeSectionBlocks(
     markDefs: [],
   });
 
-  // AI Image below heading
-  if (imageUrl) {
-    blocks.push({
-      _type: "sectionImage",
-      _key: key(),
-      imageUrl,
-      alt: heading,
-    });
-  }
+
 
   // Paragraph
   if (content) {
@@ -626,20 +605,16 @@ export async function POST(req: NextRequest) {
     generated.pros = (generated.pros || []).map((p: string) => convertUSDToINR(p));
     generated.cons = (generated.cons || []).map((c: string) => convertUSDToINR(c));
 
-    // Generate AI image URL for each section
-    const deviceName = meta.title?.replace(/[^\w\s]/g, "").trim() || "smartphone";
-
-    const sectionImages = await Promise.all(
-      (generated.body || []).map((section: any) =>
-        generateSectionImage(section.heading, deviceName).catch(() => undefined)
-      )
-    );
 
     // Build body blocks with images
-    const bodyBlocks = (generated.body || []).flatMap(
-      (section: { heading: string; content: string; bullets?: string[] }, i: number) =>
-        makeSectionBlocks(section.heading, section.content, section.bullets || [], sectionImages[i])
-    );
+const bodyBlocks = (generated.body || []).flatMap(
+  (section: { heading: string; content: string; bullets?: string[] }) =>
+    makeSectionBlocks(
+      section.heading,
+      section.content,
+      section.bullets || []
+    )
+);
 
     return NextResponse.json(
       {
