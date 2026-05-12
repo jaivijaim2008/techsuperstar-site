@@ -129,10 +129,10 @@ async function generateSectionImage(
 ): Promise<string> {
 
   const query = encodeURIComponent(
-    `${deviceName} smartphone tech`
+    `${deviceName} ${heading} smartphone`
   );
 
-  return `https://source.unsplash.com/1200x675/?${query}`;
+  return `https://picsum.photos/seed/${query}/1200/675`;
 }
 
 // ─── Block Builder ────────────────────────────────────────────────────────────
