@@ -41,8 +41,13 @@ function formatDate(dateStr: string) {
 }
 
 function getYouTubeEmbedUrl(url: string) {
-  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s?]+)/);
-  return match ? `https://www.youtube.com/embed/${match[1]}` : null;
+  const match = url.match(
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s?]+)/
+  );
+
+  return match
+    ? `https://www.youtube-nocookie.com/embed/${match[1]}`
+    : null;
 }
 
 const ptComponents = {
