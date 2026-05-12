@@ -13,8 +13,9 @@ export async function OPTIONS() {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function extractVideoId(url: string): string | null {
+  // Supports standard, shorts, and embed URLs
   const match = url.match(
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s?]+)/
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([^&\s?]+)/
   );
   return match?.[1] ?? null;
 }
@@ -58,18 +59,23 @@ function extractAndRepairJSON(text: string): string {
   while (openBrackets > 0) { jsonStr += "]"; openBrackets--; }
   while (openBraces > 0) { jsonStr += "}"; openBraces--; }
 
-  // Patch common AI mistakes
   jsonStr = jsonStr
-    .replace(/,\s*([}\]])/g, "$1")        // trailing commas
-    .replace(/:\s*undefined/g, ": null")  // undefined → null
-    .replace(/\bNaN\b/g, "null");         // NaN → null
+    .replace(/,\s*([}\]])/g, "$1")
+    .replace(/:\s*undefined/g, ": null")
+    .replace(/\bNaN\b/g, "null");
 
   return jsonStr;
+}
+
+// FIX #1 — timeout wrapper: every fetch gets a 15-second hard limit
+function withTimeout(ms: number): AbortSignal {
+  return AbortSignal.timeout(ms);
 }
 
 async function fetchTranscript(videoId: string): Promise<string> {
   try {
     const res = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+      signal: withTimeout(15000), // FIX #1
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
@@ -88,7 +94,7 @@ async function fetchTranscript(videoId: string): Promise<string> {
 
     if (!track?.baseUrl) return "";
 
-    const xmlRes = await fetch(track.baseUrl);
+    const xmlRes = await fetch(track.baseUrl, { signal: withTimeout(10000) }); // FIX #1
     const xml = await xmlRes.text();
 
     return xml
@@ -100,7 +106,7 @@ async function fetchTranscript(videoId: string): Promise<string> {
       .replace(/&quot;/g, '"')
       .replace(/\s+/g, " ")
       .trim()
-      .slice(0, 3000); // More transcript = richer posts
+      .slice(0, 8000);
   } catch {
     return "";
   }
@@ -143,61 +149,78 @@ function makeSectionBlocks(
 // ─── Prompt ──────────────────────────────────────────────────────────────────
 
 function buildPrompt(title: string, contentSource: string) {
-  return `You are an expert Tamil tech blogger writing detailed, SEO-optimised English blog posts.
+  return `You are a professional Tamil tech blogger writing in ENGLISH. Write an extremely detailed, long-form, SEO-optimised blog post. The target reader is someone who wants to know everything before buying. Never be brief.
 
 VIDEO TITLE: ${title}
 
-CONTENT:
+TRANSCRIPT / DESCRIPTION:
 ${contentSource}
 
-RULES:
-- Return ONLY valid JSON. No markdown, no backticks, no explanation.
-- All string values must be properly escaped.
-- body must have at least 5 sections with 4-8 detailed sentences each.
-- specs must have at least 8 entries if available.
-- pros/cons must have at least 4 entries each.
+STRICT REQUIREMENTS:
+- Return ONLY valid JSON. Zero markdown, zero backticks, zero explanation outside JSON.
+- "body" MUST have EXACTLY 8 sections minimum. Each section MUST have:
+  - "heading": descriptive heading (no generic labels)
+  - "content": a SINGLE detailed paragraph of AT LEAST 150 words covering that topic in depth
+  - "bullets": AT LEAST 5 bullet points, each a full sentence (not fragments)
+- "specs" MUST have AT LEAST 12 entries covering processor, RAM, storage, display size, display type, refresh rate, battery, charging speed, OS, camera details, dimensions, weight, connectivity, price
+- "pros" MUST have AT LEAST 6 entries, each a full descriptive sentence
+- "cons" MUST have AT LEAST 4 entries, each a full descriptive sentence with context
+- All text must be detailed, informative, and written for SEO. Use real values from the transcript where available.
+- The 8 required body sections are: Introduction & Overview, Design & Build Quality, Display Quality & Experience, Performance & Benchmark Results, Camera System & Photo Quality, Battery Life & Charging, Software & Features, Price & Verdict
 
+Return this exact JSON shape:
 {
   "video_type": "single_review",
-  "title": "Catchy title with emojis",
-  "slug": "url-friendly-slug",
-  "excerpt": "2 engaging sentences for blog card",
+  "title": "Catchy SEO title with relevant emojis (include device name, year, key feature)",
+  "slug": "url-friendly-slug-with-device-name",
+  "excerpt": "Two compelling sentences that summarise the review for a blog card. Should include a hook and key verdict.",
   "category": "phones",
   "body": [
     {
-      "heading": "Section heading",
-      "content": "4-8 detailed sentences expanding on this section",
-      "bullets": ["Detailed point 1", "Detailed point 2", "Detailed point 3"]
+      "heading": "Section heading here",
+      "content": "A single paragraph of at least 150 words that thoroughly covers this section topic with specific details, numbers, and analysis from the review content...",
+      "bullets": [
+        "Full sentence bullet point with specific detail",
+        "Full sentence bullet point with specific detail",
+        "Full sentence bullet point with specific detail",
+        "Full sentence bullet point with specific detail",
+        "Full sentence bullet point with specific detail"
+      ]
     }
   ],
-  "specs": [{ "label": "Spec name", "value": "Spec value" }],
-  "pros": ["Pro 1", "Pro 2", "Pro 3", "Pro 4"],
-  "cons": ["Con 1", "Con 2", "Con 3"]
+  "specs": [
+    { "label": "Processor", "value": "Exact chip name and details" },
+    { "label": "RAM", "value": "Amount and type" },
+    { "label": "Storage", "value": "Options available" },
+    { "label": "Display", "value": "Size, type, resolution" },
+    { "label": "Refresh Rate", "value": "Hz" },
+    { "label": "Battery", "value": "mAh" },
+    { "label": "Charging", "value": "Watt speed, wireless if available" },
+    { "label": "Rear Camera", "value": "Full camera spec breakdown" },
+    { "label": "Front Camera", "value": "MP and features" },
+    { "label": "OS", "value": "Version and skin" },
+    { "label": "Dimensions", "value": "mm" },
+    { "label": "Weight", "value": "grams" },
+    { "label": "Price", "value": "Launch price with currency" }
+  ],
+  "pros": [
+    "Full sentence describing this positive aspect with specific details",
+    "Full sentence describing this positive aspect with specific details",
+    "Full sentence describing this positive aspect with specific details",
+    "Full sentence describing this positive aspect with specific details",
+    "Full sentence describing this positive aspect with specific details",
+    "Full sentence describing this positive aspect with specific details"
+  ],
+  "cons": [
+    "Full sentence describing this negative aspect with context",
+    "Full sentence describing this negative aspect with context",
+    "Full sentence describing this negative aspect with context",
+    "Full sentence describing this negative aspect with context"
+  ]
 }`;
 }
 
 // ─── AI Providers ─────────────────────────────────────────────────────────────
-// Each returns the raw content string or throws.
-
-async function callCerebras(prompt: string): Promise<string> {
-  const key = process.env.CEREBRAS_API_KEY;
-  if (!key) throw new Error("CEREBRAS_API_KEY not set");
-
-  const res = await fetch("https://api.cerebras.ai/v1/chat/completions", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "llama3.1-8b",
-      messages: [{ role: "user", content: prompt }],
-      max_tokens: 2500,
-      temperature: 0.4,
-    }),
-  });
-
-  if (!res.ok) throw new Error(`Cerebras ${res.status}: ${await res.text()}`);
-  const data = await res.json();
-  return data?.choices?.[0]?.message?.content ?? "";
-}
 
 async function callGroq(prompt: string): Promise<string> {
   const key = process.env.GROQ_API_KEY;
@@ -205,17 +228,31 @@ async function callGroq(prompt: string): Promise<string> {
 
   const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
+    signal: withTimeout(60000), // FIX #1 — 60s for AI calls
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "llama-3.1-70b-versatile", // Much larger model = better quality
-      messages: [{ role: "user", content: prompt }],
-      max_tokens: 4000,
-      temperature: 0.4,
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        {
+          role: "system",
+          content: "You are a professional tech blogger. Always respond with pure valid JSON only. No markdown fences. No preamble. No explanation. Start your response with { and end with }."
+        },
+        { role: "user", content: prompt }
+      ],
+      max_tokens: 8000,
+      temperature: 0.3,
     }),
   });
 
   if (!res.ok) throw new Error(`Groq ${res.status}: ${await res.text()}`);
   const data = await res.json();
+
+  // FIX #2 — reject truncated responses
+  const finishReason = data?.choices?.[0]?.finish_reason;
+  if (finishReason === "length") {
+    throw new Error("Groq response truncated (finish_reason=length) — hit token limit");
+  }
+
   return data?.choices?.[0]?.message?.content ?? "";
 }
 
@@ -224,20 +261,106 @@ async function callGemini(prompt: string): Promise<string> {
   if (!key) throw new Error("GEMINI_API_KEY not set");
 
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${key}`,
     {
       method: "POST",
+      signal: withTimeout(60000), // FIX #1
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 4000, temperature: 0.4 },
+        contents: [{
+          parts: [{
+            text: `You are a professional tech blogger. Respond with pure valid JSON only. No markdown. No backticks. No explanation. Start with { and end with }.\n\n${prompt}`
+          }]
+        }],
+        generationConfig: {
+          maxOutputTokens: 8192,
+          temperature: 0.3,
+          responseMimeType: "application/json",
+        },
       }),
     }
   );
 
-  if (!res.ok) throw new Error(`Gemini ${res.status}: ${await res.text()}`);
+  if (!res.ok) throw new Error(`Gemini Pro ${res.status}: ${await res.text()}`);
   const data = await res.json();
+
+  // FIX #2 — check for truncation
+  const finishReason = data?.candidates?.[0]?.finishReason;
+  if (finishReason === "MAX_TOKENS") {
+    throw new Error("Gemini Pro response truncated (MAX_TOKENS) — falling back");
+  }
+
   return data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+}
+
+async function callGeminiFlash(prompt: string): Promise<string> {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) throw new Error("GEMINI_API_KEY not set");
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+    {
+      method: "POST",
+      signal: withTimeout(60000), // FIX #1
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: `You are a professional tech blogger. Respond with pure valid JSON only. No markdown. No backticks.\n\n${prompt}`
+          }]
+        }],
+        generationConfig: {
+          maxOutputTokens: 8192,
+          temperature: 0.3,
+        },
+      }),
+    }
+  );
+
+  if (!res.ok) throw new Error(`Gemini Flash ${res.status}: ${await res.text()}`);
+  const data = await res.json();
+
+  // FIX #2
+  const finishReason = data?.candidates?.[0]?.finishReason;
+  if (finishReason === "MAX_TOKENS") {
+    throw new Error("Gemini Flash response truncated (MAX_TOKENS) — falling back");
+  }
+
+  return data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+}
+
+async function callCerebras(prompt: string): Promise<string> {
+  const key = process.env.CEREBRAS_API_KEY;
+  if (!key) throw new Error("CEREBRAS_API_KEY not set");
+
+  const res = await fetch("https://api.cerebras.ai/v1/chat/completions", {
+    method: "POST",
+    signal: withTimeout(60000), // FIX #1
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "llama3.1-70b",
+      messages: [
+        {
+          role: "system",
+          content: "You are a professional tech blogger. Always respond with pure valid JSON only. No markdown fences. No preamble. Start with { and end with }."
+        },
+        { role: "user", content: prompt }
+      ],
+      max_tokens: 8000,
+      temperature: 0.3,
+    }),
+  });
+
+  if (!res.ok) throw new Error(`Cerebras ${res.status}: ${await res.text()}`);
+  const data = await res.json();
+
+  // FIX #2
+  const finishReason = data?.choices?.[0]?.finish_reason;
+  if (finishReason === "length") {
+    throw new Error("Cerebras response truncated (finish_reason=length) — falling back");
+  }
+
+  return data?.choices?.[0]?.message?.content ?? "";
 }
 
 async function callOpenRouter(prompt: string): Promise<string> {
@@ -246,6 +369,7 @@ async function callOpenRouter(prompt: string): Promise<string> {
 
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
+    signal: withTimeout(60000), // FIX #1
     headers: {
       Authorization: `Bearer ${key}`,
       "Content-Type": "application/json",
@@ -253,15 +377,28 @@ async function callOpenRouter(prompt: string): Promise<string> {
       "X-Title": "TechSuperstar Blog Generator",
     },
     body: JSON.stringify({
-      model: "meta-llama/llama-3.1-70b-instruct:free", // Free tier
-      messages: [{ role: "user", content: prompt }],
-      max_tokens: 4000,
-      temperature: 0.4,
+      model: "google/gemini-flash-1.5",
+      messages: [
+        {
+          role: "system",
+          content: "You are a professional tech blogger. Always respond with pure valid JSON only. No markdown fences. No preamble. Start with { and end with }."
+        },
+        { role: "user", content: prompt }
+      ],
+      max_tokens: 8000,
+      temperature: 0.3,
     }),
   });
 
   if (!res.ok) throw new Error(`OpenRouter ${res.status}: ${await res.text()}`);
   const data = await res.json();
+
+  // FIX #2
+  const finishReason = data?.choices?.[0]?.finish_reason;
+  if (finishReason === "length") {
+    throw new Error("OpenRouter response truncated (finish_reason=length) — falling back");
+  }
+
   return data?.choices?.[0]?.message?.content ?? "";
 }
 
@@ -269,21 +406,27 @@ async function callHuggingFace(prompt: string): Promise<string> {
   const key = process.env.HUGGINGFACE_API_KEY;
   if (!key) throw new Error("HUGGINGFACE_API_KEY not set");
 
+  const systemMsg = "You are a professional tech blogger. Always respond with pure valid JSON only. No markdown fences.\n\n";
+
   const res = await fetch(
     "https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1",
     {
       method: "POST",
+      signal: withTimeout(60000), // FIX #1
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        inputs: prompt,
-        parameters: { max_new_tokens: 3000, temperature: 0.4, return_full_text: false },
+        inputs: systemMsg + prompt,
+        parameters: {
+          max_new_tokens: 8000,
+          temperature: 0.3,
+          return_full_text: false,
+        },
       }),
     }
   );
 
   if (!res.ok) throw new Error(`HuggingFace ${res.status}: ${await res.text()}`);
   const data = await res.json();
-  // HF returns array
   return Array.isArray(data) ? data[0]?.generated_text ?? "" : data?.generated_text ?? "";
 }
 
@@ -292,16 +435,60 @@ async function callHuggingFace(prompt: string): Promise<string> {
 type Provider = { name: string; call: (p: string) => Promise<string> };
 
 const PROVIDERS: Provider[] = [
-  { name: "Groq (llama-70b)",    call: callGroq },        // Best free quality
-  { name: "Gemini 1.5 Flash",    call: callGemini },      // Google, generous limits
-  { name: "Cerebras (llama-8b)", call: callCerebras },    // Very fast
-  { name: "OpenRouter",          call: callOpenRouter },  // Free fallback
-  { name: "HuggingFace Mixtral", call: callHuggingFace }, // Last resort
+  { name: "Groq llama-3.3-70b",       call: callGroq },
+  { name: "Gemini 1.5 Pro",            call: callGemini },
+  { name: "Gemini 1.5 Flash",          call: callGeminiFlash },
+  { name: "Cerebras llama-70b",        call: callCerebras },
+  { name: "OpenRouter Gemini Flash",   call: callOpenRouter },
+  { name: "HuggingFace Mixtral-8x7B",  call: callHuggingFace },
 ];
+
+const MIN_QUALITY_LENGTH = 2000;
+
+// FIX #3 — structural validation after parsing (not just char count)
+function validateStructure(generated: any, providerName: string): void {
+  if (!Array.isArray(generated.body) || generated.body.length < 8) {
+    throw new Error(
+      `${providerName}: body has ${generated.body?.length ?? 0} sections — need 8+`
+    );
+  }
+
+  for (let i = 0; i < generated.body.length; i++) {
+    const section = generated.body[i];
+    if (!section.content || section.content.trim().length < 100) {
+      throw new Error(
+        `${providerName}: body[${i}].content too short (${section.content?.length ?? 0} chars)`
+      );
+    }
+    if (!Array.isArray(section.bullets) || section.bullets.length < 5) {
+      throw new Error(
+        `${providerName}: body[${i}].bullets has ${section.bullets?.length ?? 0} items — need 5+`
+      );
+    }
+  }
+
+  if (!Array.isArray(generated.specs) || generated.specs.length < 8) {
+    throw new Error(
+      `${providerName}: specs has ${generated.specs?.length ?? 0} entries — need 8+`
+    );
+  }
+
+  if (!Array.isArray(generated.pros) || generated.pros.length < 6) {
+    throw new Error(
+      `${providerName}: pros has ${generated.pros?.length ?? 0} entries — need 6+`
+    );
+  }
+
+  if (!Array.isArray(generated.cons) || generated.cons.length < 4) {
+    throw new Error(
+      `${providerName}: cons has ${generated.cons?.length ?? 0} entries — need 4+`
+    );
+  }
+}
 
 async function generateWithFallback(
   prompt: string
-): Promise<{ rawText: string; provider: string }> {
+): Promise<{ generated: any; provider: string }> {
   const errors: string[] = [];
 
   for (const provider of PROVIDERS) {
@@ -309,12 +496,19 @@ async function generateWithFallback(
       console.log(`[AI] Trying ${provider.name}…`);
       const rawText = await provider.call(prompt);
 
-      if (!rawText || rawText.length < 100) {
-        throw new Error("Empty or too-short response");
+      if (!rawText || rawText.length < MIN_QUALITY_LENGTH) {
+        throw new Error(`Response too short (${rawText?.length ?? 0} chars) — rejected`);
       }
 
-      console.log(`[AI] ✅ ${provider.name} succeeded`);
-      return { rawText, provider: provider.name };
+      // Parse JSON
+      const jsonStr = extractAndRepairJSON(rawText);
+      const generated = JSON.parse(jsonStr);
+
+      // FIX #3 — validate structure, not just length
+      validateStructure(generated, provider.name);
+
+      console.log(`[AI] ✅ ${provider.name} succeeded (${rawText.length} chars)`);
+      return { generated, provider: provider.name };
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       console.warn(`[AI] ❌ ${provider.name} failed: ${msg}`);
@@ -348,9 +542,10 @@ export async function POST(req: NextRequest) {
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
-    // Fetch meta and transcript in parallel
     const [metaRes, transcript] = await Promise.all([
-      fetch(`${baseUrl}/api/youtube-meta?url=${encodeURIComponent(url)}`),
+      fetch(`${baseUrl}/api/youtube-meta?url=${encodeURIComponent(url)}`, {
+        signal: withTimeout(15000), // FIX #1 — meta fetch also gets timeout
+      }),
       fetchTranscript(videoId),
     ]);
 
@@ -363,34 +558,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const contentSource = transcript || meta.description || "";
+    // Fall back to title-only if no transcript AND no description
+    const contentSource = [transcript, meta.description]
+      .filter(Boolean)
+      .join("\n\n---\n\n")
+      .slice(0, 9000);
 
-    if (!contentSource) {
+    const contentForPrompt = contentSource || meta.title;
+
+    if (!contentForPrompt) {
       return NextResponse.json(
         { error: "No content available for this video" },
         { status: 400, headers: corsHeaders }
       );
     }
 
-    const prompt = buildPrompt(meta.title, contentSource);
+    const prompt = buildPrompt(meta.title, contentForPrompt);
 
-    // Try all providers with automatic fallback
-    const { rawText, provider } = await generateWithFallback(prompt);
-
-    let generated: any = {};
-
-    try {
-      const jsonStr = extractAndRepairJSON(rawText);
-      generated = JSON.parse(jsonStr);
-    } catch (parseErr) {
-      console.error("RAW AI RESPONSE:", rawText);
-      console.error("JSON parse failed:", parseErr);
-
-      return NextResponse.json(
-        { error: "AI returned invalid JSON", raw: rawText, provider },
-        { status: 500, headers: corsHeaders }
-      );
-    }
+    const { generated, provider } = await generateWithFallback(prompt);
 
     const bodyBlocks = (generated.body || []).flatMap(
       (section: { heading: string; content: string; bullets?: string[] }) =>
@@ -412,7 +597,7 @@ export async function POST(req: NextRequest) {
         specs: generated.specs || [],
         pros: generated.pros || [],
         cons: generated.cons || [],
-        _meta: { provider }, // helpful for debugging
+        _meta: { provider, contentLength: contentSource.length },
       },
       { headers: corsHeaders }
     );
