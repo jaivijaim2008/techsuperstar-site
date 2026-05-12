@@ -13,22 +13,21 @@ export async function OPTIONS() {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function extractVideoId(url: string): string | null {
-  // Supports standard, shorts, and embed URLs
   const match = url.match(
     /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([^&\s?]+)/
   );
   return match?.[1] ?? null;
 }
+
 function convertUSDToINR(text: string): string {
   const rate = 83;
-
   return text.replace(/\$([\d,]+)/g, (_, amount) => {
     const usd = Number(amount.replace(/,/g, ""));
     const inr = usd * rate;
-
     return `₹${inr.toLocaleString("en-IN")}`;
   });
 }
+
 function slugify(text: string): string {
   return text
     .toLowerCase()
@@ -76,15 +75,16 @@ function extractAndRepairJSON(text: string): string {
   return jsonStr;
 }
 
-// FIX #1 — timeout wrapper: every fetch gets a 15-second hard limit
 function withTimeout(ms: number): AbortSignal {
   return AbortSignal.timeout(ms);
 }
 
+// ─── Transcript Fetcher ───────────────────────────────────────────────────────
+
 async function fetchTranscript(videoId: string): Promise<string> {
   try {
     const res = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
-      signal: withTimeout(15000), // FIX #1
+      signal: withTimeout(15000),
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
@@ -103,7 +103,7 @@ async function fetchTranscript(videoId: string): Promise<string> {
 
     if (!track?.baseUrl) return "";
 
-    const xmlRes = await fetch(track.baseUrl, { signal: withTimeout(10000) }); // FIX #1
+    const xmlRes = await fetch(track.baseUrl, { signal: withTimeout(10000) });
     const xml = await xmlRes.text();
 
     return xml
@@ -121,20 +121,44 @@ async function fetchTranscript(videoId: string): Promise<string> {
   }
 }
 
+// ─── AI Image Generator ───────────────────────────────────────────────────────
+
+async function generateSectionImage(heading: string, deviceName: string): Promise<string> {
+  const prompt = encodeURIComponent(
+    `${deviceName} ${heading} professional tech product photography ultra realistic 4K clean background`
+  );
+  return `https://image.pollinations.ai/prompt/${prompt}?width=800&height=450&nologo=true&seed=${Date.now()}`;
+}
+
+// ─── Block Builder ────────────────────────────────────────────────────────────
+
 function makeSectionBlocks(
   heading: string,
   content: string,
-  bullets: string[]
+  bullets: string[],
+  imageUrl?: string
 ) {
   const key = () => Math.random().toString(36).slice(2);
   const blocks = [];
 
+  // Heading
   blocks.push({
     _type: "block", _key: key(), style: "h2",
     children: [{ _type: "span", _key: key(), text: heading, marks: [] }],
     markDefs: [],
   });
 
+  // AI Image below heading
+  if (imageUrl) {
+    blocks.push({
+      _type: "sectionImage",
+      _key: key(),
+      imageUrl,
+      alt: heading,
+    });
+  }
+
+  // Paragraph
   if (content) {
     blocks.push({
       _type: "block", _key: key(), style: "normal",
@@ -143,6 +167,7 @@ function makeSectionBlocks(
     });
   }
 
+  // Bullet points
   for (const bullet of bullets ?? []) {
     blocks.push({
       _type: "block", _key: key(), style: "normal",
@@ -237,7 +262,7 @@ async function callGroq(prompt: string): Promise<string> {
 
   const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
-    signal: withTimeout(60000), // FIX #1 — 60s for AI calls
+    signal: withTimeout(60000),
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       model: "llama-3.3-70b-versatile",
@@ -256,7 +281,6 @@ async function callGroq(prompt: string): Promise<string> {
   if (!res.ok) throw new Error(`Groq ${res.status}: ${await res.text()}`);
   const data = await res.json();
 
-  // FIX #2 — reject truncated responses
   const finishReason = data?.choices?.[0]?.finish_reason;
   if (finishReason === "length") {
     throw new Error("Groq response truncated (finish_reason=length) — hit token limit");
@@ -273,7 +297,7 @@ async function callGemini(prompt: string): Promise<string> {
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${key}`,
     {
       method: "POST",
-      signal: withTimeout(60000), // FIX #1
+      signal: withTimeout(60000),
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{
@@ -293,7 +317,6 @@ async function callGemini(prompt: string): Promise<string> {
   if (!res.ok) throw new Error(`Gemini Pro ${res.status}: ${await res.text()}`);
   const data = await res.json();
 
-  // FIX #2 — check for truncation
   const finishReason = data?.candidates?.[0]?.finishReason;
   if (finishReason === "MAX_TOKENS") {
     throw new Error("Gemini Pro response truncated (MAX_TOKENS) — falling back");
@@ -310,7 +333,7 @@ async function callGeminiFlash(prompt: string): Promise<string> {
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
     {
       method: "POST",
-      signal: withTimeout(60000), // FIX #1
+      signal: withTimeout(60000),
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{
@@ -329,7 +352,6 @@ async function callGeminiFlash(prompt: string): Promise<string> {
   if (!res.ok) throw new Error(`Gemini Flash ${res.status}: ${await res.text()}`);
   const data = await res.json();
 
-  // FIX #2
   const finishReason = data?.candidates?.[0]?.finishReason;
   if (finishReason === "MAX_TOKENS") {
     throw new Error("Gemini Flash response truncated (MAX_TOKENS) — falling back");
@@ -344,7 +366,7 @@ async function callCerebras(prompt: string): Promise<string> {
 
   const res = await fetch("https://api.cerebras.ai/v1/chat/completions", {
     method: "POST",
-    signal: withTimeout(60000), // FIX #1
+    signal: withTimeout(60000),
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       model: "llama3.1-70b",
@@ -363,7 +385,6 @@ async function callCerebras(prompt: string): Promise<string> {
   if (!res.ok) throw new Error(`Cerebras ${res.status}: ${await res.text()}`);
   const data = await res.json();
 
-  // FIX #2
   const finishReason = data?.choices?.[0]?.finish_reason;
   if (finishReason === "length") {
     throw new Error("Cerebras response truncated (finish_reason=length) — falling back");
@@ -378,7 +399,7 @@ async function callOpenRouter(prompt: string): Promise<string> {
 
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
-    signal: withTimeout(60000), // FIX #1
+    signal: withTimeout(60000),
     headers: {
       Authorization: `Bearer ${key}`,
       "Content-Type": "application/json",
@@ -402,7 +423,6 @@ async function callOpenRouter(prompt: string): Promise<string> {
   if (!res.ok) throw new Error(`OpenRouter ${res.status}: ${await res.text()}`);
   const data = await res.json();
 
-  // FIX #2
   const finishReason = data?.choices?.[0]?.finish_reason;
   if (finishReason === "length") {
     throw new Error("OpenRouter response truncated (finish_reason=length) — falling back");
@@ -421,7 +441,7 @@ async function callHuggingFace(prompt: string): Promise<string> {
     "https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1",
     {
       method: "POST",
-      signal: withTimeout(60000), // FIX #1
+      signal: withTimeout(60000),
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         inputs: systemMsg + prompt,
@@ -444,17 +464,16 @@ async function callHuggingFace(prompt: string): Promise<string> {
 type Provider = { name: string; call: (p: string) => Promise<string> };
 
 const PROVIDERS: Provider[] = [
-  { name: "Groq llama-3.3-70b",       call: callGroq },
-  { name: "Gemini 1.5 Pro",            call: callGemini },
-  { name: "Gemini 1.5 Flash",          call: callGeminiFlash },
-  { name: "Cerebras llama-70b",        call: callCerebras },
-  { name: "OpenRouter Gemini Flash",   call: callOpenRouter },
-  { name: "HuggingFace Mixtral-8x7B",  call: callHuggingFace },
+  { name: "Groq llama-3.3-70b",      call: callGroq },
+  { name: "Gemini 1.5 Pro",           call: callGemini },
+  { name: "Gemini 1.5 Flash",         call: callGeminiFlash },
+  { name: "Cerebras llama-70b",       call: callCerebras },
+  { name: "OpenRouter Gemini Flash",  call: callOpenRouter },
+  { name: "HuggingFace Mixtral-8x7B", call: callHuggingFace },
 ];
 
 const MIN_QUALITY_LENGTH = 2000;
 
-// FIX #3 — structural validation after parsing (not just char count)
 function validateStructure(generated: any, providerName: string): void {
   if (!Array.isArray(generated.body) || generated.body.length < 8) {
     throw new Error(
@@ -509,11 +528,9 @@ async function generateWithFallback(
         throw new Error(`Response too short (${rawText?.length ?? 0} chars) — rejected`);
       }
 
-      // Parse JSON
       const jsonStr = extractAndRepairJSON(rawText);
       const generated = JSON.parse(jsonStr);
 
-      // FIX #3 — validate structure, not just length
       validateStructure(generated, provider.name);
 
       console.log(`[AI] ✅ ${provider.name} succeeded (${rawText.length} chars)`);
@@ -553,7 +570,7 @@ export async function POST(req: NextRequest) {
 
     const [metaRes, transcript] = await Promise.all([
       fetch(`${baseUrl}/api/youtube-meta?url=${encodeURIComponent(url)}`, {
-        signal: withTimeout(15000), // FIX #1 — meta fetch also gets timeout
+        signal: withTimeout(15000),
       }),
       fetchTranscript(videoId),
     ]);
@@ -567,7 +584,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Fall back to title-only if no transcript AND no description
     const contentSource = [transcript, meta.description]
       .filter(Boolean)
       .join("\n\n---\n\n")
@@ -586,37 +602,38 @@ export async function POST(req: NextRequest) {
 
     const { generated, provider } = await generateWithFallback(prompt);
 
-// Convert prices inside specs
-generated.specs = (generated.specs || []).map((spec: any) => ({
-  ...spec,
-  value:
-    spec.label?.toLowerCase().includes("price")
-      ? convertUSDToINR(spec.value)
-      : spec.value,
-}));
+    // Convert USD to INR
+    generated.specs = (generated.specs || []).map((spec: any) => ({
+      ...spec,
+      value: spec.label?.toLowerCase().includes("price")
+        ? convertUSDToINR(spec.value)
+        : spec.value,
+    }));
 
-// Convert prices everywhere else
-generated.excerpt = convertUSDToINR(generated.excerpt || "");
+    generated.excerpt = convertUSDToINR(generated.excerpt || "");
 
-generated.body = (generated.body || []).map((section: any) => ({
-  ...section,
-  content: convertUSDToINR(section.content || ""),
-  bullets: (section.bullets || []).map((b: string) =>
-    convertUSDToINR(b)
-  ),
-}));
+    generated.body = (generated.body || []).map((section: any) => ({
+      ...section,
+      content: convertUSDToINR(section.content || ""),
+      bullets: (section.bullets || []).map((b: string) => convertUSDToINR(b)),
+    }));
 
-generated.pros = (generated.pros || []).map((p: string) =>
-  convertUSDToINR(p)
-);
+    generated.pros = (generated.pros || []).map((p: string) => convertUSDToINR(p));
+    generated.cons = (generated.cons || []).map((c: string) => convertUSDToINR(c));
 
-generated.cons = (generated.cons || []).map((c: string) =>
-  convertUSDToINR(c)
-);
+    // Generate AI image URL for each section
+    const deviceName = meta.title?.replace(/[^\w\s]/g, "").trim() || "smartphone";
 
-const bodyBlocks = (generated.body || []).flatMap(
-      (section: { heading: string; content: string; bullets?: string[] }) =>
-        makeSectionBlocks(section.heading, section.content, section.bullets || [])
+    const sectionImages = await Promise.all(
+      (generated.body || []).map((section: any) =>
+        generateSectionImage(section.heading, deviceName).catch(() => undefined)
+      )
+    );
+
+    // Build body blocks with images
+    const bodyBlocks = (generated.body || []).flatMap(
+      (section: { heading: string; content: string; bullets?: string[] }, i: number) =>
+        makeSectionBlocks(section.heading, section.content, section.bullets || [], sectionImages[i])
     );
 
     return NextResponse.json(
