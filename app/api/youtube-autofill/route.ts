@@ -123,11 +123,16 @@ async function fetchTranscript(videoId: string): Promise<string> {
 
 // ─── AI Image Generator ───────────────────────────────────────────────────────
 
-async function generateSectionImage(heading: string, deviceName: string): Promise<string> {
-  const prompt = encodeURIComponent(
-    `${deviceName} ${heading} professional tech product photography ultra realistic 4K clean background`
+async function generateSectionImage(
+  heading: string,
+  deviceName: string
+): Promise<string> {
+
+  const query = encodeURIComponent(
+    `${deviceName} smartphone tech`
   );
-  return `https://image.pollinations.ai/prompt/${prompt}?width=800&height=450&nologo=true&seed=${Date.now()}`;
+
+  return `https://source.unsplash.com/1200x675/?${query}`;
 }
 
 // ─── Block Builder ────────────────────────────────────────────────────────────
