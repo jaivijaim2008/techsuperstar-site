@@ -19,7 +19,16 @@ function extractVideoId(url: string): string | null {
   );
   return match?.[1] ?? null;
 }
+function convertUSDToINR(text: string): string {
+  const rate = 83;
 
+  return text.replace(/\$([\d,]+)/g, (_, amount) => {
+    const usd = Number(amount.replace(/,/g, ""));
+    const inr = usd * rate;
+
+    return `₹${inr.toLocaleString("en-IN")}`;
+  });
+}
 function slugify(text: string): string {
   return text
     .toLowerCase()
@@ -577,7 +586,35 @@ export async function POST(req: NextRequest) {
 
     const { generated, provider } = await generateWithFallback(prompt);
 
-    const bodyBlocks = (generated.body || []).flatMap(
+// Convert prices inside specs
+generated.specs = (generated.specs || []).map((spec: any) => ({
+  ...spec,
+  value:
+    spec.label?.toLowerCase().includes("price")
+      ? convertUSDToINR(spec.value)
+      : spec.value,
+}));
+
+// Convert prices everywhere else
+generated.excerpt = convertUSDToINR(generated.excerpt || "");
+
+generated.body = (generated.body || []).map((section: any) => ({
+  ...section,
+  content: convertUSDToINR(section.content || ""),
+  bullets: (section.bullets || []).map((b: string) =>
+    convertUSDToINR(b)
+  ),
+}));
+
+generated.pros = (generated.pros || []).map((p: string) =>
+  convertUSDToINR(p)
+);
+
+generated.cons = (generated.cons || []).map((c: string) =>
+  convertUSDToINR(c)
+);
+
+const bodyBlocks = (generated.body || []).flatMap(
       (section: { heading: string; content: string; bullets?: string[] }) =>
         makeSectionBlocks(section.heading, section.content, section.bullets || [])
     );
