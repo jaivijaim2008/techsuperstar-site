@@ -9,7 +9,7 @@ export default async function OGImage({ params }: { params: { slug: string } }) 
   const post = await getPost(params.slug);
 
   return new ImageResponse(
-    (
+    ( 
       <div
         style={{
           width: "1200px", height: "630px",
