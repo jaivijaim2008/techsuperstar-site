@@ -445,28 +445,28 @@ export default function Footer() {
             </div>
 
             {/* Newsletter */}
-            <TiltCard>
-              <div style={{ height: "100%" }}>
-                <h4 style={{
-                color: "#ff4d00", fontSize: "10px", fontWeight: "700",
-                textTransform: "uppercase", letterSpacing: "2.5px",
-                margin: "0 0 16px",
-                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                display: "flex", alignItems: "center", gap: "7px",
-              }}>
-                <span style={{ width: 4, height: 14, background: "#ff4d00", borderRadius: 2, display: "inline-block", flexShrink: 0 }} />
-                Newsletter
-              </h4>
-              <p style={{
-                color: "#555", fontSize: "13px", lineHeight: "1.7",
-                margin: "0 0 16px",
-                fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-              }}>
-                Get the latest tech news in your inbox. No spam, ever.
-              </p>
-              <NewsletterForm />
-              </div>
-            </TiltCard>
+<div>
+  <div style={{ height: "100%" }}>
+    <h4 style={{
+      color: "#ff4d00", fontSize: "10px", fontWeight: "700",
+      textTransform: "uppercase", letterSpacing: "2.5px",
+      margin: "0 0 16px",
+      fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+      display: "flex", alignItems: "center", gap: "7px",
+    }}>
+      <span style={{ width: 4, height: 14, background: "#ff4d00", borderRadius: 2, display: "inline-block", flexShrink: 0 }} />
+      Newsletter
+    </h4>
+    <p style={{
+      color: "#555", fontSize: "13px", lineHeight: "1.7",
+      margin: "0 0 16px",
+      fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+    }}>
+      Get the latest tech news in your inbox. No spam, ever.
+    </p>
+    <NewsletterForm />
+  </div>
+</div>
 
           </div>
 
