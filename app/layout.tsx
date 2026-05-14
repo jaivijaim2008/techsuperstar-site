@@ -56,6 +56,8 @@ export const metadata: Metadata = {
   },
 };
 
+import ParticleBackgroundWrapper from "../components/ParticleBackgroundWrapper";
+
 export default function RootLayout({
   children,
 }: {
@@ -71,7 +73,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
       <body suppressHydrationWarning className="min-h-screen bg-gray-900 text-white">
-        
+        <ParticleBackgroundWrapper />
         {children}
       </body>
     </html>

@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import TiltCard from "./TiltCard";
 
 function timeAgo(dateStr: string) {
   if (!dateStr) return "";
@@ -170,16 +171,18 @@ export default function Sidebar({ posts }: { posts: any[] }) {
       <aside className="sidebar-inner">
 
         {/* YouTube Banner */}
-        <div style={{
-          background: "linear-gradient(135deg, #1a0800, #0f0500, #1a0800)",
-          border: "1px solid rgba(255,77,0,0.25)",
-          borderRadius: "16px",
-          padding: "20px",
-          textAlign: "center",
-          marginBottom: "16px",
-          position: "relative",
-          overflow: "hidden",
-        }}>
+        <div style={{ marginBottom: "16px" }}>
+          <TiltCard>
+            <div style={{
+              background: "linear-gradient(135deg, #1a0800, #0f0500, #1a0800)",
+              border: "1px solid rgba(255,77,0,0.25)",
+              borderRadius: "16px",
+              padding: "20px",
+              textAlign: "center",
+              position: "relative",
+              overflow: "hidden",
+              height: "100%",
+            }}>
           <div style={{
             position: "absolute", top: "-40px", left: "50%",
             transform: "translateX(-50%)",
@@ -245,6 +248,8 @@ export default function Sidebar({ posts }: { posts: any[] }) {
           >
             ▶ Subscribe Free
           </a>
+            </div>
+          </TiltCard>
         </div>
 
         {/* Categories */}
@@ -298,8 +303,9 @@ export default function Sidebar({ posts }: { posts: any[] }) {
               href={`/post/${post.slug?.current}`}
               style={{ textDecoration: "none", display: "block" }}
             >
-              <div
-                className="trending-row"
+              <TiltCard>
+                <div
+                  className="trending-row"
                 style={{
                   display: "flex",
                   gap: "10px",
@@ -388,7 +394,8 @@ export default function Sidebar({ posts }: { posts: any[] }) {
                     {timeAgo(post.publishedAt)}
                   </div>
                 </div>
-              </div>
+                </div>
+              </TiltCard>
             </Link>
           ))}
 

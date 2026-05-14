@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { FaYoutube, FaInstagram, FaXTwitter } from "react-icons/fa6";
+import TiltCard from "./TiltCard";
 
 function NewsletterForm() {
   const [email, setEmail] = useState("");
@@ -313,7 +314,8 @@ export default function Footer() {
           {/* ── Header: logo + socials ── */}
           <div className="footer-header-row">
             <Link href="/" style={{ textDecoration: "none" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+              <TiltCard>
+                <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
                 <div style={{
                   width: "48px", height: "48px", borderRadius: "50%",
                   overflow: "hidden",
@@ -343,7 +345,8 @@ export default function Footer() {
                     Tech Reviews & News
                   </div>
                 </div>
-              </div>
+                </div>
+              </TiltCard>
             </Link>
 
             <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
@@ -442,8 +445,9 @@ export default function Footer() {
             </div>
 
             {/* Newsletter */}
-            <div>
-              <h4 style={{
+            <TiltCard>
+              <div style={{ height: "100%" }}>
+                <h4 style={{
                 color: "#ff4d00", fontSize: "10px", fontWeight: "700",
                 textTransform: "uppercase", letterSpacing: "2.5px",
                 margin: "0 0 16px",
@@ -461,7 +465,8 @@ export default function Footer() {
                 Get the latest tech news in your inbox. No spam, ever.
               </p>
               <NewsletterForm />
-            </div>
+              </div>
+            </TiltCard>
 
           </div>
 

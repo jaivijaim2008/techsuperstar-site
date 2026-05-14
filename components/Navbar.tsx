@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import SearchBar from "./SearchBar";
+import TiltCard from "./TiltCard";
 import { useState, useEffect, useRef } from "react";
 import {
   MdPhoneAndroid,
@@ -184,38 +185,42 @@ export default function Navbar() {
 
             {/* Logo */}
             <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "12px" }}>
-              <div style={{
-                width: "38px", height: "38px", borderRadius: "50%",
-                overflow: "hidden", border: "2px solid #ff4d00",
-                animation: "logoPulse 2.5s ease-in-out infinite",
-                flexShrink: 0,
-              }}>
-                <img src="/favicon.jpg" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              </div>
-              <div>
-                <div style={{
-                  fontSize: "19px", fontWeight: "900", color: "#ffffff",
-                  letterSpacing: "-0.5px",
-                  fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif",
-                  lineHeight: 1.1,
-                }}>
-                  Tech<span style={{ color: "#ff4d00", filter: "drop-shadow(0 0 10px rgba(255,77,0,0.6))" }}>SuperStar</span>
+              <TiltCard>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <div style={{
+                    width: "38px", height: "38px", borderRadius: "50%",
+                    overflow: "hidden", border: "2px solid #ff4d00",
+                    animation: "logoPulse 2.5s ease-in-out infinite",
+                    flexShrink: 0,
+                  }}>
+                    <img src="/favicon.jpg" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  </div>
+                  <div>
+                    <div style={{
+                      fontSize: "19px", fontWeight: "900", color: "#ffffff",
+                      letterSpacing: "-0.5px",
+                      fontFamily: "var(--font-playfair), 'Playfair Display', Georgia, serif",
+                      lineHeight: 1.1,
+                    }}>
+                      Tech<span style={{ color: "#ff4d00", filter: "drop-shadow(0 0 10px rgba(255,77,0,0.6))" }}>SuperStar</span>
+                    </div>
+                    <div style={{
+                      fontSize: "8px", color: "#444",
+                      letterSpacing: "2.5px", textTransform: "uppercase",
+                      fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
+                      fontWeight: 600,
+                    }}>
+                      <span style={{
+                        display: "inline-block", width: 5, height: 5,
+                        borderRadius: "50%", background: "#ff4d00",
+                        marginRight: 5, verticalAlign: "middle",
+                        animation: "dotPulse 2s ease-in-out infinite",
+                      }} />
+                      Tamil Tech Reviews
+                    </div>
+                  </div>
                 </div>
-                <div style={{
-                  fontSize: "8px", color: "#444",
-                  letterSpacing: "2.5px", textTransform: "uppercase",
-                  fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
-                  fontWeight: 600,
-                }}>
-                  <span style={{
-                    display: "inline-block", width: 5, height: 5,
-                    borderRadius: "50%", background: "#ff4d00",
-                    marginRight: 5, verticalAlign: "middle",
-                    animation: "dotPulse 2s ease-in-out infinite",
-                  }} />
-                  Tamil Tech Reviews
-                </div>
-              </div>
+              </TiltCard>
             </Link>
 
             {/* Desktop Nav */}

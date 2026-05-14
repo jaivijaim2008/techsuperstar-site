@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import TiltCard from "./TiltCard";
 
 function timeAgo(dateStr: string) {
   if (!dateStr) return "";
@@ -74,7 +75,8 @@ function HeroCard({ post, num }: { post: any; num: number }) {
       `}</style>
 
       <Link href={`/post/${post.slug?.current}`} style={{ textDecoration: "none", display: "block" }}>
-        <div className="hero-card" style={{
+        <TiltCard>
+          <div className="hero-card" style={{
           position: "relative",
           minHeight: "clamp(220px, 45vw, 380px)",
           borderRadius: "16px 16px 0 0",
@@ -140,6 +142,7 @@ function HeroCard({ post, num }: { post: any; num: number }) {
             </div>
           </div>
         </div>
+        </TiltCard>
       </Link>
     </>
   );
@@ -157,8 +160,9 @@ function SecondaryCard({ post, num }: { post: any; num: number }) {
         .sec-card:hover .sec-thumb-img { transform: scale(1.06); }
       `}</style>
 
-      <Link href={`/post/${post.slug?.current}`} style={{ textDecoration: "none" }}>
-        <div className="sec-card" style={{
+      <Link href={`/post/${post.slug?.current}`} style={{ textDecoration: "none", display: "block" }}>
+        <TiltCard>
+          <div className="sec-card" style={{
           display: "flex",
           gap: "10px",
           padding: "12px",
@@ -221,6 +225,7 @@ function SecondaryCard({ post, num }: { post: any; num: number }) {
             </div>
           </div>
         </div>
+        </TiltCard>
       </Link>
     </>
   );
@@ -238,8 +243,9 @@ function BottomCard({ post, num }: { post: any; num: number }) {
         .bot-card:hover .bot-img { transform: scale(1.05); }
       `}</style>
 
-      <Link href={`/post/${post.slug?.current}`} style={{ textDecoration: "none" }}>
-        <div className="bot-card" style={{
+      <Link href={`/post/${post.slug?.current}`} style={{ textDecoration: "none", display: "block" }}>
+        <TiltCard>
+          <div className="bot-card" style={{
           background: "#111",
           border: "1px solid rgba(255,255,255,0.06)",
           borderRadius: "12px",
@@ -312,6 +318,7 @@ function BottomCard({ post, num }: { post: any; num: number }) {
             </div>
           </div>
         </div>
+        </TiltCard>
       </Link>
     </>
   );

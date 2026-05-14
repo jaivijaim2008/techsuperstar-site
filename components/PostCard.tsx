@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import TiltCard from "./TiltCard";
 
 const categoryColors: Record<string, { color: string; glow: string }> = {
   phones:      { color: "#ff4d00", glow: "rgba(255,77,0,0.3)" },
@@ -180,12 +181,13 @@ export default function PostCard({ post }: any) {
       `}</style>
 
       <Link href={`/post/${post.slug.current}`} style={{ textDecoration: "none", display: "block", height: "100%" }}>
-        <div
-          className={uid}
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-        >
-          {/* Corner accents */}
+        <TiltCard>
+          <div
+            className={uid}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+          >
+            {/* Corner accents */}
           <div className={`${uid}-corner ${uid}-corner-tl`} />
           <div className={`${uid}-corner ${uid}-corner-tr`} />
 
@@ -272,7 +274,8 @@ export default function PostCard({ post }: any) {
               <span className={`${uid}-arrow`}>→</span>
             </div>
           </div>
-        </div>
+          </div>
+        </TiltCard>
       </Link>
     </>
   );
