@@ -9,6 +9,7 @@ import { getPosts } from "@/lib/query";
 import TagsBar from "@/components/TagsBar";
 import Link from "next/link";
 import CtaStats from "@/components/CtaStats";
+import HeroSection from "@/components/HeroSection";
 
 export const dynamic = "force-dynamic";
 
@@ -207,6 +208,8 @@ export default async function Home({
       <Navbar />
       <NewsTicker />
       <TagsBar />
+
+      {!isFiltered && <HeroSection />}
 
       <div style={{
         maxWidth: "1200px", margin: "0 auto",
