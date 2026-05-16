@@ -3,7 +3,6 @@ import React, { useRef, useState, useEffect } from 'react';
 
 export default function TiltCard({ children, className = "" }: { children: React.ReactNode, className?: string }) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const innerRef = useRef<HTMLDivElement>(null);
   const [rotation, setRotation] = useState({ x: 0, y: 0 });
   const [glarePosition, setGlarePosition] = useState({ x: 50, y: 50 });
   const [isHovered, setIsHovered] = useState(false);
@@ -58,23 +57,24 @@ export default function TiltCard({ children, className = "" }: { children: React
       onMouseLeave={handleMouseLeave}
       style={{
         perspective: '1000px',
+        transformStyle: 'preserve-3d',
         width: '100%',
         height: '100%',
       }}
     >
-      {/* Transform layer - for visual effect only */}
       <div
         style={{
-          position: 'absolute',
-          inset: 0,
+          width: '100%',
+          height: '100%',
           transition: isHovered ? 'none' : 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)',
           transform: `translateZ(0) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
+          position: 'relative',
           transformStyle: 'preserve-3d',
           willChange: 'transform',
-          pointerEvents: 'none',
-          zIndex: 1,
         }}
       >
+        {children}
+        
         {/* Glare effect */}
         <div
           style={{
@@ -85,24 +85,11 @@ export default function TiltCard({ children, className = "" }: { children: React
             transition: 'opacity 0.3s ease-out',
             pointerEvents: 'none',
             borderRadius: 'inherit',
+            zIndex: 10,
             mixBlendMode: 'overlay',
             willChange: 'opacity',
           }}
         />
-      </div>
-
-      {/* Content layer - fully interactive */}
-      <div
-        ref={innerRef}
-        style={{
-          width: '100%',
-          height: '100%',
-          position: 'relative',
-          zIndex: 2,
-          pointerEvents: 'auto',
-        }}
-      >
-        {children}
       </div>
     </div>
   );
