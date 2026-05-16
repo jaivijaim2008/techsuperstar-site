@@ -6,7 +6,7 @@ export default function TiltCard({ children, className = "" }: { children: React
   const [rotation, setRotation] = useState({ x: 0, y: 0 });
   const [glarePosition, setGlarePosition] = useState({ x: 50, y: 50 });
   const [isHovered, setIsHovered] = useState(false);
-  const [isMobile, setIsMobile] = useState(true);
+  const [isMobile, setIsMobile] = useState(true); // default true for performance
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
@@ -24,6 +24,7 @@ export default function TiltCard({ children, className = "" }: { children: React
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
     
+    // Smooth 3D tilt
     const rotateX = ((y - centerY) / centerY) * -8;
     const rotateY = ((x - centerX) / centerX) * 8;
     
@@ -45,7 +46,7 @@ export default function TiltCard({ children, className = "" }: { children: React
   const skipEffects = isMobile || prefersReducedMotion;
 
   if (skipEffects) {
-    return <div className={className} style={{ width: '100%', height: '100%' }}>{children}</div>;
+    return <div className={className} style={{ width: '100%', height: '100%', transform: 'translateZ(0)' }}>{children}</div>;
   }
 
   return (
@@ -60,21 +61,26 @@ export default function TiltCard({ children, className = "" }: { children: React
         transformStyle: 'preserve-3d',
         width: '100%',
         height: '100%',
+        pointerEvents: 'auto',
+        cursor: 'pointer',
       }}
     >
-      {/* Backdrop for 3D effect only */}
       <div
         style={{
-          position: 'absolute',
-          inset: 0,
+          width: '100%',
+          height: '100%',
           transition: isHovered ? 'none' : 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)',
           transform: `translateZ(0) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
+          position: 'relative',
           transformStyle: 'preserve-3d',
           willChange: 'transform',
-          pointerEvents: 'none',
-          zIndex: 1,
+          pointerEvents: 'auto',
         }}
       >
+        <div style={{ pointerEvents: 'auto' }}>
+          {children}
+        </div>
+        
         {/* Glare effect */}
         <div
           style={{
@@ -85,23 +91,11 @@ export default function TiltCard({ children, className = "" }: { children: React
             transition: 'opacity 0.3s ease-out',
             pointerEvents: 'none',
             borderRadius: 'inherit',
+            zIndex: 10,
             mixBlendMode: 'overlay',
             willChange: 'opacity',
           }}
         />
-      </div>
-
-      {/* Content - fully clickable */}
-      <div
-        style={{
-          width: '100%',
-          height: '100%',
-          position: 'relative',
-          zIndex: 2,
-          pointerEvents: 'auto',
-        }}
-      >
-        {children}
       </div>
     </div>
   );
