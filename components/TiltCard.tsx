@@ -6,7 +6,7 @@ export default function TiltCard({ children, className = "" }: { children: React
   const [rotation, setRotation] = useState({ x: 0, y: 0 });
   const [glarePosition, setGlarePosition] = useState({ x: 50, y: 50 });
   const [isHovered, setIsHovered] = useState(false);
-  const [isMobile, setIsMobile] = useState(true); // default true for performance
+  const [isMobile, setIsMobile] = useState(true);
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
@@ -24,7 +24,6 @@ export default function TiltCard({ children, className = "" }: { children: React
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
     
-    // Smooth 3D tilt
     const rotateX = ((y - centerY) / centerY) * -8;
     const rotateY = ((x - centerX) / centerX) * 8;
     
@@ -46,7 +45,7 @@ export default function TiltCard({ children, className = "" }: { children: React
   const skipEffects = isMobile || prefersReducedMotion;
 
   if (skipEffects) {
-    return <div className={className} style={{ width: '100%', height: '100%', transform: 'translateZ(0)' }}>{children}</div>;
+    return <div className={className} style={{ width: '100%', height: '100%' }}>{children}</div>;
   }
 
   return (
@@ -61,8 +60,6 @@ export default function TiltCard({ children, className = "" }: { children: React
         transformStyle: 'preserve-3d',
         width: '100%',
         height: '100%',
-        pointerEvents: 'auto',
-        cursor: 'pointer',
       }}
     >
       <div
@@ -77,9 +74,7 @@ export default function TiltCard({ children, className = "" }: { children: React
           pointerEvents: 'auto',
         }}
       >
-        <div style={{ pointerEvents: 'auto' }}>
-          {children}
-        </div>
+        {children}
         
         {/* Glare effect */}
         <div
