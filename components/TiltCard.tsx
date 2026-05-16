@@ -61,6 +61,8 @@ export default function TiltCard({ children, className = "" }: { children: React
         transformStyle: 'preserve-3d',
         width: '100%',
         height: '100%',
+        pointerEvents: 'auto',
+        cursor: 'pointer',
       }}
     >
       <div
