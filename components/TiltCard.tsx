@@ -62,20 +62,22 @@ export default function TiltCard({ children, className = "" }: { children: React
         height: '100%',
       }}
     >
-      {/* Visual transform layer - no interaction */}
       <div
         style={{
-          position: 'absolute',
-          inset: 0,
+          width: '100%',
+          height: '100%',
           transition: isHovered ? 'none' : 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)',
           transform: `translateZ(0) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
+          position: 'relative',
           transformStyle: 'preserve-3d',
           willChange: 'transform',
           pointerEvents: 'none',
-          zIndex: 0,
-          borderRadius: 'inherit',
         }}
       >
+        <div style={{ pointerEvents: 'auto', width: '100%', height: '100%' }}>
+          {children}
+        </div>
+        
         {/* Glare effect */}
         <div
           style={{
@@ -86,23 +88,11 @@ export default function TiltCard({ children, className = "" }: { children: React
             transition: 'opacity 0.3s ease-out',
             pointerEvents: 'none',
             borderRadius: 'inherit',
+            zIndex: 10,
             mixBlendMode: 'overlay',
             willChange: 'opacity',
           }}
         />
-      </div>
-
-      {/* Content layer - fully interactive */}
-      <div
-        style={{
-          width: '100%',
-          height: '100%',
-          position: 'relative',
-          zIndex: 1,
-          pointerEvents: 'auto',
-        }}
-      >
-        {children}
       </div>
     </div>
   );
