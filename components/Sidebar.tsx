@@ -170,7 +170,7 @@ export default function Sidebar({ posts }: { posts: any[] }) {
 
       <aside className="sidebar-inner">
 
-        {/* YouTube Banner */}
+        {/* YouTube Banner - NO TiltCard, no 3D effect */}
         <div style={{ 
           marginBottom: "16px",
           background: "linear-gradient(135deg, #1a0800, #0f0500, #1a0800)",
@@ -179,19 +179,8 @@ export default function Sidebar({ posts }: { posts: any[] }) {
           padding: "20px",
           textAlign: "center",
           position: "relative",
-          overflow: "visible",
+          overflow: "hidden",
         }}>
-          <TiltCard>
-            <div style={{
-              background: "transparent",
-              border: "none",
-              borderRadius: "0px",
-              padding: "0px",
-              textAlign: "center",
-              position: "relative",
-              overflow: "hidden",
-              height: "100%",
-            }}>
           <div style={{
             position: "absolute", top: "-40px", left: "50%",
             transform: "translateX(-50%)",
@@ -230,10 +219,7 @@ export default function Sidebar({ posts }: { posts: any[] }) {
           </div>
 
           <LiveSubscriberCount />
-            </div>
-          </TiltCard>
 
-          {/* Subscribe Button - Inside wrapper but outside TiltCard */}
           <a
             href="https://www.youtube.com/@TechSuperStarOfficial"
             target="_blank"
@@ -253,13 +239,10 @@ export default function Sidebar({ posts }: { posts: any[] }) {
               fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
               boxShadow: "0 4px 16px rgba(255,77,0,0.35)",
               transition: "transform 0.2s ease, box-shadow 0.2s ease",
-              position: "relative",
-              zIndex: 10,
+              position: "relative", zIndex: 1,
               minWidth: "min(160px, 80%)",
               justifyContent: "center",
               cursor: "pointer",
-              border: "none",
-              marginTop: "14px",
             }}
           >
             ▶ Subscribe Free
