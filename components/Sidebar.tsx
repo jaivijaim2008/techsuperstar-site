@@ -171,7 +171,7 @@ export default function Sidebar({ posts }: { posts: any[] }) {
       <aside className="sidebar-inner">
 
         {/* YouTube Banner */}
-        <div style={{ marginBottom: "16px" }}>
+        <div style={{ marginBottom: "16px", position: "relative" }}>
           <TiltCard>
             <div style={{
               background: "linear-gradient(135deg, #1a0800, #0f0500, #1a0800)",
@@ -221,7 +221,10 @@ export default function Sidebar({ posts }: { posts: any[] }) {
           </div>
 
           <LiveSubscriberCount />
+            </div>
+          </TiltCard>
 
+          {/* Subscribe Button - OUTSIDE TiltCard so no 3D effect */}
           <a
             href="https://www.youtube.com/@TechSuperStarOfficial"
             target="_blank"
@@ -241,8 +244,11 @@ export default function Sidebar({ posts }: { posts: any[] }) {
               fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
               boxShadow: "0 4px 16px rgba(255,77,0,0.35)",
               transition: "transform 0.2s ease, box-shadow 0.2s ease",
-              position: "relative", 
-              zIndex: 100,
+              position: "absolute",
+              bottom: "20px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 10,
               minWidth: "min(160px, 80%)",
               justifyContent: "center",
               cursor: "pointer",
@@ -251,8 +257,6 @@ export default function Sidebar({ posts }: { posts: any[] }) {
           >
             ▶ Subscribe Free
           </a>
-            </div>
-          </TiltCard>
         </div>
 
         {/* Categories */}
