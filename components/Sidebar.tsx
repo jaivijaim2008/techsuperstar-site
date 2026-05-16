@@ -241,9 +241,12 @@ export default function Sidebar({ posts }: { posts: any[] }) {
               fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
               boxShadow: "0 4px 16px rgba(255,77,0,0.35)",
               transition: "transform 0.2s ease, box-shadow 0.2s ease",
-              position: "relative", zIndex: 1,
+              position: "relative", 
+              zIndex: 100,
               minWidth: "min(160px, 80%)",
               justifyContent: "center",
+              cursor: "pointer",
+              border: "none",
             }}
           >
             ▶ Subscribe Free
