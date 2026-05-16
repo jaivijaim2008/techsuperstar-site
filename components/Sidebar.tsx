@@ -171,13 +171,22 @@ export default function Sidebar({ posts }: { posts: any[] }) {
       <aside className="sidebar-inner">
 
         {/* YouTube Banner */}
-        <div style={{ marginBottom: "16px", position: "relative" }}>
+        <div style={{ 
+          marginBottom: "16px",
+          background: "linear-gradient(135deg, #1a0800, #0f0500, #1a0800)",
+          border: "1px solid rgba(255,77,0,0.25)",
+          borderRadius: "16px",
+          padding: "20px",
+          textAlign: "center",
+          position: "relative",
+          overflow: "visible",
+        }}>
           <TiltCard>
             <div style={{
-              background: "linear-gradient(135deg, #1a0800, #0f0500, #1a0800)",
-              border: "1px solid rgba(255,77,0,0.25)",
-              borderRadius: "16px",
-              padding: "20px",
+              background: "transparent",
+              border: "none",
+              borderRadius: "0px",
+              padding: "0px",
               textAlign: "center",
               position: "relative",
               overflow: "hidden",
@@ -224,7 +233,7 @@ export default function Sidebar({ posts }: { posts: any[] }) {
             </div>
           </TiltCard>
 
-          {/* Subscribe Button - OUTSIDE TiltCard so no 3D effect */}
+          {/* Subscribe Button - Inside wrapper but outside TiltCard */}
           <a
             href="https://www.youtube.com/@TechSuperStarOfficial"
             target="_blank"
@@ -244,15 +253,13 @@ export default function Sidebar({ posts }: { posts: any[] }) {
               fontFamily: "var(--font-dm-sans), 'DM Sans', sans-serif",
               boxShadow: "0 4px 16px rgba(255,77,0,0.35)",
               transition: "transform 0.2s ease, box-shadow 0.2s ease",
-              position: "absolute",
-              bottom: "20px",
-              left: "50%",
-              transform: "translateX(-50%)",
+              position: "relative",
               zIndex: 10,
               minWidth: "min(160px, 80%)",
               justifyContent: "center",
               cursor: "pointer",
               border: "none",
+              marginTop: "14px",
             }}
           >
             ▶ Subscribe Free
