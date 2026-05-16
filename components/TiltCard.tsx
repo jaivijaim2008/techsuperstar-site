@@ -74,9 +74,12 @@ export default function TiltCard({ children, className = "" }: { children: React
           position: 'relative',
           transformStyle: 'preserve-3d',
           willChange: 'transform',
+          pointerEvents: 'auto',
         }}
       >
-        {children}
+        <div style={{ pointerEvents: 'auto' }}>
+          {children}
+        </div>
         
         {/* Glare effect */}
         <div
