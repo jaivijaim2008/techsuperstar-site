@@ -73,8 +73,17 @@ export default function TiltCard({ children, className = "" }: { children: React
           willChange: 'transform',
           pointerEvents: 'auto',
         }}
+        onClick={(e) => {
+          const target = e.target as HTMLElement;
+          // Allow clicks on links and buttons to propagate
+          if (target.tagName === 'A' || target.tagName === 'BUTTON' || target.closest('a') || target.closest('button')) {
+            e.stopPropagation();
+          }
+        }}
       >
-        {children}
+        <div style={{ pointerEvents: 'auto', width: '100%', height: '100%' }}>
+          {children}
+        </div>
         
         {/* Glare effect */}
         <div
